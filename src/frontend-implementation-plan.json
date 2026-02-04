@@ -1,58 +1,26 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Extend existing learning module with stress vs. distress content and a guided reflection prompt",
+  "title": "Normalize invite code submission and clarify case-insensitive global invite code during onboarding",
   "requirements": [
     {
-      "id": "REQ-9",
-      "summary": "Extend an existing module in modules.ts with new stress vs. distress (eustress vs. distress) learning content without creating a new module.",
+      "id": "REQ-2",
+      "summary": "Trim invite codes before submission and add helper text indicating the global invite code is not case-sensitive on the onboarding invite step.",
       "acceptanceCriteria": [
-        "`frontend/src/content/modules.ts` is updated to extend (not add) at least one existing `Module` entry by adding new `content` items focused on stress vs. distress.",
-        "No new `Module` object is added to `MODULES`; changes are limited to adding content to an existing module.",
-        "All added user-facing text is in English."
+        "Submitting the invite step always sends a trimmed invite code value (no leading/trailing whitespace) to the backend.",
+        "The invite step displays English helper text that clearly states the invite code is not case-sensitive.",
+        "The existing error message shown for invalid invite codes remains in English: \"The invite code you entered is invalid. Please check and try again.\""
       ],
       "file_operations": [
         {
-          "path": "frontend/src/content/modules.ts",
+          "path": "frontend/src/components/onboarding/OnboardingFlow.tsx",
           "operation": "modify",
-          "description": "Choose one existing Module entry (do not add a new module) and append new `content` items that define and contrast stress vs. distress (including eustress vs. distress), with practical framing and examples (e.g., training stress, time pressure, sleep debt, conflict). Keep all user-facing text in English."
-        }
-      ]
-    },
-    {
-      "id": "REQ-10",
-      "summary": "Add paraphrased, attribution-style insights and general summaries inspired by specified public high-performance figures, plus explanatory sections on stress vs. distress.",
-      "acceptanceCriteria": [
-        "The updated module content includes items that reference each specified figure by name with paraphrased/attribution-style insights (no long verbatim quotes).",
-        "The content also includes general explanatory sections defining and contrasting stress vs. distress (including practical framing and examples).",
-        "No backend changes are required to render the new content; the Modules page continues to render from `MODULES` without runtime errors."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/content/modules.ts",
-          "operation": "modify",
-          "description": "Within the same chosen existing module, add a mix of (a) short attribution-style quote items and (b) interpretation/summary items. Ensure each of the following figures is referenced by name at least once using paraphrased attribution language (e.g., 'Inspired by …'): Wim Hof, David Goggins, Shawn Ryan, Joe Rogan, Tom Brady, Michael Jordan, Mike Tyson, Jocko Willink. Avoid copyrighted or unverifiable verbatim quotes; keep statements short, paraphrased, and framed as inspiration. Also include general explanatory content that clarifies eustress vs. distress and how to reframe/manage stress."
-        }
-      ]
-    },
-    {
-      "id": "REQ-11",
-      "summary": "Add at least one new module reflection prompt that starts a guided journal entry with stress-vs-distress tailored prefill title and content.",
-      "acceptanceCriteria": [
-        "The chosen existing module’s `prompts` array includes at least one new prompt related to stress vs. distress.",
-        "Clicking “Start” on the new prompt in `frontend/src/pages/Modules.tsx` navigates to `/journal` with `prefillTitle` and `prefillContent` populated (via the existing search params behavior).",
-        "The prefill template includes structured questions/checklist items that help the user identify stressors, distinguish eustress vs. distress, and choose an action + recovery plan."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/content/modules.ts",
-          "operation": "modify",
-          "description": "In the same chosen existing module, add at least one new `prompts` item with `prefillTitle` and `prefillContent` tailored to applying stress-vs-distress concepts and influencer-inspired practices. The prefill should include structured questions/checklist sections that: (1) identify current stressors and triggers, (2) classify each as eustress vs. distress with rationale, (3) pick one action to convert distress to manageable stress (or reduce load), and (4) define a recovery plan (sleep, breathwork, training load, boundaries, support)."
+          "description": "Ensure invite submission always uses a trimmed invite code via the existing normalizeInviteCode flow, and add concise English helper text under the Invite Code input indicating the global invite code is not case-sensitive. Keep the existing invalid-invite error copy unchanged."
         },
         {
-          "path": "frontend/src/pages/Modules.tsx",
+          "path": "frontend/src/utils/inviteCode.ts",
           "operation": "modify",
-          "description": "Confirm the reflection prompt 'Start' action continues to navigate to `/journal` with `prefillTitle` and `prefillContent` in search params for the newly added prompt, and that the module renders without errors after content/prompt additions."
+          "description": "Confirm normalizeInviteCode consistently trims leading/trailing whitespace and is the single normalization utility used by onboarding invite submission (no change to user-facing text)."
         }
       ]
     }

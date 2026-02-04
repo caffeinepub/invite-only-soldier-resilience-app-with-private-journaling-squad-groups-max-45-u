@@ -4,7 +4,7 @@ import Map "mo:core/Map";
 import Nat "mo:core/Nat";
 import Text "mo:core/Text";
 import Time "mo:core/Time";
-import Principal "mo:core/Principal";
+import Char "mo:core/Char";
 import Runtime "mo:core/Runtime";
 import Int "mo:core/Int";
 import MixinAuthorization "authorization/MixinAuthorization";
@@ -17,7 +17,7 @@ actor {
 
   // Constants
   let maxUsers = 45;
-  let globalInviteCode : Text = "bootcamp2024";
+  let globalInviteCode : Text = "Dagger";
   let inviteCodeExpiration : Time.Time = 259200000;
   let maxGroupMembers = 45;
   let memberInviteCodeLength = 6;
@@ -178,7 +178,8 @@ actor {
     switch (userProfiles.get(caller)) {
       case (?_) { Runtime.trap("User already registered") };
       case (null) {
-        if (inviteCode != globalInviteCode) {
+        // Validate normalized code (enUS culture not available)
+        if (not isNormalizedCodeValid(inviteCode, globalInviteCode)) {
           Runtime.trap("Invalid invite code");
         };
 
@@ -708,5 +709,81 @@ actor {
       code #= Text.fromChar(chars.chars().toArray()[index]);
     };
     code;
+  };
+
+  // Helper function to validate normalized invite codes (backend only, returns ?Text for frontend validation)
+  func isNormalizedCodeValid(userCode : Text, compareCode : Text) : Bool {
+    // Normalize input and expected values (in practice, integrate with frontend for explicit normalization)
+    let userNormalized = trimWhitespace(userCode).toLower();
+    let compareNormalized = trimWhitespace(compareCode).toLower();
+
+    // Perform strict comparison
+    userNormalized == compareNormalized;
+  };
+
+  // Helper to trim leading and trailing whitespace from Text (simplified for ASCII)
+  func trimWhitespace(s : Text) : Text {
+    // Convert Text to Array<Char>
+    let chars = s.chars().toArray();
+
+    // Find first non-space character
+    let startIndex = findFirstNonSpace(chars);
+
+    // If all characters are whitespace, return empty string
+    switch (startIndex) {
+      case (null) { "" };
+      case (?start) {
+        // Find last non-space character
+        let endIndex = findLastNonSpace(chars);
+
+        // Calculate substring boundaries
+        // Safety check: endIndex should not be less than startIndex
+        if (endIndex < start) { return "" };
+
+        // Calculate length of substring
+        let substringLength = endIndex - start + 1;
+
+        if (substringLength == 0) {
+          "";
+        } else {
+          // Extract substring
+          let filtered = chars.sliceToArray(
+            start,
+            endIndex + 1,
+          );
+          Text.fromIter(filtered.values());
+        };
+      };
+    };
+  };
+
+  // Helper to find first non-space character
+  func findFirstNonSpace(chars : [Char]) : ?Nat {
+    let length = chars.size();
+    var i = 0;
+    while (i < length) {
+      if (chars[i] != ' ') { return ?i };
+      i += 1;
+    };
+    null;
+  };
+
+  // Helper to find last non-space character
+  func findLastNonSpace(chars : [Char]) : Nat {
+    // Always return first character if all are whitespace
+    let length = chars.size();
+    var i = 0;
+    if (length == 0) { return i };
+    var lastIndex = length - 1 : Nat;
+    while (i <= lastIndex) {
+      // Check current character
+      if (chars[lastIndex] != ' ') { return lastIndex };
+
+      // Ensure lastIndex doesn't underflow
+      if (lastIndex == 0) { return 0 };
+      lastIndex -= 1;
+    };
+    // Only whitespace, return 0
+    0;
   };
 };

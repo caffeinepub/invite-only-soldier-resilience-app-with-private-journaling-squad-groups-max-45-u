@@ -1,11 +1,10 @@
 # Specification
 
 ## Summary
-**Goal:** Extend an existing learning module with new English-language content explaining stress vs. distress (including eustress), plus influencer-inspired insights and a guided reflection prompt that prefills a journal entry.
+**Goal:** Fix global invite code validation so users can complete onboarding and preview the app.
 
 **Planned changes:**
-- Update `frontend/src/content/modules.ts` by adding new `content` items to at least one existing `Module` entry (no new module created), covering definitions, contrasts, and practical examples of stress vs. distress / eustress vs. distress.
-- Add paraphrased, attribution-style insights and general summaries inspired by Wim Hof, David Goggins, Shawn Ryan, Joe Rogan, Tom Brady, Michael Jordan, Mike Tyson, and Jocko Willink (no verbatim/copyrighted quotes).
-- Add at least one new reflection prompt to the same module’s `prompts` array with `prefillTitle` and `prefillContent` tailored to applying stress-vs-distress concepts and influencer-inspired practices, using structured questions/checklists for action + recovery planning.
+- Backend: Normalize the invite code in `acceptInvite(username, inviteCode)` in `backend/main.mo` (trim whitespace and compare case-insensitively) against a similarly-normalized canonical global invite code ("Dagger"), while still rejecting incorrect codes with the existing "Invalid invite code" trap/message.
+- Frontend: In `frontend/src/components/onboarding/OnboardingFlow.tsx`, trim the invite code before submitting to `acceptInvite` and add concise helper text stating the invite code is not case-sensitive (keeping the existing English invalid-invite error message unchanged).
 
-**User-visible outcome:** Users see expanded stress vs. distress learning content inside an existing module and can click “Start” on a new prompt to open the Journal page with a prefilled, guided entry template focused on identifying stressors, distinguishing eustress vs. distress, and choosing an action and recovery plan.
+**User-visible outcome:** Users can register successfully using the global invite code "Dagger" regardless of capitalization and with accidental leading/trailing spaces, and they see clear guidance that the invite code is not case-sensitive.

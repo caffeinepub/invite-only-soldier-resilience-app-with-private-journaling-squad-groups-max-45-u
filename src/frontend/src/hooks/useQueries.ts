@@ -62,7 +62,8 @@ export function useGetGlobalInviteCode() {
       if (!actor) throw new Error('Actor not available');
       return actor.getGlobalInviteCode();
     },
-    enabled: !!actor && !actorFetching
+    enabled: false, // Disable automatic fetching, only fetch on demand
+    retry: false
   });
 }
 

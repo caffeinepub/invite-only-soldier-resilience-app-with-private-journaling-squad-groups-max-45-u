@@ -1,14 +1,47 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-04T12:57:49.954Z",
-  "summary": "Diff shows updates centered on `frontend/src/content/modules.ts`, extending an existing module with new stress vs. distress (eustress vs. distress) content and multiple “Inspired by …” interpretation items. No evidence of new module creation or backend changes. Other modified files are documentation/state summaries.",
-  "missing_requirements": [],
-  "hallucinated_features": [],
-  "confidence": 0.72,
+  "generatedAt": "2026-02-04T14:01:01.648Z",
+  "summary": "Diff shows onboarding invite submission now uses a `normalizeInviteCode` helper and the onboarding UI summary mentions helper text about case-insensitivity. Backend changes to `acceptInvite` invite-code normalization/validation cannot be confirmed from the provided truncated `backend/main.mo` diff snippet. The diff summary file also describes multiple unrelated frontend/content/style changes not requested in the BuildRequest.",
+  "missing_requirements": [
+    {
+      "id": "REQ-1",
+      "requirement": "Update backend global invite code validation in `backend/main.mo` so that `acceptInvite(username, inviteCode)` accepts the global invite code \"Dagger\" robustly by normalizing user input (trim whitespace + case-insensitive), and still rejects incorrect codes with an \"Invalid invite code\" trap/message.",
+      "reason": "`backend/main.mo` is modified, but the provided truncated excerpt does not include the `acceptInvite` implementation or any shown normalization (trim/case-fold) or the specific \"Invalid invite code\" trap/message behavior, so implementation cannot be verified from the diff evidence provided.",
+      "evidence": [
+        "backend/main.mo (truncated snippet does not show acceptInvite)"
+      ]
+    }
+  ],
+  "hallucinated_features": [
+    {
+      "description": "Added/updated \"Get Code\" functionality for auto-filling the invite code via a global invite-code query (useGetGlobalInviteCode) and making that query disabled by default for manual fetching.",
+      "reason": "BuildRequest REQ-2 only asked to trim invite code before submission and add helper text about case-insensitivity; it did not request adding an invite-code fetch/auto-fill feature or changing query behavior.",
+      "evidence": [
+        "frontend/src/components/onboarding/OnboardingFlow.tsx (handleGetInviteCode, useGetGlobalInviteCode import/use)",
+        "frontend-file-summaries.txt (mentions global invite code query now disabled by default for manual fetching; onboarding has \"Get Code\" button)"
+      ]
+    },
+    {
+      "description": "Unrelated learning-modules content expansion (e.g., detailed stress vs. distress content with multiple public-figure references).",
+      "reason": "BuildRequest explicitly scoped changes to invite-code normalization/validation and onboarding invite-step UX; it did not request changes to modules content.",
+      "evidence": [
+        "frontend-file-summaries.txt (frontend/src/content/modules.ts description)"
+      ]
+    },
+    {
+      "description": "Unrelated UI/style fixes and changes (e.g., Tailwind class conflict fixes in AdminReports, global OKLCH color system changes, Tailwind config updates).",
+      "reason": "Not requested; BuildRequest non-goals include avoiding unrelated page redesigns/changes.",
+      "evidence": [
+        "frontend-file-summaries.txt (descriptions for frontend/src/pages/AdminReports.tsx, frontend/src/index.css, frontend/tailwind.config.js)"
+      ]
+    }
+  ],
+  "confidence": 0.62,
   "changed_files": [
+    "backend/main.mo",
     "frontend-file-summaries.txt",
-    "frontend/src/content/modules.ts",
+    "frontend/src/components/onboarding/OnboardingFlow.tsx",
     "project_state.json"
   ]
 }

@@ -1,7 +1,7 @@
 import { useInternetIdentity } from '../hooks/useInternetIdentity';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Shield, BookOpen, Users, Target, AlertCircle } from 'lucide-react';
+import { BookOpen, Users, Target, AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { DISCLAIMER_TEXT } from '../content/disclaimer';
 
@@ -13,7 +13,11 @@ export default function PublicLanding() {
       <div className="container max-w-4xl py-12 space-y-12">
         <div className="text-center space-y-4">
           <div className="flex justify-center">
-            <Shield className="h-16 w-16 text-primary" />
+            <img
+              src="/assets/generated/dagger-wordmark-transparent.dim_1600x500.png"
+              alt="DAGGER - Holistic Health and Fitness"
+              className="h-24 w-auto object-contain"
+            />
           </div>
           <h1 className="text-4xl font-bold tracking-tight">Resilience & Growth</h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">

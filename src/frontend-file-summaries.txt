@@ -1,11 +1,11 @@
 {
   "frontend/src/App.tsx": "Root application component with proper React component naming for route components, handles authentication state, profile loading, onboarding flow, and routing between public landing and authenticated app shell with TanStack Router and theme provider.",
-  "frontend/src/hooks/useQueries.ts": "Centralized React Query hooks for all backend operations including user profiles, journal entries, squad groups, reports, and admin functions with proper cache invalidation.",
-  "frontend/src/components/onboarding/OnboardingFlow.tsx": "Two-step onboarding component that collects invite code and username, then requires acceptance of disclaimer and community guidelines before granting app access.",
+  "frontend/src/hooks/useQueries.ts": "Centralized React Query hooks for all backend operations including user profiles, journal entries, squad groups, reports, and admin functions with proper cache invalidation; global invite code query now disabled by default for manual fetching.",
+  "frontend/src/components/onboarding/OnboardingFlow.tsx": "Two-step onboarding component with DAGGER branding that collects invite code (with \"Get Code\" button for auto-fill and helper text indicating case-insensitivity), username, then requires acceptance of disclaimer and community guidelines before granting app access.",
   "frontend/src/content/disclaimer.ts": "Single source of truth for the non-affiliation disclaimer text stating the app is not created by or affiliated with the U.S. Army or DoD.",
   "frontend/src/content/modules.ts": "Learning modules organized by category with doctrine quotes, interpretations, and reflection prompts; the Mental Readiness module now includes comprehensive stress vs. distress content with insights inspired by Wim Hof, David Goggins, Jocko Willink, Tom Brady, Michael Jordan, Mike Tyson, Joe Rogan, and Shawn Ryan, plus a detailed reflection prompt for analyzing and managing eustress vs. distress.",
   "frontend/src/components/layout/AppShell.tsx": "Authenticated app layout with responsive header navigation, user dropdown menu, mobile sheet menu, and footer; renders child routes via Outlet.",
-  "frontend/src/pages/PublicLanding.tsx": "Public landing page with app overview, disclaimer, feature cards, and Internet Identity sign-in for unauthenticated users.",
+  "frontend/src/pages/PublicLanding.tsx": "Public landing page with DAGGER wordmark logo, app overview, disclaimer, feature cards, and Internet Identity sign-in for unauthenticated users.",
   "frontend/src/pages/Journal.tsx": "Private journaling page displaying user's entries with private/shared badges, edit/delete actions, and create new entry flow with optional module prompt prefill.",
   "frontend/src/components/journal/JournalEditor.tsx": "Full-featured journal entry editor supporting create/edit/delete with optional sharing to squad groups, clear visual distinction between private and shared sections.",
   "frontend/src/pages/Squads.tsx": "Squad management page listing user's squads with create new squad and join by invite code dialogs.",
@@ -15,6 +15,8 @@
   "frontend/src/pages/Guidelines.tsx": "Community guidelines page accessible to all users showing respectful behavior expectations and reporting guidance.",
   "frontend/src/pages/SettingsAbout.tsx": "Settings and about page displaying user profile info, disclaimer text, and app purpose/privacy information.",
   "frontend/src/pages/AdminReports.tsx": "Admin-only reports management page listing all reports with status badges and actions to mark in review or resolved, with fixed Tailwind class conflicts by removing contradicting text size classes.",
-  "frontend/src/index.css": "Global styles with OKLCH color system using warm earth tones (olive/sage primary, sand secondary) for a calm, reflective, non-military-agency aesthetic in light and dark modes.",
-  "frontend/tailwind.config.js": "Tailwind configuration with Inter font family and extended color tokens matching the earth-tone design system."
+  "frontend/src/index.css": "Global styles with OKLCH color system using DAGGER-inspired bold red primary accent (oklch(0.50 0.22 25)) with neutral grays for a professional, branded aesthetic in light and dark modes.",
+  "frontend/tailwind.config.js": "Tailwind configuration with Inter font family and extended color tokens matching the DAGGER red-and-gray design system.",
+  "frontend/src/utils/inviteCode.ts": "Utility function to normalize invite codes by trimming whitespace only, allowing the backend to handle case-insensitive validation.",
+  "frontend/index.html": "HTML entry point with DAGGER favicon and updated title."
 }

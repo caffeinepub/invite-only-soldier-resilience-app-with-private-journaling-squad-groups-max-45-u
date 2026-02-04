@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useAcceptInvite, useAcceptDisclaimer } from '../../hooks/useQueries';
+import { useAcceptInvite, useAcceptDisclaimer, useGetGlobalInviteCode } from '../../hooks/useQueries';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -7,8 +7,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle, Shield } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 import { DISCLAIMER_TEXT } from '../../content/disclaimer';
+import { normalizeInviteCode } from '../../utils/inviteCode';
 
 export default function OnboardingFlow() {
   const [step, setStep] = useState<'invite' | 'disclaimer'>('invite');
@@ -19,11 +20,24 @@ export default function OnboardingFlow() {
 
   const acceptInviteMutation = useAcceptInvite();
   const acceptDisclaimerMutation = useAcceptDisclaimer();
+  const { refetch: fetchGlobalInviteCode, isFetching: isFetchingCode } = useGetGlobalInviteCode();
+
+  const handleGetInviteCode = async () => {
+    try {
+      const result = await fetchGlobalInviteCode();
+      if (result.data) {
+        setInviteCode(result.data);
+      }
+    } catch (error: any) {
+      // Error will be shown via getErrorMessage
+    }
+  };
 
   const handleInviteSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await acceptInviteMutation.mutateAsync({ username: username.trim(), inviteCode: inviteCode.trim() });
+      const normalizedCode = normalizeInviteCode(inviteCode);
+      await acceptInviteMutation.mutateAsync({ username: username.trim(), inviteCode: normalizedCode });
       setStep('disclaimer');
     } catch (error: any) {
       // Error will be shown via mutation state
@@ -63,7 +77,14 @@ export default function OnboardingFlow() {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background p-4">
         <Card className="w-full max-w-md">
-          <CardHeader>
+          <CardHeader className="text-center">
+            <div className="flex justify-center mb-4">
+              <img
+                src="/assets/generated/dagger-icon-mark.dim_256x256.png"
+                alt="DAGGER"
+                className="h-16 w-16 object-contain"
+              />
+            </div>
             <CardTitle>Join the Community</CardTitle>
             <CardDescription>Enter your invite code and choose a username to get started</CardDescription>
           </CardHeader>
@@ -71,15 +92,29 @@ export default function OnboardingFlow() {
             <form onSubmit={handleInviteSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="inviteCode">Invite Code</Label>
-                <Input
-                  id="inviteCode"
-                  type="text"
-                  value={inviteCode}
-                  onChange={(e) => setInviteCode(e.target.value)}
-                  placeholder="Enter your invite code"
-                  required
-                  disabled={acceptInviteMutation.isPending}
-                />
+                <div className="flex gap-2">
+                  <Input
+                    id="inviteCode"
+                    type="text"
+                    value={inviteCode}
+                    onChange={(e) => setInviteCode(e.target.value)}
+                    placeholder="Enter your invite code"
+                    required
+                    disabled={acceptInviteMutation.isPending || isFetchingCode}
+                    className="flex-1"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleGetInviteCode}
+                    disabled={acceptInviteMutation.isPending || isFetchingCode}
+                  >
+                    {isFetchingCode ? 'Loading...' : 'Get Code'}
+                  </Button>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Invite code is not case-sensitive
+                </p>
               </div>
 
               <div className="space-y-2">
@@ -120,11 +155,15 @@ export default function OnboardingFlow() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
       <Card className="w-full max-w-2xl">
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <Shield className="h-5 w-5 text-primary" />
-            <CardTitle>Important Information</CardTitle>
+        <CardHeader className="text-center">
+          <div className="flex justify-center mb-4">
+            <img
+              src="/assets/generated/dagger-icon-mark.dim_256x256.png"
+              alt="DAGGER"
+              className="h-12 w-12 object-contain"
+            />
           </div>
+          <CardTitle>Important Information</CardTitle>
           <CardDescription>Please review and accept the following before continuing</CardDescription>
         </CardHeader>
         <CardContent>

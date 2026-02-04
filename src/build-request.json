@@ -1,72 +1,54 @@
 {
   "kind": "build_request",
-  "title": "Add stress vs. distress content to an existing learning module with reflection prompt",
-  "priority": "normal",
+  "title": "Fix global invite code validation so users can complete onboarding and preview the app",
+  "priority": "high",
   "requirements": [
     {
-      "id": "REQ-9",
-      "text": "Add new stress-related learning content (stress vs. distress / eustress vs. distress) as additional content inside an existing learning module in `frontend/src/content/modules.ts` (do not create a new module).",
-      "target": "frontend",
+      "id": "REQ-1",
+      "text": "Update backend global invite code validation in `backend/main.mo` so that `acceptInvite(username, inviteCode)` accepts the intended global invite code \"Dagger\" in a robust, user-friendly way by normalizing the user-provided invite code before comparison (at minimum: trim leading/trailing whitespace and compare case-insensitively). Ensure the comparison is performed against a similarly-normalized canonical global invite code.",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-5"
         ],
         "quotes": [
-          "Add as content without n an existing module"
+          "The invite code you entered is invalid. Please check and try again  \nI can’t preview the app the invite code does not work"
         ]
       },
       "acceptanceCriteria": [
-        "`frontend/src/content/modules.ts` is updated to extend (not add) at least one existing `Module` entry by adding new `content` items focused on stress vs. distress.",
-        "No new `Module` object is added to `MODULES`; changes are limited to adding content to an existing module.",
-        "All added user-facing text is in English."
+        "A new user can register successfully when entering \"Dagger\", \"dagger\", or \"DAGGER\".",
+        "A new user can register successfully when entering the correct invite code with leading/trailing spaces (e.g., \"  Dagger  \").",
+        "If an incorrect invite code is entered, the backend still rejects registration with an \"Invalid invite code\" trap/message (so the frontend continues to show the existing invalid-invite error state)."
       ]
     },
     {
-      "id": "REQ-10",
-      "text": "Include both (a) short attributed insights/quotes and (b) general summaries inspired by public high-performance figures, covering: Wim Hof, David Goggins, Shawn Ryan, Joe Rogan, Tom Brady, Michael Jordan, Mike Tyson, and Jocko Willink. Do not include copyrighted or unverifiable verbatim quotes; use paraphrased, attribution-style statements (e.g., “Inspired by …”).",
+      "id": "REQ-2",
+      "text": "Update the onboarding invite step UI (`frontend/src/components/onboarding/OnboardingFlow.tsx`) to ensure the invite code sent to `acceptInvite` is normalized consistently and to reduce user error: trim the invite code before submission, and add concise helper text indicating the global invite code is not case-sensitive.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-5"
         ],
         "quotes": [
-          "Both"
+          "The invite code you entered is invalid. Please check and try again  \nI can’t preview the app the invite code does not work"
         ]
       },
       "acceptanceCriteria": [
-        "The updated module content includes items that reference each specified figure by name with paraphrased/attribution-style insights (no long verbatim quotes).",
-        "The content also includes general explanatory sections defining and contrasting stress vs. distress (including practical framing and examples).",
-        "No backend changes are required to render the new content; the Modules page continues to render from `MODULES` without runtime errors."
-      ]
-    },
-    {
-      "id": "REQ-11",
-      "text": "Add at least one new reflection prompt to the same existing module so users can start a guided journal entry from the module, with `prefillTitle` and `prefillContent` specifically tailored to applying stress-vs-distress concepts and influencer-inspired practices.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-1"
-        ],
-        "quotes": [
-          "Yes"
-        ]
-      },
-      "acceptanceCriteria": [
-        "The chosen existing module’s `prompts` array includes at least one new prompt related to stress vs. distress.",
-        "Clicking “Start” on the new prompt in `frontend/src/pages/Modules.tsx` navigates to `/journal` with `prefillTitle` and `prefillContent` populated (via the existing search params behavior).",
-        "The prefill template includes structured questions/checklist items that help the user identify stressors, distinguish eustress vs. distress, and choose an action + recovery plan."
+        "Submitting the invite step always sends a trimmed invite code value (no leading/trailing whitespace) to the backend.",
+        "The invite step displays English helper text that clearly states the invite code is not case-sensitive.",
+        "The existing error message shown for invalid invite codes remains in English: \"The invite code you entered is invalid. Please check and try again.\""
       ]
     }
   ],
   "constraints": [
-    "Frontend immutable paths must not be edited: `frontend/src/hooks/useInternetIdentity.ts`, `frontend/src/hooks/useInternetIdentity.tsx`, `frontend/src/hooks/useActor.ts`, `frontend/src/main.tsx`, and anything under `frontend/src/components/ui`.",
-    "Do not add a new learning module entry; only add content/prompts to an existing module in `frontend/src/content/modules.ts`.",
-    "Do not include copyrighted text verbatim from public figures; use paraphrased/attribution-style summaries instead."
+    "Backend must remain a single-actor Motoko architecture (all logic in `backend/main.mo`).",
+    "Do not modify any frontend files under `frontend/src/components/ui` or other immutable paths listed in SYSTEM_CONTEXT.",
+    "Use English for any user-facing text."
   ],
   "nonGoals": [
-    "No changes to backend canister logic or storage models.",
-    "No new onboarding flow changes beyond the existing modules/journaling integration.",
-    "No changes to authentication, invite system, squads, reporting, or admin moderation."
+    "Do not change the maximum user capacity (45) or other registration policy beyond invite code normalization/validation.",
+    "Do not introduce new authentication providers (Internet Identity remains the only auth mechanism).",
+    "Do not add new onboarding steps or redesign unrelated pages."
   ],
   "imageRequirements": {
     "required": [],
