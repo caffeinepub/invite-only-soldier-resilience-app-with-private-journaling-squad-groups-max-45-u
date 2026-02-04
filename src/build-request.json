@@ -1,183 +1,34 @@
 {
   "kind": "build_request",
-  "title": "Invite-only soldier resilience app with private journaling, squad groups (max 45 users), doctrine-informed content, and reporting",
+  "title": "Change global registration invite code to \"dagger\"",
   "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-1",
-      "text": "Implement Internet Identity sign-in and a user profile model that supports a required, unique chosen username and basic onboarding (accept disclaimer + guidelines acknowledgement).",
-      "target": "both",
-      "source": {
-        "messageIds": [
-          "msg-2",
-          "msg-4",
-          "msg-6"
-        ],
-        "quotes": [
-          "Chosen usernames.",
-          "The app should state that it is not created by the us army and does not represent the DOD",
-          "Guidelines and reporting features"
-        ]
-      },
-      "acceptanceCriteria": [
-        "User can sign in with Internet Identity from the frontend.",
-        "On first sign-in, user must set a unique username (case-insensitive uniqueness) before accessing app features.",
-        "User must acknowledge the non-affiliation disclaimer and community guidelines during onboarding; acknowledgement is stored and can be re-shown from Settings/About."
-      ]
-    },
-    {
-      "id": "REQ-2",
-      "text": "Add an explicit, persistent non-affiliation disclaimer stating the app is not created by, endorsed by, or affiliated with the U.S. Army or the DoD, and ensure it is accessible pre-login and post-login.",
-      "target": "frontend",
+      "id": "REQ-12",
+      "text": "Update the backend global registration invite code so that `acceptInvite` only accepts the invite code \"dagger\" (replacing the current value), enabling users to register and enter the app with that code.",
+      "target": "backend",
       "source": {
         "messageIds": [
           "msg-4"
         ],
         "quotes": [
-          "The app should state that it is not created by the us army and does not represent the DOD"
+          "I can’t enter the app without an invite can you make the reservation vote code dagger"
         ]
       },
       "acceptanceCriteria": [
-        "Disclaimer text is visible on a public landing/login screen before sign-in.",
-        "Disclaimer text is available after sign-in in an About/Disclaimer section.",
-        "User-facing text is in English."
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "text": "Make the app invite-only with a hard cap of 45 registered users: users must provide a valid invite code to register, and the backend must prevent creating the 46th user even if the UI is bypassed.",
-      "target": "both",
-      "source": {
-        "messageIds": [
-          "msg-7"
-        ],
-        "quotes": [
-          "45 connected users invite only"
-        ]
-      },
-      "acceptanceCriteria": [
-        "A user cannot complete registration without a valid invite code.",
-        "Backend enforces a maximum of 45 registered users (rejects registration beyond the cap).",
-        "Frontend shows a clear English error message when invite code is invalid or the cap has been reached."
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "text": "Implement private journaling/reflection entries that are private by default, with optional explicit sharing to an invite-only squad group; support create/read/update/delete for the author and read-only visibility for shared entries within the group.",
-      "target": "both",
-      "source": {
-        "messageIds": [
-          "msg-6"
-        ],
-        "quotes": [
-          "Journals private unless shared",
-          "Small team groups squad level"
-        ]
-      },
-      "acceptanceCriteria": [
-        "User can create, view, edit, and delete their own journal entries.",
-        "Journal entries are private unless the user explicitly shares an entry to a group.",
-        "When shared, group members can view the entry; non-members cannot.",
-        "Unsharing removes the entry from group visibility without deleting the user’s private copy."
-      ]
-    },
-    {
-      "id": "REQ-5",
-      "text": "Implement squad-level groups that are invite-only and support up to 45 members per group, including: create group, generate/rotate invite code, join by code, leave group, and view members list with usernames.",
-      "target": "both",
-      "source": {
-        "messageIds": [
-          "msg-6",
-          "msg-7"
-        ],
-        "quotes": [
-          "Small team groups squad level",
-          "45 connected users invite only"
-        ]
-      },
-      "acceptanceCriteria": [
-        "A signed-in user can create a group and becomes its owner/admin.",
-        "Users can join a group only via an invite code; groups are not publicly discoverable.",
-        "Group member count is enforced by the backend with a maximum of 45.",
-        "Group owner can rotate (invalidate) the invite code.",
-        "Members can leave a group; owner can remove a member."
-      ]
-    },
-    {
-      "id": "REQ-6",
-      "text": "Add doctrine-informed and high-performance-team-informed content modules that support both (a) quoting/summarizing with citations and (b) interpreted exercises/reflections; include sections aligned to mental readiness, resilience, decision-making, communication, team cohesiveness, and identity/Army values in daily life.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-3",
-          "msg-6",
-          "msg-7"
-        ],
-        "quotes": [
-          "Let’s focus on mental readiness, team coordination, resilience, decision making, communication, team cohesiveness, building identity of being a high performing soldier, and embodying the army values in daily life.",
-          "No I want to build the app using both personal growth ideals but also army doctrine, field manuals (specifically fm 7-22) and any other resources available. Even professional athlete/team experiences",
-          "1. Both"
-        ]
-      },
-      "acceptanceCriteria": [
-        "App includes a Content/Modules area with categories covering the listed focus areas.",
-        "Each module supports two content types: (1) quote/summarize with citation fields (source title + reference string), and (2) interpreted guidance/exercise text.",
-        "Each module includes at least one prompt that can be used to create a new journal entry from the module (prefills the editor)."
-      ]
-    },
-    {
-      "id": "REQ-7",
-      "text": "Add community guidelines and reporting features for group-shared content: users can view guidelines at any time; users can report a shared entry or a user in their group with a reason and optional details; provide an admin/moderator review UI to view reports and resolve/close them.",
-      "target": "both",
-      "source": {
-        "messageIds": [
-          "msg-7"
-        ],
-        "quotes": [
-          "Guidelines and reporting features"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Community Guidelines page is accessible pre-login and post-login.",
-        "Within group-shared entries, a user can submit a report with required reason and optional notes.",
-        "Reports are stored in the backend with reporter, target (entry/user), timestamp, and status (open/closed) and are not visible to non-admins.",
-        "Admin/moderator view lists reports and allows marking them resolved/closed with an internal note."
-      ]
-    },
-    {
-      "id": "REQ-8",
-      "text": "Define and apply a coherent, non-military-agency-branded visual theme across the app (typography, spacing, color palette, components) suitable for reflective journaling and small-group sharing; avoid blue/purple as primary brand colors.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-2",
-          "msg-3",
-          "msg-4"
-        ],
-        "quotes": [
-          "Let’s build an app to enhance military performance",
-          "Help soldiers want to be better soldiers.",
-          "The app should state that it is not created by the us army and does not represent the DOD"
-        ]
-      },
-      "acceptanceCriteria": [
-        "App uses a consistent theme (colors, typography, layout) across landing, journaling, groups, and modules screens.",
-        "Primary brand colors are not blue or purple.",
-        "UI clearly distinguishes private journal area vs shared group area through layout and visual hierarchy (without adding new features)."
+        "In `backend/main.mo`, the `globalInviteCode` constant is set to \"dagger\".",
+        "Calling `acceptInvite(username, \"dagger\")` succeeds when capacity is not exceeded and the username is unique.",
+        "Calling `acceptInvite(username, <any other code>)` traps with an invalid invite code error (unchanged behavior)."
       ]
     }
   ],
   "constraints": [
-    "Backend must remain a single Motoko actor in backend/main.mo; add backend/migration.mo only if an upgrade requires state migration.",
-    "Do not edit frontend immutable paths: frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, frontend/src/components/ui.",
-    "No real-time chat; all interactions must be asynchronous.",
-    "Use English for any user-facing text."
+    "Respect the single-actor backend architecture; implement changes only in `backend/main.mo`.",
+    "Do not modify any files under `frontend/src/components/ui` or other immutable frontend paths."
   ],
   "nonGoals": [
-    "Implementing tactical/operational or weapons guidance content.",
-    "Third-party authentication providers beyond Internet Identity.",
-    "WebSockets or real-time messaging/chat.",
-    "External databases or non-Motoko backend services."
+    "Do not change squad (group) invite code generation or rotation behavior.",
+    "Do not change the 45-user registration cap or other onboarding steps (disclaimer/guidelines acceptance)."
   ],
   "imageRequirements": {
     "required": [],

@@ -40,6 +40,38 @@ export const MODULES: Module[] = [
       {
         type: 'interpretation',
         text: 'Mental toughness isn\'t about being fearless—it\'s about acting despite fear. Like elite athletes who train their minds as rigorously as their bodies, soldiers can develop mental resilience through deliberate practice. Start by identifying one challenging situation you face regularly. Before entering it, visualize yourself handling it with confidence. After, reflect on what worked and what you can improve. This cycle of preparation, action, and reflection builds the neural pathways that make mental toughness automatic.'
+      },
+      {
+        type: 'interpretation',
+        text: 'Understanding Stress vs. Distress: Not all stress is bad. Eustress (positive stress) is the productive tension that sharpens focus, drives performance, and builds capability—like the challenge of a tough workout, a time-sensitive mission, or learning a new skill. Distress, on the other hand, is overwhelming stress that degrades performance, clouds judgment, and damages health. The key difference isn\'t the stressor itself, but how you perceive and respond to it. A deadline can be energizing fuel or paralyzing pressure depending on your mindset, preparation, and recovery practices.'
+      },
+      {
+        type: 'interpretation',
+        text: 'Inspired by Wim Hof: The power of controlled stress exposure through cold immersion and breathwork teaches us that we can train our stress response. By voluntarily entering uncomfortable situations in a controlled way, we build resilience and learn that discomfort is temporary and manageable. This practice rewires our relationship with stress, transforming fear into confidence.'
+      },
+      {
+        type: 'interpretation',
+        text: 'Inspired by David Goggins: The concept of "callusing the mind" reminds us that mental toughness is built through repeated exposure to difficulty. When you push through discomfort—whether physical training, mental challenges, or emotional adversity—you expand your capacity. The voice that says "I can\'t" is often wrong. Most people quit at 40% of their actual capacity. Recognizing this gap is the first step to accessing your full potential.'
+      },
+      {
+        type: 'interpretation',
+        text: 'Inspired by Jocko Willink: Discipline equals freedom. Structure, routine, and ownership of your actions create the foundation for handling stress effectively. When you control what you can control—your wake-up time, your training, your preparation—you build confidence that carries into uncontrollable situations. Take ownership of your stress response rather than being a victim of circumstances.'
+      },
+      {
+        type: 'interpretation',
+        text: 'Inspired by Tom Brady and Michael Jordan: Elite performers understand that pressure is a privilege. The stress of high-stakes moments is an opportunity to demonstrate preparation and skill. They reframe pressure situations as chances to excel rather than threats to avoid. This mindset shift—from "I have to perform" to "I get to perform"—transforms distress into eustress.'
+      },
+      {
+        type: 'interpretation',
+        text: 'Inspired by Mike Tyson: Everyone has a plan until they get punched in the face. Stress will disrupt your plans. The question is: can you adapt? Building mental toughness means training yourself to stay composed when things go wrong, to think clearly under pressure, and to execute fundamentals when chaos erupts. Practice staying calm in small disruptions to build capacity for larger ones.'
+      },
+      {
+        type: 'interpretation',
+        text: 'Inspired by Joe Rogan and Shawn Ryan: Open conversations about mental health, stress, and struggle normalize the challenges we all face. High performers don\'t hide their stress—they acknowledge it, learn from it, and share strategies that work. Building a support network where you can discuss stress openly reduces its power and provides practical solutions. Vulnerability is strength, not weakness.'
+      },
+      {
+        type: 'interpretation',
+        text: 'Practical Stress Management Framework: Identify your stressors and categorize them. Training stress, time pressure, and challenging goals can be eustress if you have adequate recovery. Sleep debt, unresolved conflict, chronic overload, and lack of control typically become distress. The solution isn\'t to eliminate all stress—it\'s to optimize the balance. Increase eustress through challenging but achievable goals. Reduce distress through better sleep, clear communication, boundary-setting, and asking for support when needed. Recovery isn\'t weakness—it\'s the foundation of sustained high performance.'
       }
     ],
     prompts: [
@@ -52,6 +84,11 @@ export const MODULES: Module[] = [
         text: 'Identify areas where you want to build greater mental resilience',
         prefillTitle: 'Building My Mental Resilience',
         prefillContent: 'Think about situations where you want to be mentally stronger:\n\n1. What situations challenge your mental toughness most?\n2. What specific mental skills would help you in these situations?\n3. What small step can you take this week to build that skill?\n4. Who can support you in this growth?'
+      },
+      {
+        text: 'Analyze your stress: eustress vs. distress',
+        prefillTitle: 'My Stress Inventory: Eustress vs. Distress',
+        prefillContent: 'Use this framework to understand and manage your stress:\n\n**CURRENT STRESSORS**\nList everything causing stress right now (work demands, training, relationships, finances, health, etc.):\n- \n- \n- \n\n**EUSTRESS (Productive Stress)**\nWhich stressors are challenging you in a good way—building skills, driving growth, or energizing you?\n- Stressor:\n- Why it\'s productive:\n- How I\'m managing it:\n\n**DISTRESS (Overwhelming Stress)**\nWhich stressors are degrading performance, health, or well-being?\n- Stressor:\n- Why it\'s harmful:\n- Warning signs I\'m noticing:\n\n**REFRAME OPPORTUNITY**\nCan any distress be reframed as eustress with better mindset, preparation, or support?\n- What would need to change:\n- Action I can take:\n\n**ACTION PLAN**\nChoose ONE action to convert distress to manageable stress or reduce overall load:\n□ Set a boundary (say no, delegate, ask for deadline extension)\n□ Improve preparation (plan ahead, break into smaller steps, gather resources)\n□ Seek support (talk to leader, mentor, or peer; ask for help)\n□ Reframe mindset (view as challenge vs. threat, focus on what I control)\n□ Other:\n\nSpecific action I will take this week:\n\n**RECOVERY PLAN**\nHow will I ensure adequate recovery to handle stress effectively?\n□ Sleep: Target ___ hours, improve sleep hygiene by ___\n□ Breathwork/meditation: ___ minutes daily\n□ Physical training: Adjust intensity/volume to ___\n□ Boundaries: Protect time for ___\n□ Connection: Reach out to ___ for support\n\n**REFLECTION**\nWhat did I learn about my stress response?\nWhat\'s one insight from Wim Hof, David Goggins, Jocko Willink, Tom Brady, Michael Jordan, Mike Tyson, Joe Rogan, or Shawn Ryan that resonates with my situation?'
       }
     ]
   },

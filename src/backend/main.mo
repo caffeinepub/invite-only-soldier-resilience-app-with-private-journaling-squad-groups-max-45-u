@@ -9,7 +9,9 @@ import Runtime "mo:core/Runtime";
 import Int "mo:core/Int";
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
+import Migration "migration";
 
+(with migration = Migration.run)
 actor {
   // system state init
   let accessControlState = AccessControl.initState();
@@ -17,7 +19,7 @@ actor {
 
   // Constants
   let maxUsers = 45;
-  let globalInviteCode : Text = "bootcamp2024";
+  let globalInviteCode : Text = "dagger";
   let inviteCodeExpiration : Time.Time = 259200000;
   let maxGroupMembers = 45;
   let memberInviteCodeLength = 6;

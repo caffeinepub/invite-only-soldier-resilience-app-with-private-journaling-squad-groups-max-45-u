@@ -1,141 +1,254 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 7,
-  "summary": "Plan an app to support individual soldiers’ mental readiness, resilience, decision-making, communication, team cohesion/identity, and embodiment of Army values, including guided reflection on positive life outcomes from military service, optional squad-level peer groups for idea sharing, and content informed by Army doctrine/field manuals (e.g., FM 7-22) plus relevant external high-performance/team resources, with a clear non-DOD/US Army disclaimer.",
+  "projectStateVersion": 6,
+  "summary": "An invite-only personal development web app for service members built on the Internet Computer (Motoko canister backend + React frontend). Users authenticate with Internet Identity, register via a global invite code (hard-capped at 45 users), then complete onboarding by accepting a non-affiliation disclaimer and community guidelines. The core experience is private journaling with optional sharing to invite-only “squad” groups (max 45 members) plus a doctrine-informed learning modules library with reflection prompts that deep-link into the journal editor with prefilled text. The app includes community guidelines access, abuse reporting for shared squad entries/users, and an admin-only moderation console for reviewing and resolving reports.",
   "existing_features": [
     {
-      "id": "feature-implement-internet-identity-sign-in-and-a-user-profile-model-that-supports-a-required-unique-chosen-username-and-basic-onboarding-accept-disclaimer-guidelines-acknowledgement",
-      "title": "Implement Internet Identity sign-in and a user profile model that supports a required, unique chosen username and basic onboarding (accept disclaimer + guidelines acknowledgement).",
+      "id": "IF-1",
+      "title": "Internet Identity authentication with persisted delegation (login/logout)",
+      "synonyms": [
+        "II auth",
+        "Internet Identity sign-in"
+      ],
+      "description": "Users authenticate via Internet Identity using @dfinity/auth-client. The app loads any stored delegation on startup, supports interactive login, and logout clears identity and client state.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-2",
+      "title": "Backend actor creation tied to identity + access-control initialization",
+      "synonyms": [
+        "Actor hook",
+        "Auth bootstrap"
+      ],
+      "description": "Frontend creates an anonymous or authenticated canister actor (useActor). For authenticated sessions it initializes role assignment via _initializeAccessControlWithSecret using a secret read from the URL hash/sessionStorage, and invalidates/refetches dependent React Query caches when the actor changes.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-3",
+      "title": "Invite-only registration with global invite code and 45-user cap",
+      "synonyms": [
+        "Invite registration",
+        "Global invite code"
+      ],
+      "description": "Registration is performed via acceptInvite(username, inviteCode). The backend enforces a maximum of 45 user profiles and validates the global invite code and username uniqueness.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-4",
+      "title": "Onboarding gate: disclaimer + community guidelines acceptance",
+      "synonyms": [
+        "Disclaimer acceptance",
+        "Guidelines acceptance"
+      ],
+      "description": "After registration, users must accept the non-affiliation disclaimer (and UI-confirm guidelines agreement) before being considered fully onboarded and allowed to use core app features; backend gates most endpoints on disclaimer acceptance.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-5",
+      "title": "User profile storage and retrieval (caller/self)",
+      "synonyms": [
+        "UserProfile",
+        "Profile endpoint"
+      ],
+      "description": "Backend stores per-principal user profiles (username, joinedAt, inviteCode, disclaimer status). Frontend fetches the caller profile for gating and display in settings/about.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-6",
+      "title": "Private journaling CRUD",
+      "synonyms": [
+        "Journal entries",
+        "Reflections"
+      ],
+      "description": "Users can create, list, edit, and delete personal journal entries. Entries include title/content/timestamp and are private by default; backend enforces author-only updates and deletes (admins may delete).",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-7",
+      "title": "Optional sharing of journal entries to squad groups",
+      "synonyms": [
+        "Share to squad",
+        "Shared feed"
+      ],
+      "description": "Journal entries can be marked shared and associated with a squad. Backend verifies the author is a member of the target squad; squad members can view shared entries for that squad.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-8",
+      "title": "Squad groups: create, join by invite code, view, leave, rotate invite code",
+      "synonyms": [
+        "Groups",
+        "Squads"
+      ],
+      "description": "Users can create squads, join by invite code, view squad details/members (members-only), leave squads (non-owner), and squad owners can rotate the squad invite code. Backend enforces a max of 45 members per squad and membership-based visibility.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-9",
+      "title": "Squad shared entries and member list UI",
+      "synonyms": [
+        "Squad detail page",
+        "Squad feed"
+      ],
+      "description": "Frontend provides a squad detail page with tabs for shared entries and members, plus owner invite-code copy/rotate controls and a leave-squad confirmation dialog for non-owners.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-10",
+      "title": "Learning modules library with doctrine citations and guided reflection prompts",
+      "synonyms": [
+        "Modules browser",
+        "Guided prompts"
+      ],
+      "description": "Frontend ships structured learning modules organized by category, containing doctrine quotes (with citations) and interpretations, plus reflection prompts that deep-link into the Journal editor with prefilled title/content.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-11",
+      "title": "Stress vs. distress (eustress) learning content + high-performer inspired insights + tailored reflection prompt",
+      "synonyms": [
+        "Stress vs distress module content",
+        "Eustress prompt"
+      ],
+      "description": "The Mental Readiness module includes additional content explaining eustress vs distress and paraphrased, attribution-style insights inspired by public high-performance figures (e.g., Wim Hof, David Goggins, Jocko Willink, Tom Brady, Michael Jordan, Mike Tyson, Joe Rogan, Shawn Ryan), plus a dedicated reflection prompt that prefills a structured stress inventory/action plan journal entry.",
       "reqIds": [
-        "REQ-1"
+        "REQ-9",
+        "REQ-10",
+        "REQ-11"
       ],
       "version": 1
     },
     {
-      "id": "feature-add-an-explicit-persistent-non-affiliation-disclaimer-stating-the-app-is-not-created-by-endorsed-by-or-affiliated-with-the-u-s-army-or-the-dod-and-ensure-it-is-accessible-pre-login-and-post-login",
-      "title": "Add an explicit, persistent non-affiliation disclaimer stating the app is not created by, endorsed by, or affiliated with the U.S. Army or the DoD, and ensure it is accessible pre-login and post-login.",
-      "reqIds": [
-        "REQ-2"
+      "id": "IF-12",
+      "title": "Public landing page with disclaimer and invite-only messaging",
+      "synonyms": [
+        "Unauthenticated landing",
+        "Marketing page"
       ],
+      "description": "Unauthenticated users see a public landing experience describing the app, showing the non-affiliation disclaimer, and offering Internet Identity sign-in for invite-only access.",
+      "reqIds": [],
       "version": 1
     },
     {
-      "id": "feature-make-the-app-invite-only-with-a-hard-cap-of-45-registered-users-users-must-provide-a-valid-invite-code-to-register-and-the-backend-must-prevent-creating-the-46th-user-even-if-the-ui-is-bypassed",
-      "title": "Make the app invite-only with a hard cap of 45 registered users: users must provide a valid invite code to register, and the backend must prevent creating the 46th user even if the UI is bypassed.",
-      "reqIds": [
-        "REQ-3"
+      "id": "IF-13",
+      "title": "Community guidelines access",
+      "synonyms": [
+        "Guidelines page",
+        "Community expectations"
       ],
+      "description": "Frontend provides a Guidelines page accessible from the app shell; the backend also exposes a getGuidelines endpoint intended for displaying guideline text.",
+      "reqIds": [],
       "version": 1
     },
     {
-      "id": "feature-implement-private-journaling-reflection-entries-that-are-private-by-default-with-optional-explicit-sharing-to-an-invite-only-squad-group-support-create-read-update-delete-for-the-author-and-read-only-visibility-for-shared-entries-within-the-group",
-      "title": "Implement private journaling/reflection entries that are private by default, with optional explicit sharing to an invite-only squad group; support create/read/update/delete for the author and read-only visibility for shared entries within the group.",
-      "reqIds": [
-        "REQ-4"
+      "id": "IF-14",
+      "title": "Abuse reporting for shared content/users",
+      "synonyms": [
+        "Report abuse",
+        "Flag entry"
       ],
+      "description": "Users can submit abuse reports against shared squad entries (and optionally users) with a required reason and optional details. Backend validates report targets (shared entry in a squad the reporter belongs to; reported user must share a squad).",
+      "reqIds": [],
       "version": 1
     },
     {
-      "id": "feature-implement-squad-level-groups-that-are-invite-only-and-support-up-to-45-members-per-group-including-create-group-generate-rotate-invite-code-join-by-code-leave-group-and-view-members-list-with-usernames",
-      "title": "Implement squad-level groups that are invite-only and support up to 45 members per group, including: create group, generate/rotate invite code, join by code, leave group, and view members list with usernames.",
-      "reqIds": [
-        "REQ-5"
+      "id": "IF-15",
+      "title": "Admin moderation console for reports (RBAC protected)",
+      "synonyms": [
+        "Admin Reports",
+        "Moderation UI"
       ],
+      "description": "Admin-only page lists all reports, sorts open reports first, displays metadata (reason/details/reporter/targets), and allows updating report status to In Review or Resolved. Backend enforces admin-only access for listing and status updates.",
+      "reqIds": [],
       "version": 1
     },
     {
-      "id": "feature-add-doctrine-informed-and-high-performance-team-informed-content-modules-that-support-both-a-quoting-summarizing-with-citations-and-b-interpreted-exercises-reflections-include-sections-aligned-to-mental-readiness-resilience-decision-making-communication-team-cohesiveness-and-identity-army-values-in-daily-life",
-      "title": "Add doctrine-informed and high-performance-team-informed content modules that support both (a) quoting/summarizing with citations and (b) interpreted exercises/reflections; include sections aligned to mental readiness, resilience, decision-making, communication, team cohesiveness, and identity/Army values in daily life.",
-      "reqIds": [
-        "REQ-6"
+      "id": "IF-16",
+      "title": "Application shell with responsive navigation and logout behavior",
+      "synonyms": [
+        "AppShell",
+        "Navigation layout"
       ],
+      "description": "Authenticated users use a responsive shell with primary navigation (Journal, Squads, Modules), user dropdown (Guidelines, Settings, Admin Reports when applicable), and logout that clears identity and React Query cache.",
+      "reqIds": [],
       "version": 1
     },
     {
-      "id": "feature-add-community-guidelines-and-reporting-features-for-group-shared-content-users-can-view-guidelines-at-any-time-users-can-report-a-shared-entry-or-a-user-in-their-group-with-a-reason-and-optional-details-provide-an-admin-moderator-review-ui-to-view-reports-and-resolve-close-them",
-      "title": "Add community guidelines and reporting features for group-shared content: users can view guidelines at any time; users can report a shared entry or a user in their group with a reason and optional details; provide an admin/moderator review UI to view reports and resolve/close them.",
-      "reqIds": [
-        "REQ-7"
+      "id": "IF-17",
+      "title": "Centralized backend API hooks with cache invalidation",
+      "synonyms": [
+        "useQueries",
+        "React Query API layer"
       ],
+      "description": "Frontend wraps canister calls in typed React Query hooks for user profiles, invites, journaling, squads, guidelines, reporting, and admin operations with consistent loading states and cache invalidation strategies.",
+      "reqIds": [],
       "version": 1
     },
     {
-      "id": "feature-define-and-apply-a-coherent-non-military-agency-branded-visual-theme-across-the-app-typography-spacing-color-palette-components-suitable-for-reflective-journaling-and-small-group-sharing-avoid-blue-purple-as-primary-brand-colors",
-      "title": "Define and apply a coherent, non-military-agency-branded visual theme across the app (typography, spacing, color palette, components) suitable for reflective journaling and small-group sharing; avoid blue/purple as primary brand colors.",
-      "reqIds": [
-        "REQ-8"
+      "id": "IF-18",
+      "title": "Tailwind + shadcn/ui design system with theme variables and dark mode",
+      "synonyms": [
+        "Design system",
+        "Theming"
       ],
+      "description": "UI styling uses Tailwind CSS, shadcn/ui components, and CSS variable color tokens. Dark mode is supported via next-themes with class-based toggling.",
+      "reqIds": [],
       "version": 1
     }
   ],
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Define requirements and scope for an app to enhance military performance",
+      "summary": "Change the global registration invite code to \"dagger\" so the user can enter the app",
       "reqIds": [],
       "status": "pending"
     },
     {
       "id": "AR-2",
-      "summary": "Provide guided reflection/journaling to help soldiers identify positive outcomes in their lives created by being a soldier",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-3",
-      "summary": "Include modules/features targeting mental readiness, resilience, decision-making, communication, team cohesiveness, and identity/Army values in daily life",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-4",
-      "summary": "Optional ability for soldiers to connect with other soldiers to share ideas",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-5",
-      "summary": "Add an explicit disclaimer that the app is not created by the US Army and does not represent the DoD",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-6",
-      "summary": "Support squad-level small team groups for peer connection/idea sharing",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-7",
-      "summary": "User identity and privacy controls: chosen usernames; journals private by default unless explicitly shared",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-8",
-      "summary": "Incorporate Army doctrine/field manuals (e.g., FM 7-22) and other high-performance/team resources into app content",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-9",
-      "summary": "Add community moderation safeguards for squad-level groups (community guidelines + reporting)",
-      "reqIds": [],
+      "summary": "Update the backend global registration invite code so that `acceptInvite` only accepts the invite code \"dagger\" (replacing the current value), enabling users to register and enter the app with that code.",
+      "reqIds": [
+        "REQ-12"
+      ],
       "status": "pending"
     }
   ],
   "architectural_notes": [
-    "Peer connection model: small team groups at squad level (not broad public network).",
-    "Identity model: users use chosen usernames for shared/group interactions.",
-    "Privacy model: journaling/reflections are private by default; sharing is explicit/opt-in per entry.",
-    "Squad-level groups: invite-only access; target group size up to ~45 connected users.",
-    "Doctrine content approach: include both direct quote/summarize with citations and interpreted/translated exercises and lessons.",
-    "Group safety: include community guidelines and user reporting features for shared content."
+    "Internet Computer architecture: Motoko canister exposes a Candid API consumed via a generated frontend actor (ICP agent).",
+    "Role-based access control implemented via an AccessControl module and a MixinAuthorization mixin; admin bootstrapping depends on a canister env var token plus a client-provided secret.",
+    "Frontend data layer uses TanStack React Query hooks for queries/mutations with cache invalidation and refetch on actor changes.",
+    "Routing is implemented with TanStack Router; authenticated vs unauthenticated and onboarding gating is handled in the root route component.",
+    "Authentication uses @dfinity/auth-client via a custom InternetIdentityProvider that persists delegation identities and provides login/logout lifecycle.",
+    "Sensitive “admin token” is read from URL hash and persisted in sessionStorage; token is removed from the URL after extraction to reduce leakage.",
+    "Backend state uses in-memory Map structures for user profiles, journal entries, squad groups, and reports with monotonic counters.",
+    "UI is built with Tailwind CSS + shadcn/ui components; theming uses CSS variables (OKLCH tokens) with light/dark mode via next-themes.",
+    "Learning content is static, shipped in the frontend as structured module definitions (quotes + interpretations + prompts).",
+    "Moderation/reporting is end-to-end: user reports are persisted on-canister and admin workflows update report status."
   ],
-  "known_issues": [],
-  "isFixRequest": false,
+  "known_issues": [
+    "Invite code generation for squads is deterministic and predictable (seeded from squadId; not cryptographically secure); rotating an invite code often produces the same value.",
+    "No stable persistence is implemented in the Motoko canister (no stable vars / preupgrade / postupgrade); canister upgrades will lose in-memory state.",
+    "Frontend squad discovery (useGetMySquads) infers squads by scanning the caller’s journal entries; users who joined squads but have no entries linked to those squads may see an empty/incorrect squad list.",
+    "SquadSharedEntries UI attempts to match principals using UserProfile.joinedAt (a timestamp) as if it were the principal, breaking author/member resolution and “Owner/You” labels.",
+    "Guidelines page fetches guidelines from the backend but renders hard-coded guideline text; fetched data is unused/inconsistent with backend-provided guidelines string.",
+    "Backend has unused/unfinished invite-related fields (inviteCodeExpiration, usedInviteCodes) suggesting planned invite expiration/one-time-code logic is not implemented.",
+    "Authorization initialization traps if CAFFEINE_ADMIN_TOKEN is not set in the canister environment, which can prevent successful admin bootstrap behavior.",
+    "Report creation does not enforce that at least one of reportedEntry/reportedUser is provided, allowing empty/targetless reports if the frontend is bypassed.",
+    "Squad owners cannot leave their squad, and there is no implemented ownership transfer or squad deletion flow.",
+    "Squad join searches all squads linearly by inviteCode; may become inefficient if the number of squads grows significantly."
+  ],
+  "isFixRequest": true,
   "gameProjectType": "none",
   "projectName": "Invite-only soldier resilience app with private journaling, squad groups (max 45 users), doctrine-informed content, and reporting",
-  "clarification_mode": "thinking",
+  "clarification_mode": "instant",
   "clarification_rounds": 0
 }
