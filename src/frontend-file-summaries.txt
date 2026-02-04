@@ -1,0 +1,20 @@
+{
+  "frontend/src/App.tsx": "Root application component with proper React component naming for route components, handles authentication state, profile loading, onboarding flow, and routing between public landing and authenticated app shell with TanStack Router and theme provider.",
+  "frontend/src/hooks/useQueries.ts": "Centralized React Query hooks for all backend operations including user profiles, journal entries, squad groups, reports, and admin functions with proper cache invalidation.",
+  "frontend/src/components/onboarding/OnboardingFlow.tsx": "Two-step onboarding component that collects invite code and username, then requires acceptance of disclaimer and community guidelines before granting app access.",
+  "frontend/src/content/disclaimer.ts": "Single source of truth for the non-affiliation disclaimer text stating the app is not created by or affiliated with the U.S. Army or DoD.",
+  "frontend/src/content/modules.ts": "Curated learning modules organized by category (Mental Readiness, Resilience, Decision Making, Communication, Team Cohesiveness, Identity & Values) with doctrine quotes, interpretations, and reflection prompts.",
+  "frontend/src/components/layout/AppShell.tsx": "Authenticated app layout with responsive header navigation, user dropdown menu, mobile sheet menu, and footer; renders child routes via Outlet.",
+  "frontend/src/pages/PublicLanding.tsx": "Public landing page with app overview, disclaimer, feature cards, and Internet Identity sign-in for unauthenticated users.",
+  "frontend/src/pages/Journal.tsx": "Private journaling page displaying user's entries with private/shared badges, edit/delete actions, and create new entry flow with optional module prompt prefill.",
+  "frontend/src/components/journal/JournalEditor.tsx": "Full-featured journal entry editor supporting create/edit/delete with optional sharing to squad groups, clear visual distinction between private and shared sections.",
+  "frontend/src/pages/Squads.tsx": "Squad management page listing user's squads with create new squad and join by invite code dialogs.",
+  "frontend/src/pages/SquadSharedEntries.tsx": "Squad detail page with tabs for shared entries and members list, invite code management for owners, leave squad option, and entry reporting.",
+  "frontend/src/components/reports/ReportDialog.tsx": "Reusable report dialog for submitting abuse reports on entries or users with required reason selection and optional details.",
+  "frontend/src/pages/Modules.tsx": "Learning modules browser with category tabs displaying doctrine quotes with citations, interpreted guidance, and reflection prompts that prefill journal entries, with updated Tailwind v3 shrink-0 class.",
+  "frontend/src/pages/Guidelines.tsx": "Community guidelines page accessible to all users showing respectful behavior expectations and reporting guidance.",
+  "frontend/src/pages/SettingsAbout.tsx": "Settings and about page displaying user profile info, disclaimer text, and app purpose/privacy information.",
+  "frontend/src/pages/AdminReports.tsx": "Admin-only reports management page listing all reports with status badges and actions to mark in review or resolved, with fixed Tailwind class conflicts by removing contradicting text size classes.",
+  "frontend/src/index.css": "Global styles with OKLCH color system using warm earth tones (olive/sage primary, sand secondary) for a calm, reflective, non-military-agency aesthetic in light and dark modes.",
+  "frontend/tailwind.config.js": "Tailwind configuration with Inter font family and extended color tokens matching the earth-tone design system."
+}

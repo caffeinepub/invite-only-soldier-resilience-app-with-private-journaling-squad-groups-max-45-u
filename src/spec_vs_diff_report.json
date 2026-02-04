@@ -1,0 +1,103 @@
+{
+  "kind": "spec_vs_diff_report",
+  "version": "1.0",
+  "generatedAt": "2026-02-04T05:46:13.448Z",
+  "summary": "Diff adds a Motoko backend actor plus new frontend pages/components for onboarding (invite + disclaimer/guidelines checkboxes), public landing with disclaimer, journaling CRUD with optional squad sharing, squads UI, modules content, guidelines page, and reporting (user/entry) with an admin reports UI. Some acceptance criteria are not clearly met based on the truncated backend/UI and routing behavior.",
+  "missing_requirements": [
+    {
+      "id": "REQ-1",
+      "requirement": "Store onboarding acknowledgement for both the non-affiliation disclaimer and the community guidelines, and allow it to be re-shown from Settings/About.",
+      "reason": "Backend user profile in the diff only shows `disclaimerStatus` and no separate persisted community-guidelines acknowledgement; frontend onboarding collects `acceptedGuidelines` but the backend mutation shown (`acceptDisclaimer()`) does not include/record a guidelines acknowledgement in evidence provided.",
+      "evidence": [
+        "backend/main.mo",
+        "frontend/src/components/onboarding/OnboardingFlow.tsx",
+        "frontend/src/pages/SettingsAbout.tsx"
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "requirement": "Squad groups must support rotating (invalidating) the group invite code, leaving a group, viewing members list with usernames, and owner removing a member (with backend enforcement of max 45).",
+      "reason": "Frontend evidence shows create/join flows, but no clear UI for rotating invite codes, leaving squads, viewing member usernames, or removing members. Backend is truncated so these methods cannot be confirmed.",
+      "evidence": [
+        "frontend/src/pages/Squads.tsx",
+        "backend/main.mo"
+      ]
+    },
+    {
+      "id": "REQ-7",
+      "requirement": "Community Guidelines page must be accessible pre-login and post-login.",
+      "reason": "`RootComponent` returns `PublicLanding` whenever the user is not authenticated, which would prevent routing to `/guidelines` pre-login (it would render `PublicLanding` instead of the Guidelines page).",
+      "evidence": [
+        "frontend/src/App.tsx",
+        "frontend/src/pages/Guidelines.tsx",
+        "frontend/src/pages/PublicLanding.tsx"
+      ]
+    },
+    {
+      "id": "REQ-7",
+      "requirement": "Admin/moderator report review must allow resolving/closing with an internal note.",
+      "reason": "Admin UI shows updating report status, but no evidence of entering/saving an internal moderator note. Backend report type shown also lacks an internal note field in the excerpt provided.",
+      "evidence": [
+        "frontend/src/pages/AdminReports.tsx",
+        "backend/main.mo"
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "requirement": "Modules/categories must cover mental readiness, resilience, decision-making, communication, team cohesiveness, and identity/Army values in daily life.",
+      "reason": "The modules file is truncated; only 'Mental Readiness' and 'Resilience' categories are clearly visible in the provided excerpt, so coverage of the remaining required categories cannot be confirmed from the diff summary.",
+      "evidence": [
+        "frontend/src/content/modules.ts",
+        "frontend/src/pages/Modules.tsx"
+      ]
+    }
+  ],
+  "hallucinated_features": [
+    {
+      "description": "Secret-based access-control initialization via URL parameter `caffeineAdminToken` and backend `_initializeAccessControlWithSecret` call.",
+      "reason": "BuildRequest does not request an admin secret/token bootstrap mechanism via URL parameters; it only requests admin/moderator report review UI and role behavior.",
+      "evidence": [
+        "frontend/src/hooks/useActor.ts",
+        "backend/main.mo"
+      ]
+    },
+    {
+      "description": "Global invite code expiration handling constants (e.g., `inviteCodeExpiration`) and `usedInviteCodes` tracking (as shown in excerpt).",
+      "reason": "BuildRequest requires invite-only registration and a hard user cap, but does not request invite-code expiration or one-time-use tracking; the diff excerpt suggests additional invite-code lifecycle logic beyond stated requirements.",
+      "evidence": [
+        "backend/main.mo"
+      ]
+    }
+  ],
+  "confidence": 0.62,
+  "changed_files": [
+    "all_files_summary.json",
+    "backend/main.mo",
+    "frontend-file-summaries.txt",
+    "frontend/index.css",
+    "frontend/index.html",
+    "frontend/src/App.tsx",
+    "frontend/src/components/journal/JournalEditor.tsx",
+    "frontend/src/components/layout/AppShell.tsx",
+    "frontend/src/components/onboarding/OnboardingFlow.tsx",
+    "frontend/src/components/reports/ReportDialog.tsx",
+    "frontend/src/content/disclaimer.ts",
+    "frontend/src/content/modules.ts",
+    "frontend/src/hooks/useActor.ts",
+    "frontend/src/hooks/useInternetIdentity.ts",
+    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/index.css",
+    "frontend/src/main.tsx",
+    "frontend/src/pages/AdminReports.tsx",
+    "frontend/src/pages/Guidelines.tsx",
+    "frontend/src/pages/Journal.tsx",
+    "frontend/src/pages/Modules.tsx",
+    "frontend/src/pages/PublicLanding.tsx",
+    "frontend/src/pages/SettingsAbout.tsx",
+    "frontend/src/pages/SquadSharedEntries.tsx",
+    "frontend/src/pages/Squads.tsx",
+    "frontend/src/utils/urlParams.ts",
+    "frontend/tailwind.config.js",
+    "project_state.json"
+  ]
+}

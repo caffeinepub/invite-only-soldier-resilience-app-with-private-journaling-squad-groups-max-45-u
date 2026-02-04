@@ -1,0 +1,174 @@
+{
+  "kind": "feature_evidence_report",
+  "features": [
+    {
+      "featureId": "feature-implement-internet-identity-sign-in-and-a-user-profile-model-that-supports-a-required-unique-chosen-username-and-basic-onboarding-accept-disclaimer-guidelines-acknowledgement",
+      "featureTitle": "Implement Internet Identity sign-in and a user profile model that supports a required, unique chosen username and basic onboarding (accept disclaimer + guidelines acknowledgement).",
+      "files": [
+        "frontend/src/App.tsx",
+        "frontend/src/components/onboarding/OnboardingFlow.tsx",
+        "frontend/src/pages/SettingsAbout.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-1"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-an-explicit-persistent-non-affiliation-disclaimer-stating-the-app-is-not-created-by-endorsed-by-or-affiliated-with-the-u-s-army-or-the-dod-and-ensure-it-is-accessible-pre-login-and-post-login",
+      "featureTitle": "Add an explicit, persistent non-affiliation disclaimer stating the app is not created by, endorsed by, or affiliated with the U.S. Army or the DoD, and ensure it is accessible pre-login and post-login.",
+      "files": [
+        "frontend/src/content/disclaimer.ts",
+        "frontend/src/pages/PublicLanding.tsx",
+        "frontend/src/pages/SettingsAbout.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-2"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-make-the-app-invite-only-with-a-hard-cap-of-45-registered-users-users-must-provide-a-valid-invite-code-to-register-and-the-backend-must-prevent-creating-the-46th-user-even-if-the-ui-is-bypassed",
+      "featureTitle": "Make the app invite-only with a hard cap of 45 registered users: users must provide a valid invite code to register, and the backend must prevent creating the 46th user even if the UI is bypassed.",
+      "files": [
+        "frontend/src/components/onboarding/OnboardingFlow.tsx",
+        "frontend/src/pages/PublicLanding.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-3"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-implement-private-journaling-reflection-entries-that-are-private-by-default-with-optional-explicit-sharing-to-an-invite-only-squad-group-support-create-read-update-delete-for-the-author-and-read-only-visibility-for-shared-entries-within-the-group",
+      "featureTitle": "Implement private journaling/reflection entries that are private by default, with optional explicit sharing to an invite-only squad group; support create/read/update/delete for the author and read-only visibility for shared entries within the group.",
+      "files": [
+        "frontend/src/components/journal/JournalEditor.tsx",
+        "frontend/src/pages/Journal.tsx",
+        "frontend/src/pages/SquadSharedEntries.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-4"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-implement-squad-level-groups-that-are-invite-only-and-support-up-to-45-members-per-group-including-create-group-generate-rotate-invite-code-join-by-code-leave-group-and-view-members-list-with-usernames",
+      "featureTitle": "Implement squad-level groups that are invite-only and support up to 45 members per group, including: create group, generate/rotate invite code, join by code, leave group, and view members list with usernames.",
+      "files": [
+        "frontend/src/pages/Squads.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-5"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-doctrine-informed-and-high-performance-team-informed-content-modules-that-support-both-a-quoting-summarizing-with-citations-and-b-interpreted-exercises-reflections-include-sections-aligned-to-mental-readiness-resilience-decision-making-communication-team-cohesiveness-and-identity-army-values-in-daily-life",
+      "featureTitle": "Add doctrine-informed and high-performance-team-informed content modules that support both (a) quoting/summarizing with citations and (b) interpreted exercises/reflections; include sections aligned to mental readiness, resilience, decision-making, communication, team cohesiveness, and identity/Army values in daily life.",
+      "files": [
+        "frontend/src/content/modules.ts",
+        "frontend/src/pages/Journal.tsx",
+        "frontend/src/pages/Modules.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-6"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-community-guidelines-and-reporting-features-for-group-shared-content-users-can-view-guidelines-at-any-time-users-can-report-a-shared-entry-or-a-user-in-their-group-with-a-reason-and-optional-details-provide-an-admin-moderator-review-ui-to-view-reports-and-resolve-close-them",
+      "featureTitle": "Add community guidelines and reporting features for group-shared content: users can view guidelines at any time; users can report a shared entry or a user in their group with a reason and optional details; provide an admin/moderator review UI to view reports and resolve/close them.",
+      "files": [
+        "frontend/src/components/reports/ReportDialog.tsx",
+        "frontend/src/pages/AdminReports.tsx",
+        "frontend/src/pages/Guidelines.tsx",
+        "frontend/src/pages/SquadSharedEntries.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-7"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-define-and-apply-a-coherent-non-military-agency-branded-visual-theme-across-the-app-typography-spacing-color-palette-components-suitable-for-reflective-journaling-and-small-group-sharing-avoid-blue-purple-as-primary-brand-colors",
+      "featureTitle": "Define and apply a coherent, non-military-agency-branded visual theme across the app (typography, spacing, color palette, components) suitable for reflective journaling and small-group sharing; avoid blue/purple as primary brand colors.",
+      "files": [
+        "frontend/src/components/layout/AppShell.tsx",
+        "frontend/src/index.css",
+        "frontend/src/pages/Journal.tsx",
+        "frontend/src/pages/PublicLanding.tsx",
+        "frontend/src/pages/SquadSharedEntries.tsx",
+        "frontend/tailwind.config.js"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-8"
+      ],
+      "confidence": "high"
+    }
+  ]
+}

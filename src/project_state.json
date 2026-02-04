@@ -1,0 +1,141 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectStateVersion": 7,
+  "summary": "Plan an app to support individual soldiers’ mental readiness, resilience, decision-making, communication, team cohesion/identity, and embodiment of Army values, including guided reflection on positive life outcomes from military service, optional squad-level peer groups for idea sharing, and content informed by Army doctrine/field manuals (e.g., FM 7-22) plus relevant external high-performance/team resources, with a clear non-DOD/US Army disclaimer.",
+  "existing_features": [
+    {
+      "id": "feature-implement-internet-identity-sign-in-and-a-user-profile-model-that-supports-a-required-unique-chosen-username-and-basic-onboarding-accept-disclaimer-guidelines-acknowledgement",
+      "title": "Implement Internet Identity sign-in and a user profile model that supports a required, unique chosen username and basic onboarding (accept disclaimer + guidelines acknowledgement).",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-an-explicit-persistent-non-affiliation-disclaimer-stating-the-app-is-not-created-by-endorsed-by-or-affiliated-with-the-u-s-army-or-the-dod-and-ensure-it-is-accessible-pre-login-and-post-login",
+      "title": "Add an explicit, persistent non-affiliation disclaimer stating the app is not created by, endorsed by, or affiliated with the U.S. Army or the DoD, and ensure it is accessible pre-login and post-login.",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-make-the-app-invite-only-with-a-hard-cap-of-45-registered-users-users-must-provide-a-valid-invite-code-to-register-and-the-backend-must-prevent-creating-the-46th-user-even-if-the-ui-is-bypassed",
+      "title": "Make the app invite-only with a hard cap of 45 registered users: users must provide a valid invite code to register, and the backend must prevent creating the 46th user even if the UI is bypassed.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-private-journaling-reflection-entries-that-are-private-by-default-with-optional-explicit-sharing-to-an-invite-only-squad-group-support-create-read-update-delete-for-the-author-and-read-only-visibility-for-shared-entries-within-the-group",
+      "title": "Implement private journaling/reflection entries that are private by default, with optional explicit sharing to an invite-only squad group; support create/read/update/delete for the author and read-only visibility for shared entries within the group.",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-squad-level-groups-that-are-invite-only-and-support-up-to-45-members-per-group-including-create-group-generate-rotate-invite-code-join-by-code-leave-group-and-view-members-list-with-usernames",
+      "title": "Implement squad-level groups that are invite-only and support up to 45 members per group, including: create group, generate/rotate invite code, join by code, leave group, and view members list with usernames.",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-doctrine-informed-and-high-performance-team-informed-content-modules-that-support-both-a-quoting-summarizing-with-citations-and-b-interpreted-exercises-reflections-include-sections-aligned-to-mental-readiness-resilience-decision-making-communication-team-cohesiveness-and-identity-army-values-in-daily-life",
+      "title": "Add doctrine-informed and high-performance-team-informed content modules that support both (a) quoting/summarizing with citations and (b) interpreted exercises/reflections; include sections aligned to mental readiness, resilience, decision-making, communication, team cohesiveness, and identity/Army values in daily life.",
+      "reqIds": [
+        "REQ-6"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-community-guidelines-and-reporting-features-for-group-shared-content-users-can-view-guidelines-at-any-time-users-can-report-a-shared-entry-or-a-user-in-their-group-with-a-reason-and-optional-details-provide-an-admin-moderator-review-ui-to-view-reports-and-resolve-close-them",
+      "title": "Add community guidelines and reporting features for group-shared content: users can view guidelines at any time; users can report a shared entry or a user in their group with a reason and optional details; provide an admin/moderator review UI to view reports and resolve/close them.",
+      "reqIds": [
+        "REQ-7"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-define-and-apply-a-coherent-non-military-agency-branded-visual-theme-across-the-app-typography-spacing-color-palette-components-suitable-for-reflective-journaling-and-small-group-sharing-avoid-blue-purple-as-primary-brand-colors",
+      "title": "Define and apply a coherent, non-military-agency-branded visual theme across the app (typography, spacing, color palette, components) suitable for reflective journaling and small-group sharing; avoid blue/purple as primary brand colors.",
+      "reqIds": [
+        "REQ-8"
+      ],
+      "version": 1
+    }
+  ],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Define requirements and scope for an app to enhance military performance",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Provide guided reflection/journaling to help soldiers identify positive outcomes in their lives created by being a soldier",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Include modules/features targeting mental readiness, resilience, decision-making, communication, team cohesiveness, and identity/Army values in daily life",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-4",
+      "summary": "Optional ability for soldiers to connect with other soldiers to share ideas",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-5",
+      "summary": "Add an explicit disclaimer that the app is not created by the US Army and does not represent the DoD",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-6",
+      "summary": "Support squad-level small team groups for peer connection/idea sharing",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-7",
+      "summary": "User identity and privacy controls: chosen usernames; journals private by default unless explicitly shared",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-8",
+      "summary": "Incorporate Army doctrine/field manuals (e.g., FM 7-22) and other high-performance/team resources into app content",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-9",
+      "summary": "Add community moderation safeguards for squad-level groups (community guidelines + reporting)",
+      "reqIds": [],
+      "status": "pending"
+    }
+  ],
+  "architectural_notes": [
+    "Peer connection model: small team groups at squad level (not broad public network).",
+    "Identity model: users use chosen usernames for shared/group interactions.",
+    "Privacy model: journaling/reflections are private by default; sharing is explicit/opt-in per entry.",
+    "Squad-level groups: invite-only access; target group size up to ~45 connected users.",
+    "Doctrine content approach: include both direct quote/summarize with citations and interpreted/translated exercises and lessons.",
+    "Group safety: include community guidelines and user reporting features for shared content."
+  ],
+  "known_issues": [],
+  "isFixRequest": false,
+  "gameProjectType": "none",
+  "projectName": "Invite-only soldier resilience app with private journaling, squad groups (max 45 users), doctrine-informed content, and reporting",
+  "clarification_mode": "thinking",
+  "clarification_rounds": 0
+}
