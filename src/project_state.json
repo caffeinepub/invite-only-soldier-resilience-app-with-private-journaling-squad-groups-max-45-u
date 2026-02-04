@@ -1,247 +1,242 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "DAGGER - Holistic Health and Fitness is an invite-only Internet Computer dapp (Motoko canister backend + React frontend) for service members focused on personal development. Users authenticate with Internet Identity, register via a global invite code (capacity capped at 45), must accept a non-affiliation disclaimer and community guidelines, then can create private journal entries with optional sharing into small invite-only “squad” groups. The app also includes a static learning-modules library with reflection prompts that deep-link into the journal editor, plus an abuse reporting system and an admin-only moderation console to manage reports.",
+  "summary": "DAGGER - Holistic Health and Fitness is an Internet Computer (Motoko canister) + React web app for soldiers’ personal development. It provides Internet Identity sign-in, open account registration (username only) with a 45-user cap, onboarding that requires accepting a non-affiliation disclaimer and community guidelines, private journaling with optional sharing to small invite-code-based groups, doctrine-informed learning modules that deep-link into prefilled journal reflections, and an abuse reporting + admin moderation workflow.",
   "existing_features": [
     {
       "id": "IF-1",
-      "title": "Internet Identity authentication with persisted session",
+      "title": "Internet Identity authentication with persisted delegation",
       "synonyms": [
-        "Internet Identity login",
-        "II auth",
-        "Delegation identity"
+        "II login",
+        "AuthClient",
+        "DelegationIdentity"
       ],
-      "description": "Provides a React context for Internet Identity sign-in/out using @dfinity/auth-client, restores any existing authenticated delegation on app load, and exposes login status flags and errors to the UI.",
+      "description": "Provides an InternetIdentityProvider that initializes an AuthClient, restores a stored delegation on reload, exposes login/logout and status flags, and logs in via a configured II provider with ~30-day maxTimeToLive.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-2",
-      "title": "Identity-aware backend actor creation and lifecycle",
+      "title": "Identity-aware canister actor creation",
       "synonyms": [
-        "Actor hook",
-        "Authenticated/anonymous actor"
+        "useActor",
+        "Authenticated actor",
+        "Anonymous actor"
       ],
-      "description": "Creates an anonymous backend actor when unauthenticated and an identity-bound actor when authenticated; recreates the actor when the principal changes and triggers React Query invalidation/refetch for non-actor queries.",
+      "description": "Creates an anonymous backend actor when unauthenticated and an identity-bound actor when authenticated; actor instances are cached via React Query and re-created when the identity principal changes.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-3",
-      "title": "Secure secret token handling via URL hash + sessionStorage",
+      "title": "Access control initialization with secret token bootstrap",
       "synonyms": [
-        "Admin token via hash",
-        "Secret URL parameter utilities"
+        "Admin bootstrap token",
+        "CAFFEINE_ADMIN_TOKEN",
+        "_initializeAccessControlWithSecret"
       ],
-      "description": "Extracts sensitive parameters (e.g., caffeineAdminToken) from the URL hash fragment only, persists them in sessionStorage for the session, and clears them from the URL to reduce leakage risk.",
+      "description": "On authenticated actor creation, calls a backend initializer that reads an environment variable token and compares it with a user-provided secret to optionally assign the first admin; otherwise assigns user role.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-4",
-      "title": "Role-based access control with admin bootstrap token",
+      "title": "Secret parameter handling via URL hash + session storage",
       "synonyms": [
-        "RBAC",
-        "AccessControl",
-        "Admin role"
+        "getSecretParameter",
+        "hash secret extraction",
+        "session persisted token"
       ],
-      "description": "Backend tracks per-principal roles (#guest/#user/#admin). A one-time initialization assigns admin to the first caller presenting the correct token (from canister env var), while others become users; admin-only endpoints are enforced by role checks.",
+      "description": "Implements utilities to read sensitive parameters from the URL hash (not query string), persist them in sessionStorage, and remove them from the URL via replaceState to reduce accidental leakage.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-5",
-      "title": "Invite-only registration with global invite code and capacity limit",
+      "title": "Role-based access control (RBAC) API",
       "synonyms": [
-        "Accept invite",
-        "Invite-gated onboarding"
+        "AccessControl",
+        "isCallerAdmin",
+        "getCallerUserRole"
       ],
-      "description": "Users register via acceptInvite(username, inviteCode). Backend enforces a max user capacity (45), prevents re-registration, validates invite codes case-insensitively against a global code, and enforces username uniqueness.",
+      "description": "Backend maintains per-principal roles (guest/user/admin) and exposes APIs to query caller role, check admin status, and assign roles (admin-only). Backend methods gate access using hasPermission/isAdmin checks.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-6",
-      "title": "Invite code normalization helper",
+      "title": "Open registration with username uniqueness and capacity cap",
       "synonyms": [
-        "Invite code sanitization",
-        "Invite input normalization"
+        "registerUser",
+        "account creation"
       ],
-      "description": "Frontend normalizes invite codes by trimming whitespace before submitting; backend performs case-insensitive validation for global invite code registration.",
+      "description": "Allows any authenticated user to register by choosing a username (no global invite code). Enforces unique usernames and caps total registered users to 45.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-7",
-      "title": "Two-step onboarding flow (invite + disclaimer/guidelines acceptance)",
+      "title": "Onboarding flow: registration + disclaimer/guidelines acceptance",
       "synonyms": [
-        "Onboarding gate",
-        "Disclaimer acceptance"
+        "OnboardingFlow",
+        "acceptDisclaimer"
       ],
-      "description": "Authenticated users who are not fully onboarded are routed into a two-step onboarding UI: enter invite code and username, then accept the disclaimer and agree to community guidelines before gaining access to app features.",
+      "description": "Two-step onboarding UI collects a username, then requires users to accept a disclaimer and community guidelines before the app grants access to core features; acceptance is persisted via acceptDisclaimer.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-8",
-      "title": "On-demand global invite code retrieval",
+      "title": "User profile storage and retrieval",
       "synonyms": [
-        "Get Code button",
-        "Fetch global invite code"
+        "UserProfile",
+        "getCallerUserProfile",
+        "Settings & About"
       ],
-      "description": "Provides a manually-triggered query to fetch the global invite code (React Query enabled=false by default) and autofill the invite code input during onboarding.",
+      "description": "Stores a per-principal profile (username, joinedAt, disclaimerStatus, inviteCode placeholder) and provides APIs to fetch/save profiles. Frontend uses the caller profile to gate onboarding and to display profile info.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-9",
-      "title": "User profile storage and retrieval",
+      "title": "Private journaling CRUD with onboarding gating",
       "synonyms": [
-        "UserProfile API",
-        "Profile page data"
+        "Journal entries",
+        "Journaling"
       ],
-      "description": "Backend stores and serves a per-principal user profile (username, join time, invite code, disclaimer acceptance status). Frontend reads the caller profile to gate onboarding and populate Settings/About.",
+      "description": "Backend supports creating, listing, updating, and deleting journal entries owned by the caller. All journaling APIs require the caller to be a registered user who completed onboarding (disclaimer accepted).",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-10",
-      "title": "Private journaling CRUD",
+      "title": "Journal editor UI with optional group sharing",
       "synonyms": [
-        "Journal entries",
-        "Reflections CRUD"
+        "JournalEditor",
+        "Share toggle"
       ],
-      "description": "Users can create, list, update, and delete their own journal entries. Backend enforces that only the author (or admin for deletion) can modify entries.",
+      "description": "Frontend journal editor supports create/edit/delete, validation, and an optional share-to-group toggle with group selection; shared entries become visible to members of the selected group.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-11",
-      "title": "Optional sharing of journal entries to squads",
+      "title": "Invite-code-based groups (create/join/leave/view/members/rotate)",
       "synonyms": [
-        "Share to squad",
-        "Shared entries"
+        "Squad groups",
+        "Groups",
+        "Join code"
       ],
-      "description": "Journal entries can be marked as shared and linked to a squad. Backend enforces that the author is a member of the target squad, and that shared feeds are visible only to squad members or admins.",
+      "description": "Backend implements group creation with a creator-chosen join code, joining by join code, leaving (owner cannot leave), fetching group details and member lists (member-only or admin), and rotating the join code (owner-only). Group membership is capped at 45 members.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-12",
-      "title": "Journal UI with editor, prefill support, and share controls",
+      "title": "Groups UI: list, create, and join",
       "synonyms": [
-        "Journal page",
-        "JournalEditor"
+        "Groups page",
+        "Create group dialog",
+        "Join group dialog"
       ],
-      "description": "Frontend provides a journal list with private/shared badges, entry editing, and a full editor that supports create/update/delete and optional squad sharing (toggle + squad selector). Editor can be prefilled from module prompts via route search params.",
+      "description": "Provides a Groups page that lists the user’s groups and includes dialogs to create a group (requires join code) and join an existing group by join code, with user-friendly error handling.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-13",
-      "title": "Squad group creation, joining, and leaving (backend)",
+      "title": "Group detail page with shared entries, members, invite code tools, and reporting",
       "synonyms": [
-        "Group management API",
-        "Squads backend"
+        "GroupSharedEntries",
+        "Shared feed",
+        "Members tab"
       ],
-      "description": "Backend supports creating squads (owner + initial member), joining by invite code with capacity enforcement (45), retrieving squad details and member profiles (member-only), leaving squads (non-owner), and rotating invite codes (owner-only).",
+      "description": "Group detail UI shows shared entries and a members list. Owners can copy/rotate the join code; non-owners can leave. Users can report other members’ shared entries via an embedded reporting dialog.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-14",
-      "title": "Squad management UI (list, create, join)",
+      "title": "Learning modules library with reflection deep-links",
       "synonyms": [
-        "My Squads page",
-        "Create/join dialogs"
+        "Modules",
+        "Reflection prompts",
+        "Prefilled journaling"
       ],
-      "description": "Frontend page lists squads associated with the user and provides dialogs to create a new squad or join an existing squad by invite code, including user-friendly error messaging for invalid/full/already-member cases.",
+      "description": "Frontend ships doctrine-informed learning modules organized by category; each module includes quotes/interpretations and reflection prompts that navigate to journaling with prefilled title/content (including a Sleep Performance category).",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-15",
-      "title": "Squad detail UI: shared feed, members, invite code tools, leave action",
+      "title": "Community guidelines endpoint and UI page",
       "synonyms": [
-        "Squad page",
-        "Shared entries tab",
-        "Members tab"
+        "getGuidelines",
+        "Guidelines page"
       ],
-      "description": "Frontend squad detail page provides tabs for shared entries and member list, allows owners to copy/rotate invite codes, allows non-owners to leave the squad, and supports reporting shared entries.",
+      "description": "Backend provides a guidelines text endpoint; frontend includes a Guidelines page and also presents guidelines during onboarding.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-16",
-      "title": "Learning modules library with reflection deep-links",
+      "title": "Abuse reporting submission system",
       "synonyms": [
-        "Modules browser",
-        "Guided prompts"
+        "reportAbuse",
+        "ReportDialog"
       ],
-      "description": "Frontend ships a categorized library of doctrine-informed learning modules (quotes + interpretations) with reflection prompts. Prompts deep-link to the journal page and prefill the editor content/title.",
+      "description": "Users can submit abuse reports for a shared journal entry and/or a user, selecting a reason and optional details. Backend validates that reported entries are shared and that reports involve users sharing a group context.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-17",
-      "title": "Community guidelines endpoint and UI page",
+      "title": "Admin moderation console for reports",
       "synonyms": [
-        "Guidelines page",
-        "Community expectations"
+        "AdminReports",
+        "getAllReports",
+        "updateReportStatus"
       ],
-      "description": "Backend exposes a getGuidelines endpoint, and the frontend provides a Guidelines page accessible from the authenticated user menu.",
+      "description": "Admins can view all reports, see status badges (open/in review/resolved), sort with open reports prioritized, and update report status from the UI via admin-only backend methods.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-18",
-      "title": "Abuse reporting submission workflow",
+      "title": "Authenticated app shell with navigation, theming, and logout",
       "synonyms": [
-        "Report abuse",
-        "Flag content"
+        "AppShell",
+        "Navigation header",
+        "next-themes"
       ],
-      "description": "Users can submit abuse reports against a shared squad entry or a user, selecting a reason and optional details via a reusable ReportDialog component; backend validates report context (e.g., shared entry in a squad the reporter belongs to).",
+      "description": "Provides the main authenticated layout with header navigation (Journal/Groups/Modules), mobile drawer, user dropdown (Guidelines, Settings, conditional Admin Reports), theme support, and logout that clears identity and React Query cache.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-19",
-      "title": "Admin-only report moderation console",
+      "title": "Backend state migration for removing legacy global invite code fields",
       "synonyms": [
-        "Admin Reports",
-        "Moderation UI"
+        "migration.mo",
+        "state migration"
       ],
-      "description": "Admin users can view all reports, see status badges, sort with open reports prioritized, and update report status (open/inReview/resolved) through backend updateReportStatus.",
+      "description": "Includes a migration module that transforms an older actor state into the current state shape by dropping legacy global invite code and used-invite-codes fields while preserving existing user, journal, group, and report data.",
       "reqIds": [],
       "version": 1
     },
     {
-      "id": "IF-20",
-      "title": "Public landing page for unauthenticated users",
-      "synonyms": [
-        "Marketing landing",
-        "Public home"
-      ],
-      "description": "Unauthenticated users see a public landing page describing the product, showing the disclaimer, and providing an Internet Identity sign-in call-to-action with basic login error handling.",
-      "reqIds": [],
-      "version": 1
-    },
-    {
-      "id": "IF-21",
-      "title": "Branded UI theme system and assets",
-      "synonyms": [
-        "Tailwind theme tokens",
-        "DAGGER branding"
-      ],
-      "description": "Frontend uses Tailwind with a tokenized OKLCH-based color system, shadcn/ui components, dark mode, and static branding assets (favicon, icon mark, wordmark) referenced in pages and index.html.",
-      "reqIds": [],
-      "version": 1
-    },
-    {
-      "id": "feature-update-the-onboarding-invite-step-ui-frontend-src-components-onboarding-onboardingflow-tsx-to-ensure-the-invite-code-sent-to-acceptinvite-is-normalized-consistently-and-to-reduce-user-error-trim-the-invite-code-before-submission-and-add-concise-helper-text-indicating-the-global-invite-code-is-not-case-sensitive",
-      "title": "Update the onboarding invite step UI (`frontend/src/components/onboarding/OnboardingFlow.tsx`) to ensure the invite code sent to `acceptInvite` is normalized consistently and to reduce user error: trim the invite code before submission, and add concise helper text indicating the global invite code is not case-sensitive.",
+      "id": "feature-fix-authenticated-app-initialization-so-the-frontend-can-create-a-logged-in-actor-even-when-the-admin-bootstrap-secret-is-not-present-specifically-do-not-let-useactor-block-or-crash-the-app-if-initializeaccesscontrolwithsecret-traps-e-g-missing-empty-caffeineadmintoken-or-missing-backend-env-token-instead-continue-with-a-usable-authenticated-actor-and-surface-a-clear-error-message-in-the-ui-only-if-the-failure-prevents-core-user-flows",
+      "title": "Fix authenticated app initialization so the frontend can create a logged-in actor even when the admin bootstrap secret is not present. Specifically: do not let `useActor` block or crash the app if `_initializeAccessControlWithSecret` traps (e.g., missing/empty `caffeineAdminToken` or missing backend env token); instead, continue with a usable authenticated actor and surface a clear error message in the UI only if the failure prevents core user flows.",
       "reqIds": [
-        "REQ-2"
+        "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-user-visible-error-state-for-the-post-login-profile-load-authorization-step-so-that-if-getcalleruserprofile-or-other-initial-authenticated-calls-fails-the-ui-shows-an-english-message-and-a-retry-action-instead-of-appearing-to-not-open",
+      "title": "Add a user-visible error state for the post-login profile load/authorization step so that if `getCallerUserProfile` (or other initial authenticated calls) fails, the UI shows an English message and a retry action instead of appearing to not open.",
+      "reqIds": [
+        "REQ-3"
       ],
       "version": 1
     }
@@ -249,52 +244,40 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Fix global invite code gating so users can enter/preview the app; ensure code accepts intended value (\"Dagger\"/\"dagger\") and matches backend validation/normalization.",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-2",
-      "summary": "Integrate the provided dagger logo into the app UI (placement TBD: landing page/onboarding/header/favicon).",
+      "summary": "Remove any global/invite-code gate for initial app access; allow anyone to create an account and use the core app, while keeping invite codes only for joining/creating groups.",
       "reqIds": [],
       "status": "pending"
     },
     {
       "id": "AR-3",
-      "summary": "Add stress vs distress content inspired by public figures (e.g., Wim Hof, David Goggins, Shawn Ryan, Joe Rogan, Tom Brady, Michael Jordan, Mike Tyson, Jocko Willink, etc.) into an existing learning module, including both quotes/insights and summaries plus a journaling reflection prompt deep-link.",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-4",
-      "summary": "Update backend global invite code validation in `backend/main.mo` so that `acceptInvite(username, inviteCode)` accepts the intended global invite code \"Dagger\" in a robust, user-friendly way by normalizing the user-provided invite code before comparison (at minimum: trim leading/trailing whitespace and compare case-insensitively). Ensure the comparison is performed against a similarly-normalized canonical global invite code.",
+      "summary": "Fix open registration and onboarding by updating backend authorization logic so a newly authenticated (but not yet registered) user can reach onboarding and successfully register. At minimum: (1) `registerUser` must not call an admin-only role-assignment path that traps for normal users; it must grant the caller the `#user` role in a way that works for self-registration, and (2) `getCallerUserProfile` must not trap for users who are authenticated but not yet registered; it should return `null` in that case so the frontend can show the onboarding flow.",
       "reqIds": [
-        "REQ-1"
+        "REQ-2"
       ],
       "status": "pending"
     }
   ],
   "architectural_notes": [
-    "Internet Computer architecture: Motoko canister exposes a Candid API consumed by a typed/generated frontend actor.",
-    "Role-based access control (RBAC) is implemented in Motoko via an AccessControl module and mixed into the main actor with MixinAuthorization.",
-    "Frontend authentication is encapsulated in a React context (InternetIdentityProvider) using @dfinity/auth-client and DelegationIdentity validation.",
-    "Frontend backend access is centralized via TanStack React Query hooks (queries/mutations) with cache invalidation on mutations and actor changes.",
-    "Actor creation is identity-aware (anonymous vs authenticated) and performs access-control initialization using a secret token from the URL hash/sessionStorage.",
-    "Routing is implemented with TanStack Router and gates between Public Landing, Onboarding, and the authenticated AppShell layout.",
-    "UI uses Tailwind CSS + shadcn/ui component primitives and supports system/light/dark themes via next-themes.",
-    "Backend state uses in-memory Map structures with monotonic counters for IDs (journal entries, squads, reports)."
+    "Internet Computer architecture: a Motoko canister exposes a Candid API consumed by a typed frontend actor.",
+    "Authorization uses a Motoko mixin (MixinAuthorization) backed by an AccessControl state module implementing RBAC (guest/user/admin).",
+    "Frontend authentication is implemented with @dfinity/auth-client (Internet Identity) and long-lived DelegationIdentity (30 days).",
+    "Frontend data access is centralized in TanStack React Query hooks (queries/mutations) with explicit cache invalidation after writes.",
+    "Actor creation is identity-aware (anonymous vs authenticated) and performs access-control initialization on authenticated actor creation.",
+    "Client routing uses TanStack Router; the root route gates between Public Landing, Onboarding, and the authenticated AppShell.",
+    "UI stack: Tailwind CSS + shadcn/ui components, lucide icons, next-themes for light/dark mode, and sonner for toasts.",
+    "Sensitive bootstrap values (admin token) are passed via URL hash and persisted in sessionStorage, then removed from the URL to reduce leakage."
   ],
   "known_issues": [
-    "Canister state is not persisted across upgrades (no stable variables / preupgrade / postupgrade); all data would be lost on upgrade.",
-    "rotateSquadInviteCode is effectively non-rotating because invite codes are deterministically generated from squadId; calling rotate returns the same code for a given squad.",
-    "Frontend “My Squads” list (useGetMySquads) derives squads by scanning the user’s journal entries rather than true membership, so a user can join a squad and not see it until they create/link an entry.",
-    "SquadSharedEntries attempts to resolve authors/owners using UserProfile.joinedAt as if it were a Principal; since getSquadMembers returns profiles without principals, “By <username>”, “Owner”, and “You” badges may be incorrect.",
-    "Guidelines page fetches guidelines from the backend but renders hard-coded guideline content; the backend-provided string is not displayed.",
-    "MixinAuthorization traps if CAFFEINE_ADMIN_TOKEN is not set, which can prevent authenticated actor initialization and break app access.",
-    "joinSquadGroup finds a squad by iterating all groups and matching inviteCode (linear scan), which may not scale well.",
-    "Reporting allows both reportedEntry and reportedUser to be null if the frontend is bypassed, potentially creating “targetless” reports.",
-    "Several backend constants appear unused (inviteCodeExpiration, usedInviteCodes), suggesting incomplete/abandoned functionality.",
-    "Duplicate theme CSS files exist (frontend/index.css and frontend/src/index.css) with different token sets, which can cause confusion or inconsistent styling depending on build configuration."
+    "Backend registerUser calls AccessControl.assignRole (admin-only) with the registering caller; this likely traps for non-admin users and can break open registration.",
+    "Canister state is not upgrade-safe: runtime Maps/vars are not stored in stable variables with preupgrade/postupgrade hooks, so upgrades may lose state (migration module exists but stability is not evident here).",
+    "Group join code validation is case-sensitive on the backend (group.inviteCode == inviteCode) despite frontend comments claiming case-insensitive backend validation.",
+    "rotateSquadInviteCode is not a true rotation: invite codes are deterministically generated from squadId, so rotating may produce the same value; codes are also predictable.",
+    "joinSquadGroup performs a linear scan over all groups to find a matching invite code (O(n)), which will not scale.",
+    "Frontend “My Groups” list is derived by scanning the caller’s journal entries for squadGroup references rather than querying actual membership; membership may not appear until a journal entry is associated.",
+    "GroupSharedEntries incorrectly uses UserProfile.joinedAt as if it were a Principal to match authors/owners/me, leading to “Unknown” authors and incorrect badges.",
+    "Guidelines page fetches guidelines from the backend but renders hard-coded guideline content instead of the fetched string.",
+    "_initializeAccessControlWithSecret traps if the CAFFEINE_ADMIN_TOKEN env var is not set; the frontend calls this during authenticated actor creation, risking total app failure in misconfigured deployments.",
+    "reportAbuse does not enforce that at least one of reportedEntry or reportedUser is provided, allowing a targetless report if a client bypasses UI validation."
   ],
   "isFixRequest": true,
   "gameProjectType": "none",

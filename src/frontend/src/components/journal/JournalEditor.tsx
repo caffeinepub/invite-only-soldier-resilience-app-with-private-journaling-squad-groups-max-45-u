@@ -51,7 +51,7 @@ export default function JournalEditor({ entry, onClose, prefillTitle, prefillCon
     }
 
     if (isShared && !selectedSquad) {
-      toast.error('Please select a squad to share with');
+      toast.error('Please select a group to share with');
       return;
     }
 
@@ -144,25 +144,25 @@ export default function JournalEditor({ entry, onClose, prefillTitle, prefillCon
             <CardHeader>
               <div className="flex items-center gap-2">
                 <Users className="h-5 w-5 text-secondary-foreground" />
-                <CardTitle>Share with Squad</CardTitle>
+                <CardTitle>Share with Group</CardTitle>
               </div>
-              <CardDescription>Optionally share this entry with one of your squads</CardDescription>
+              <CardDescription>Optionally share this entry with one of your groups</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <Label>Share this entry</Label>
-                  <p className="text-sm text-muted-foreground">Make this entry visible to squad members</p>
+                  <p className="text-sm text-muted-foreground">Make this entry visible to group members</p>
                 </div>
                 <Switch checked={isShared} onCheckedChange={setIsShared} disabled={isSaving} />
               </div>
 
               {isShared && (
                 <div className="space-y-2">
-                  <Label htmlFor="squad">Select Squad</Label>
+                  <Label htmlFor="squad">Select Group</Label>
                   <Select value={selectedSquad} onValueChange={setSelectedSquad} disabled={isSaving}>
                     <SelectTrigger id="squad">
-                      <SelectValue placeholder="Choose a squad..." />
+                      <SelectValue placeholder="Choose a group..." />
                     </SelectTrigger>
                     <SelectContent>
                       {squads.map((squad) => (
@@ -179,7 +179,7 @@ export default function JournalEditor({ entry, onClose, prefillTitle, prefillCon
                 <Alert>
                   <AlertCircle className="h-4 w-4" />
                   <AlertDescription className="text-sm">
-                    Shared entries are visible to all members of the selected squad. You can unshare at any time.
+                    Shared entries are visible to all members of the selected group. You can unshare at any time.
                   </AlertDescription>
                 </Alert>
               )}

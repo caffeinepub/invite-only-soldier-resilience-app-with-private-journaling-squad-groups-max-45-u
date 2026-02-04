@@ -30,7 +30,7 @@ export default function AppShell() {
 
   const navItems = [
     { path: '/journal', label: 'Journal', icon: BookOpen },
-    { path: '/squads', label: 'Squads', icon: Users },
+    { path: '/groups', label: 'Groups', icon: Users },
     { path: '/modules', label: 'Modules', icon: FileText }
   ];
 

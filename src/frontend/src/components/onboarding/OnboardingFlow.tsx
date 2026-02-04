@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useAcceptInvite, useAcceptDisclaimer, useGetGlobalInviteCode } from '../../hooks/useQueries';
+import { useRegisterUser, useAcceptDisclaimer } from '../../hooks/useQueries';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -9,35 +9,20 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
 import { DISCLAIMER_TEXT } from '../../content/disclaimer';
-import { normalizeInviteCode } from '../../utils/inviteCode';
 
 export default function OnboardingFlow() {
-  const [step, setStep] = useState<'invite' | 'disclaimer'>('invite');
+  const [step, setStep] = useState<'register' | 'disclaimer'>('register');
   const [username, setUsername] = useState('');
-  const [inviteCode, setInviteCode] = useState('');
   const [acceptedDisclaimer, setAcceptedDisclaimer] = useState(false);
   const [acceptedGuidelines, setAcceptedGuidelines] = useState(false);
 
-  const acceptInviteMutation = useAcceptInvite();
+  const registerMutation = useRegisterUser();
   const acceptDisclaimerMutation = useAcceptDisclaimer();
-  const { refetch: fetchGlobalInviteCode, isFetching: isFetchingCode } = useGetGlobalInviteCode();
 
-  const handleGetInviteCode = async () => {
-    try {
-      const result = await fetchGlobalInviteCode();
-      if (result.data) {
-        setInviteCode(result.data);
-      }
-    } catch (error: any) {
-      // Error will be shown via getErrorMessage
-    }
-  };
-
-  const handleInviteSubmit = async (e: React.FormEvent) => {
+  const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const normalizedCode = normalizeInviteCode(inviteCode);
-      await acceptInviteMutation.mutateAsync({ username: username.trim(), inviteCode: normalizedCode });
+      await registerMutation.mutateAsync(username.trim());
       setStep('disclaimer');
     } catch (error: any) {
       // Error will be shown via mutation state
@@ -61,9 +46,6 @@ export default function OnboardingFlow() {
     if (message.includes('Maximum number of users reached')) {
       return 'This app has reached its maximum capacity of 45 users. Registration is currently closed.';
     }
-    if (message.includes('Invalid invite code')) {
-      return 'The invite code you entered is invalid. Please check and try again.';
-    }
     if (message.includes('Username already taken')) {
       return 'This username is already taken. Please choose a different one.';
     }
@@ -73,7 +55,7 @@ export default function OnboardingFlow() {
     return 'An error occurred. Please try again.';
   };
 
-  if (step === 'invite') {
+  if (step === 'register') {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background p-4">
         <Card className="w-full max-w-md">
@@ -85,38 +67,11 @@ export default function OnboardingFlow() {
                 className="h-16 w-16 object-contain"
               />
             </div>
-            <CardTitle>Join the Community</CardTitle>
-            <CardDescription>Enter your invite code and choose a username to get started</CardDescription>
+            <CardTitle>Create Your Account</CardTitle>
+            <CardDescription>Choose a username to get started</CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleInviteSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="inviteCode">Invite Code</Label>
-                <div className="flex gap-2">
-                  <Input
-                    id="inviteCode"
-                    type="text"
-                    value={inviteCode}
-                    onChange={(e) => setInviteCode(e.target.value)}
-                    placeholder="Enter your invite code"
-                    required
-                    disabled={acceptInviteMutation.isPending || isFetchingCode}
-                    className="flex-1"
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={handleGetInviteCode}
-                    disabled={acceptInviteMutation.isPending || isFetchingCode}
-                  >
-                    {isFetchingCode ? 'Loading...' : 'Get Code'}
-                  </Button>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Invite code is not case-sensitive
-                </p>
-              </div>
-
+            <form onSubmit={handleRegisterSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="username">Username</Label>
                 <Input
@@ -128,22 +83,22 @@ export default function OnboardingFlow() {
                   required
                   minLength={3}
                   maxLength={20}
-                  disabled={acceptInviteMutation.isPending}
+                  disabled={registerMutation.isPending}
                 />
                 <p className="text-xs text-muted-foreground">
-                  This username will be visible to other members in your squads
+                  This username will be visible to other members in your groups
                 </p>
               </div>
 
-              {acceptInviteMutation.isError && (
+              {registerMutation.isError && (
                 <Alert variant="destructive">
                   <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>{getErrorMessage(acceptInviteMutation.error)}</AlertDescription>
+                  <AlertDescription>{getErrorMessage(registerMutation.error)}</AlertDescription>
                 </Alert>
               )}
 
-              <Button type="submit" className="w-full" disabled={acceptInviteMutation.isPending}>
-                {acceptInviteMutation.isPending ? 'Registering...' : 'Continue'}
+              <Button type="submit" className="w-full" disabled={registerMutation.isPending}>
+                {registerMutation.isPending ? 'Creating Account...' : 'Continue'}
               </Button>
             </form>
           </CardContent>

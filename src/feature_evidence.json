@@ -2,10 +2,13 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-update-the-onboarding-invite-step-ui-frontend-src-components-onboarding-onboardingflow-tsx-to-ensure-the-invite-code-sent-to-acceptinvite-is-normalized-consistently-and-to-reduce-user-error-trim-the-invite-code-before-submission-and-add-concise-helper-text-indicating-the-global-invite-code-is-not-case-sensitive",
-      "featureTitle": "Update the onboarding invite step UI (`frontend/src/components/onboarding/OnboardingFlow.tsx`) to ensure the invite code sent to `acceptInvite` is normalized consistently and to reduce user error: trim the invite code before submission, and add concise helper text indicating the global invite code is not case-sensitive.",
+      "featureId": "feature-fix-authenticated-app-initialization-so-the-frontend-can-create-a-logged-in-actor-even-when-the-admin-bootstrap-secret-is-not-present-specifically-do-not-let-useactor-block-or-crash-the-app-if-initializeaccesscontrolwithsecret-traps-e-g-missing-empty-caffeineadmintoken-or-missing-backend-env-token-instead-continue-with-a-usable-authenticated-actor-and-surface-a-clear-error-message-in-the-ui-only-if-the-failure-prevents-core-user-flows",
+      "featureTitle": "Fix authenticated app initialization so the frontend can create a logged-in actor even when the admin bootstrap secret is not present. Specifically: do not let `useActor` block or crash the app if `_initializeAccessControlWithSecret` traps (e.g., missing/empty `caffeineAdminToken` or missing backend env token); instead, continue with a usable authenticated actor and surface a clear error message in the UI only if the failure prevents core user flows.",
       "files": [
-        "frontend/src/components/onboarding/OnboardingFlow.tsx"
+        "frontend/src/App.tsx",
+        "frontend/src/components/system/AppStartupErrorState.tsx",
+        "frontend/src/hooks/useQueries.ts",
+        "frontend/src/hooks/useSafeActor.ts"
       ],
       "components": [
         "authorization@4.0.0",
@@ -16,7 +19,27 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-2"
+        "REQ-1"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-a-user-visible-error-state-for-the-post-login-profile-load-authorization-step-so-that-if-getcalleruserprofile-or-other-initial-authenticated-calls-fails-the-ui-shows-an-english-message-and-a-retry-action-instead-of-appearing-to-not-open",
+      "featureTitle": "Add a user-visible error state for the post-login profile load/authorization step so that if `getCallerUserProfile` (or other initial authenticated calls) fails, the UI shows an English message and a retry action instead of appearing to not open.",
+      "files": [
+        "frontend/src/App.tsx",
+        "frontend/src/components/system/AppStartupErrorState.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-3"
       ],
       "confidence": "high"
     }

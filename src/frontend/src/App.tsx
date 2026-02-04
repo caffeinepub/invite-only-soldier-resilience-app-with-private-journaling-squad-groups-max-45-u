@@ -1,26 +1,38 @@
 import { useInternetIdentity } from './hooks/useInternetIdentity';
 import { useGetCallerUserProfile } from './hooks/useQueries';
+import { useSafeActor } from './hooks/useSafeActor';
 import { RouterProvider, createRouter, createRootRoute, createRoute } from '@tanstack/react-router';
 import { ThemeProvider } from 'next-themes';
 import { Toaster } from '@/components/ui/sonner';
+import { useQueryClient } from '@tanstack/react-query';
 import PublicLanding from './pages/PublicLanding';
 import OnboardingFlow from './components/onboarding/OnboardingFlow';
 import AppShell from './components/layout/AppShell';
 import Journal from './pages/Journal';
-import Squads from './pages/Squads';
-import SquadSharedEntries from './pages/SquadSharedEntries';
+import Groups from './pages/Groups';
+import GroupSharedEntries from './pages/GroupSharedEntries';
 import Modules from './pages/Modules';
 import Guidelines from './pages/Guidelines';
 import SettingsAbout from './pages/SettingsAbout';
 import AdminReports from './pages/AdminReports';
+import AppStartupErrorState from './components/system/AppStartupErrorState';
 
 function RootComponent() {
   const { identity, isInitializing } = useInternetIdentity();
-  const { data: userProfile, isLoading: profileLoading, isFetched } = useGetCallerUserProfile();
+  const { actor, isError: actorError, retry: retryActor } = useSafeActor();
+  const { 
+    data: userProfile, 
+    isLoading: profileLoading, 
+    isFetched,
+    isError: profileError,
+    refetch: refetchProfile 
+  } = useGetCallerUserProfile();
+  const queryClient = useQueryClient();
 
   const isAuthenticated = !!identity;
 
-  if (isInitializing || (isAuthenticated && profileLoading)) {
+  // Show loading state during initialization
+  if (isInitializing || (isAuthenticated && profileLoading && !isFetched)) {
     return (
       <div className="flex h-screen items-center justify-center bg-background">
         <div className="text-center">
@@ -28,6 +40,33 @@ function RootComponent() {
           <p className="text-muted-foreground">Loading...</p>
         </div>
       </div>
+    );
+  }
+
+  // Handle actor initialization errors
+  if (isAuthenticated && actorError) {
+    return (
+      <AppStartupErrorState
+        title="App Initialization Failed"
+        message="Unable to connect to the application backend. Please try again."
+        onRetry={() => {
+          retryActor();
+          queryClient.invalidateQueries();
+        }}
+      />
+    );
+  }
+
+  // Handle profile loading errors after successful actor init
+  if (isAuthenticated && profileError && isFetched) {
+    return (
+      <AppStartupErrorState
+        title="Profile Load Failed"
+        message="Unable to load your profile. Please try again."
+        onRetry={() => {
+          refetchProfile();
+        }}
+      />
     );
   }
 
@@ -54,16 +93,16 @@ const journalRoute = createRoute({
   component: Journal
 });
 
-const squadsRoute = createRoute({
+const groupsRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: '/squads',
-  component: Squads
+  path: '/groups',
+  component: Groups
 });
 
-const squadEntriesRoute = createRoute({
+const groupEntriesRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: '/squads/$squadId',
-  component: SquadSharedEntries
+  path: '/groups/$squadId',
+  component: GroupSharedEntries
 });
 
 const modulesRoute = createRoute({
@@ -107,8 +146,8 @@ const indexRoute = createRoute({
 const routeTree = rootRoute.addChildren([
   indexRoute,
   journalRoute,
-  squadsRoute,
-  squadEntriesRoute,
+  groupsRoute,
+  groupEntriesRoute,
   modulesRoute,
   guidelinesRoute,
   settingsRoute,

@@ -7,6 +7,8 @@ import Time "mo:core/Time";
 import Char "mo:core/Char";
 import Runtime "mo:core/Runtime";
 import Int "mo:core/Int";
+import Principal "mo:core/Principal";
+
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
 
@@ -17,7 +19,6 @@ actor {
 
   // Constants
   let maxUsers = 45;
-  let globalInviteCode : Text = "Dagger";
   let inviteCodeExpiration : Time.Time = 259200000;
   let maxGroupMembers = 45;
   let memberInviteCodeLength = 6;
@@ -102,8 +103,6 @@ actor {
   let reports = Map.empty<Nat, Report>();
   var reportCounter = 0;
 
-  let usedInviteCodes = Map.empty<Text, Bool>();
-
   // Helper functions
   func isUserRegistered(caller : Principal) : Bool {
     switch (userProfiles.get(caller)) {
@@ -136,9 +135,8 @@ actor {
   // User Profile Management (Required by frontend)
 
   public query ({ caller }) func getCallerUserProfile() : async ?UserProfile {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only users can view profiles");
-    };
+    // No authorization check - return null for unauthenticated/unregistered users
+    // This allows the frontend to detect when onboarding is needed
     userProfiles.get(caller);
   };
 
@@ -161,16 +159,13 @@ actor {
 
   // Invitation System
 
-  public query ({ caller }) func getGlobalInviteCode() : async Text {
-    // Anyone can view the invite code (guests included)
-    if (userProfiles.size() >= maxUsers) {
-      Runtime.trap("Maximum number of users reached");
+  public shared ({ caller }) func registerUser(username : Text) : async () {
+    // No auth check - this is the self-registration endpoint for authenticated principals
+    // Anonymous principals are blocked by the nature of shared functions
+    if (caller.isAnonymous()) {
+      Runtime.trap("Anonymous users cannot register");
     };
-    globalInviteCode;
-  };
 
-  public shared ({ caller }) func acceptInvite(username : Text, inviteCode : Text) : async () {
-    // No auth check - this is the registration endpoint
     if (userProfiles.size() >= maxUsers) {
       Runtime.trap("Maximum number of users reached");
     };
@@ -178,11 +173,6 @@ actor {
     switch (userProfiles.get(caller)) {
       case (?_) { Runtime.trap("User already registered") };
       case (null) {
-        // Validate normalized code (enUS culture not available)
-        if (not isNormalizedCodeValid(inviteCode, globalInviteCode)) {
-          Runtime.trap("Invalid invite code");
-        };
-
         // Check username uniqueness
         let existingUsernames = userProfiles.entries().map(
           func((_, profile)) { profile.username }
@@ -194,12 +184,15 @@ actor {
         let profile : UserProfile = {
           username;
           joinedAt = Time.now();
-          inviteCode;
+          inviteCode = "";
           disclaimerStatus = null;
         };
 
         userProfiles.add(caller, profile);
-        // Assign user role after registration
+        
+        // Self-assign user role after successful registration
+        // This is a special case where we directly grant the role without admin check
+        // because this is the registration flow
         AccessControl.assignRole(accessControlState, caller, caller, #user);
       };
     };
@@ -273,7 +266,7 @@ actor {
     );
   };
 
-  public shared ({ caller }) func createSquadGroup(name : Text) : async Nat {
+  public shared ({ caller }) func createSquadGroup(name : Text, inviteCode : Text) : async Nat {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can create squad groups");
     };
@@ -288,7 +281,7 @@ actor {
       owner = caller;
       members = [caller];
       createdAt = Time.now();
-      inviteCode = generateInviteCode(squadCounter);
+      inviteCode;
       inviteCreatedAt = Time.now();
     };
     squadGroups.add(squadCounter, newGroup);
@@ -709,16 +702,6 @@ actor {
       code #= Text.fromChar(chars.chars().toArray()[index]);
     };
     code;
-  };
-
-  // Helper function to validate normalized invite codes (backend only, returns ?Text for frontend validation)
-  func isNormalizedCodeValid(userCode : Text, compareCode : Text) : Bool {
-    // Normalize input and expected values (in practice, integrate with frontend for explicit normalization)
-    let userNormalized = trimWhitespace(userCode).toLower();
-    let compareNormalized = trimWhitespace(compareCode).toLower();
-
-    // Perform strict comparison
-    userNormalized == compareNormalized;
   };
 
   // Helper to trim leading and trailing whitespace from Text (simplified for ASCII)

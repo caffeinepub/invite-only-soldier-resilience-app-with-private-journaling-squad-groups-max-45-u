@@ -1,10 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useActor } from './useActor';
+import { useSafeActor } from './useSafeActor';
 import type { UserProfile, Journaling, SquadGroup, Report, ReportStatus } from '../backend';
 import { Principal } from '@dfinity/principal';
+import { normalizeInviteCode } from '../utils/inviteCode';
 
 export function useGetCallerUserProfile() {
-  const { actor, isFetching: actorFetching } = useActor();
+  const { actor, isFetching: actorFetching } = useSafeActor();
 
   const query = useQuery<UserProfile | null>({
     queryKey: ['currentUserProfile'],
@@ -13,7 +14,7 @@ export function useGetCallerUserProfile() {
       return actor.getCallerUserProfile();
     },
     enabled: !!actor && !actorFetching,
-    retry: false
+    retry: 1
   });
 
   return {
@@ -23,14 +24,14 @@ export function useGetCallerUserProfile() {
   };
 }
 
-export function useAcceptInvite() {
-  const { actor } = useActor();
+export function useRegisterUser() {
+  const { actor } = useSafeActor();
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ username, inviteCode }: { username: string; inviteCode: string }) => {
+    mutationFn: async (username: string) => {
       if (!actor) throw new Error('Actor not available');
-      await actor.acceptInvite(username, inviteCode);
+      await actor.registerUser(username);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['currentUserProfile'] });
@@ -39,7 +40,7 @@ export function useAcceptInvite() {
 }
 
 export function useAcceptDisclaimer() {
-  const { actor } = useActor();
+  const { actor } = useSafeActor();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -53,22 +54,8 @@ export function useAcceptDisclaimer() {
   });
 }
 
-export function useGetGlobalInviteCode() {
-  const { actor, isFetching: actorFetching } = useActor();
-
-  return useQuery<string>({
-    queryKey: ['globalInviteCode'],
-    queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
-      return actor.getGlobalInviteCode();
-    },
-    enabled: false, // Disable automatic fetching, only fetch on demand
-    retry: false
-  });
-}
-
 export function useGetMyJournalEntries() {
-  const { actor, isFetching: actorFetching } = useActor();
+  const { actor, isFetching: actorFetching } = useSafeActor();
 
   return useQuery<Journaling[]>({
     queryKey: ['myJournalEntries'],
@@ -81,7 +68,7 @@ export function useGetMyJournalEntries() {
 }
 
 export function useAddJournaling() {
-  const { actor } = useActor();
+  const { actor } = useSafeActor();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -106,7 +93,7 @@ export function useAddJournaling() {
 }
 
 export function useUpdateJournaling() {
-  const { actor } = useActor();
+  const { actor } = useSafeActor();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -134,7 +121,7 @@ export function useUpdateJournaling() {
 }
 
 export function useDeleteJournaling() {
-  const { actor } = useActor();
+  const { actor } = useSafeActor();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -150,7 +137,7 @@ export function useDeleteJournaling() {
 }
 
 export function useGetMySquads() {
-  const { actor, isFetching: actorFetching } = useActor();
+  const { actor, isFetching: actorFetching } = useSafeActor();
 
   return useQuery<SquadGroup[]>({
     queryKey: ['mySquads'],
@@ -180,13 +167,14 @@ export function useGetMySquads() {
 }
 
 export function useCreateSquadGroup() {
-  const { actor } = useActor();
+  const { actor } = useSafeActor();
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (name: string) => {
+    mutationFn: async ({ name, joinCode }: { name: string; joinCode: string }) => {
       if (!actor) throw new Error('Actor not available');
-      return actor.createSquadGroup(name);
+      const normalizedCode = normalizeInviteCode(joinCode);
+      return actor.createSquadGroup(name, normalizedCode);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['mySquads'] });
@@ -195,13 +183,14 @@ export function useCreateSquadGroup() {
 }
 
 export function useJoinSquadGroup() {
-  const { actor } = useActor();
+  const { actor } = useSafeActor();
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (inviteCode: string) => {
+    mutationFn: async (joinCode: string) => {
       if (!actor) throw new Error('Actor not available');
-      return actor.joinSquadGroup(inviteCode);
+      const normalizedCode = normalizeInviteCode(joinCode);
+      return actor.joinSquadGroup(normalizedCode);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['mySquads'] });
@@ -210,7 +199,7 @@ export function useJoinSquadGroup() {
 }
 
 export function useGetSquadGroup(squadId: bigint | null) {
-  const { actor, isFetching: actorFetching } = useActor();
+  const { actor, isFetching: actorFetching } = useSafeActor();
 
   return useQuery<SquadGroup | null>({
     queryKey: ['squadGroup', squadId?.toString()],
@@ -223,7 +212,7 @@ export function useGetSquadGroup(squadId: bigint | null) {
 }
 
 export function useGetSquadMembers(squadId: bigint | null) {
-  const { actor, isFetching: actorFetching } = useActor();
+  const { actor, isFetching: actorFetching } = useSafeActor();
 
   return useQuery<UserProfile[]>({
     queryKey: ['squadMembers', squadId?.toString()],
@@ -236,7 +225,7 @@ export function useGetSquadMembers(squadId: bigint | null) {
 }
 
 export function useLeaveSquadGroup() {
-  const { actor } = useActor();
+  const { actor } = useSafeActor();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -253,7 +242,7 @@ export function useLeaveSquadGroup() {
 }
 
 export function useRotateSquadInviteCode() {
-  const { actor } = useActor();
+  const { actor } = useSafeActor();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -268,7 +257,7 @@ export function useRotateSquadInviteCode() {
 }
 
 export function useGetSharedSquadEntries(squadId: bigint | null) {
-  const { actor, isFetching: actorFetching } = useActor();
+  const { actor, isFetching: actorFetching } = useSafeActor();
 
   return useQuery<Journaling[]>({
     queryKey: ['sharedSquadEntries', squadId?.toString()],
@@ -281,7 +270,7 @@ export function useGetSharedSquadEntries(squadId: bigint | null) {
 }
 
 export function useGetGuidelines() {
-  const { actor, isFetching: actorFetching } = useActor();
+  const { actor, isFetching: actorFetching } = useSafeActor();
 
   return useQuery<string>({
     queryKey: ['guidelines'],
@@ -294,7 +283,7 @@ export function useGetGuidelines() {
 }
 
 export function useReportAbuse() {
-  const { actor } = useActor();
+  const { actor } = useSafeActor();
 
   return useMutation({
     mutationFn: async ({
@@ -315,7 +304,7 @@ export function useReportAbuse() {
 }
 
 export function useIsCallerAdmin() {
-  const { actor, isFetching: actorFetching } = useActor();
+  const { actor, isFetching: actorFetching } = useSafeActor();
 
   return useQuery<boolean>({
     queryKey: ['isCallerAdmin'],
@@ -328,7 +317,7 @@ export function useIsCallerAdmin() {
 }
 
 export function useGetAllReports() {
-  const { actor, isFetching: actorFetching } = useActor();
+  const { actor, isFetching: actorFetching } = useSafeActor();
 
   return useQuery<Report[]>({
     queryKey: ['allReports'],
@@ -341,7 +330,7 @@ export function useGetAllReports() {
 }
 
 export function useUpdateReportStatus() {
-  const { actor } = useActor();
+  const { actor } = useSafeActor();
   const queryClient = useQueryClient();
 
   return useMutation({

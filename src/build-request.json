@@ -1,54 +1,69 @@
 {
   "kind": "build_request",
-  "title": "Fix global invite code validation so users can complete onboarding and preview the app",
+  "title": "Fix app failing to load after Internet Identity sign-in",
   "priority": "high",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Update backend global invite code validation in `backend/main.mo` so that `acceptInvite(username, inviteCode)` accepts the intended global invite code \"Dagger\" in a robust, user-friendly way by normalizing the user-provided invite code before comparison (at minimum: trim leading/trailing whitespace and compare case-insensitively). Ensure the comparison is performed against a similarly-normalized canonical global invite code.",
-      "target": "backend",
+      "text": "Fix authenticated app initialization so the frontend can create a logged-in actor even when the admin bootstrap secret is not present. Specifically: do not let `useActor` block or crash the app if `_initializeAccessControlWithSecret` traps (e.g., missing/empty `caffeineAdminToken` or missing backend env token); instead, continue with a usable authenticated actor and surface a clear error message in the UI only if the failure prevents core user flows.",
+      "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-5"
+          "msg-1"
         ],
         "quotes": [
-          "The invite code you entered is invalid. Please check and try again  \nI can’t preview the app the invite code does not work"
+          "The app does not open.\n\nThe sign in does not let me in"
         ]
       },
       "acceptanceCriteria": [
-        "A new user can register successfully when entering \"Dagger\", \"dagger\", or \"DAGGER\".",
-        "A new user can register successfully when entering the correct invite code with leading/trailing spaces (e.g., \"  Dagger  \").",
-        "If an incorrect invite code is entered, the backend still rejects registration with an \"Invalid invite code\" trap/message (so the frontend continues to show the existing invalid-invite error state)."
+        "After successful Internet Identity login, the app no longer gets stuck on a loading screen due to actor initialization errors.",
+        "If access-control bootstrap fails, the user sees an English error message that explains something like: \"App initialization failed. Please refresh and try again.\" (and the app remains usable for normal sign-in/onboarding when possible)."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Update the onboarding invite step UI (`frontend/src/components/onboarding/OnboardingFlow.tsx`) to ensure the invite code sent to `acceptInvite` is normalized consistently and to reduce user error: trim the invite code before submission, and add concise helper text indicating the global invite code is not case-sensitive.",
-      "target": "frontend",
+      "text": "Fix open registration and onboarding by updating backend authorization logic so a newly authenticated (but not yet registered) user can reach onboarding and successfully register. At minimum: (1) `registerUser` must not call an admin-only role-assignment path that traps for normal users; it must grant the caller the `#user` role in a way that works for self-registration, and (2) `getCallerUserProfile` must not trap for users who are authenticated but not yet registered; it should return `null` in that case so the frontend can show the onboarding flow.",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-5"
+          "msg-1"
         ],
         "quotes": [
-          "The invite code you entered is invalid. Please check and try again  \nI can’t preview the app the invite code does not work"
+          "The sign in does not let me in"
         ]
       },
       "acceptanceCriteria": [
-        "Submitting the invite step always sends a trimmed invite code value (no leading/trailing whitespace) to the backend.",
-        "The invite step displays English helper text that clearly states the invite code is not case-sensitive.",
-        "The existing error message shown for invalid invite codes remains in English: \"The invite code you entered is invalid. Please check and try again.\""
+        "A new Internet Identity user can sign in, see the onboarding flow, register a username, accept the disclaimer/guidelines, and then access the main app shell.",
+        "Calling `getCallerUserProfile` before registration returns `null` (or equivalent optional none) rather than trapping with an authorization error.",
+        "Calling `registerUser` as a non-admin does not trap and results in the caller being treated as a `#user` for subsequent gated endpoints."
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Add a user-visible error state for the post-login profile load/authorization step so that if `getCallerUserProfile` (or other initial authenticated calls) fails, the UI shows an English message and a retry action instead of appearing to not open.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "The app does not open."
+        ]
+      },
+      "acceptanceCriteria": [
+        "If the current-user profile query errors, the user sees a clear error message and a button like \"Retry\" (or equivalent) to re-attempt loading without a full hard refresh.",
+        "The app does not remain indefinitely in a spinner-only state when the initial authenticated queries fail."
       ]
     }
   ],
   "constraints": [
-    "Backend must remain a single-actor Motoko architecture (all logic in `backend/main.mo`).",
-    "Do not modify any frontend files under `frontend/src/components/ui` or other immutable paths listed in SYSTEM_CONTEXT.",
-    "Use English for any user-facing text."
+    "Backend must remain a single Motoko actor in backend/main.mo (do not introduce additional backend services).",
+    "Do not edit files under frontend/src/components/ui (compose them instead).",
+    "Do not modify frontend immutable paths (frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, and frontend/src/components/ui). If changes are required, implement wrappers or alternatives in new files and update call sites."
   ],
   "nonGoals": [
-    "Do not change the maximum user capacity (45) or other registration policy beyond invite code normalization/validation.",
-    "Do not introduce new authentication providers (Internet Identity remains the only auth mechanism).",
-    "Do not add new onboarding steps or redesign unrelated pages."
+    "Do not add new authentication providers (Internet Identity remains the only auth method).",
+    "Do not redesign unrelated product features (journaling, groups, modules, reports) beyond what is necessary to fix app loading/sign-in/registration."
   ],
   "imageRequirements": {
     "required": [],

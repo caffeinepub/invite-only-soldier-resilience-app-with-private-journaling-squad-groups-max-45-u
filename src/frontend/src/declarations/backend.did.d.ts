@@ -55,18 +55,16 @@ export type UserRole = { 'admin' : null } |
 export interface _SERVICE {
   '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
   'acceptDisclaimer' : ActorMethod<[], undefined>,
-  'acceptInvite' : ActorMethod<[string, string], undefined>,
   'addJournaling' : ActorMethod<
     [string, string, boolean, [] | [bigint]],
     bigint
   >,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
-  'createSquadGroup' : ActorMethod<[string], bigint>,
+  'createSquadGroup' : ActorMethod<[string, string], bigint>,
   'deleteJournaling' : ActorMethod<[bigint], undefined>,
   'getAllReports' : ActorMethod<[], Array<Report>>,
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
-  'getGlobalInviteCode' : ActorMethod<[], string>,
   'getGuidelines' : ActorMethod<[], string>,
   'getJournaling' : ActorMethod<[bigint], [] | [Journaling]>,
   'getMyJournalEntries' : ActorMethod<[], Array<Journaling>>,
@@ -78,6 +76,7 @@ export interface _SERVICE {
   'isCallerAdmin' : ActorMethod<[], boolean>,
   'joinSquadGroup' : ActorMethod<[string], bigint>,
   'leaveSquadGroup' : ActorMethod<[bigint], undefined>,
+  'registerUser' : ActorMethod<[string], undefined>,
   'reportAbuse' : ActorMethod<
     [[] | [bigint], [] | [Principal], string, [] | [string]],
     bigint

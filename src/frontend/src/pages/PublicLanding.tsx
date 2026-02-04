@@ -44,9 +44,9 @@ export default function PublicLanding() {
           <Card>
             <CardHeader>
               <Users className="h-8 w-8 text-primary mb-2" />
-              <CardTitle>Squad Groups</CardTitle>
+              <CardTitle>Groups</CardTitle>
               <CardDescription>
-                Connect with fellow soldiers in small, invite-only groups to share insights and support each other
+                Connect with fellow soldiers in small groups to share insights and support each other
               </CardDescription>
             </CardHeader>
           </Card>
@@ -64,10 +64,9 @@ export default function PublicLanding() {
 
         <Card className="border-primary/20">
           <CardHeader>
-            <CardTitle>Invite-Only Access</CardTitle>
+            <CardTitle>Get Started</CardTitle>
             <CardDescription>
-              This platform is invite-only to maintain a focused, supportive community. If you have an invite code,
-              sign in to get started.
+              Sign in with Internet Identity to create your account and start your journey
             </CardDescription>
           </CardHeader>
           <CardContent>

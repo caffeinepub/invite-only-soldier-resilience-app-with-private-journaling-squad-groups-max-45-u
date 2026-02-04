@@ -1,26 +1,55 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Normalize invite code submission and clarify case-insensitive global invite code during onboarding",
+  "title": "Unblock post-Internet Identity app load by hardening actor init and adding retryable startup errors",
   "requirements": [
     {
-      "id": "REQ-2",
-      "summary": "Trim invite codes before submission and add helper text indicating the global invite code is not case-sensitive on the onboarding invite step.",
+      "id": "REQ-1",
+      "summary": "Prevent authenticated actor initialization from blocking/crashing when access-control bootstrap secret is missing, and keep the app usable after login.",
       "acceptanceCriteria": [
-        "Submitting the invite step always sends a trimmed invite code value (no leading/trailing whitespace) to the backend.",
-        "The invite step displays English helper text that clearly states the invite code is not case-sensitive.",
-        "The existing error message shown for invalid invite codes remains in English: \"The invite code you entered is invalid. Please check and try again.\""
+        "After successful Internet Identity login, the app no longer gets stuck on a loading screen due to actor initialization errors.",
+        "If access-control bootstrap fails, the user sees an English error message that explains something like: \"App initialization failed. Please refresh and try again.\" (and the app remains usable for normal sign-in/onboarding when possible)."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/onboarding/OnboardingFlow.tsx",
-          "operation": "modify",
-          "description": "Ensure invite submission always uses a trimmed invite code via the existing normalizeInviteCode flow, and add concise English helper text under the Invite Code input indicating the global invite code is not case-sensitive. Keep the existing invalid-invite error copy unchanged."
+          "path": "frontend/src/hooks/useSafeActor.ts",
+          "operation": "create",
+          "description": "Create a new actor hook that mirrors the behavior of the immutable useActor, but wraps the access-control bootstrap call in a try/catch so `_initializeAccessControlWithSecret` failures do not reject actor creation. Track a non-blocking initialization warning state for bootstrap failures and expose a retry function for re-creating the actor."
         },
         {
-          "path": "frontend/src/utils/inviteCode.ts",
+          "path": "frontend/src/hooks/useQueries.ts",
           "operation": "modify",
-          "description": "Confirm normalizeInviteCode consistently trims leading/trailing whitespace and is the single normalization utility used by onboarding invite submission (no change to user-facing text)."
+          "description": "Switch query hooks to depend on the new `useSafeActor` (instead of the immutable `useActor`) so authenticated calls remain functional even when access-control bootstrap fails. Ensure hooks still gate query execution on actor availability and avoid throwing states that would dead-end the UI."
+        },
+        {
+          "path": "frontend/src/components/system/AppStartupErrorState.tsx",
+          "operation": "create",
+          "description": "Add a reusable, user-visible startup error component that can display an English message and provide a retry action (button) to re-attempt actor/profile loading. Compose existing shadcn/ui components (do not edit files under frontend/src/components/ui). Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Update authenticated initialization gating to avoid spinner-only dead-ends when actor initialization partially fails. Use the `AppStartupErrorState` component to surface a clear message only when initialization failures block core flows, and wire up retry to re-attempt actor creation and dependent queries. Verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "summary": "Add a retryable error UI for failures during post-login profile load/authorization so the app does not appear to not open.",
+      "acceptanceCriteria": [
+        "If the current-user profile query errors, the user sees a clear error message and a button like \"Retry\" (or equivalent) to re-attempt loading without a full hard refresh.",
+        "The app does not remain indefinitely in a spinner-only state when the initial authenticated queries fail."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Handle `useGetCallerUserProfile` error states explicitly after login: replace indefinite loading/spinner-only behavior with the `AppStartupErrorState` component showing an English error message and a Retry action that re-runs the profile query (and, if needed, re-initializes the authenticated actor). Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/system/AppStartupErrorState.tsx",
+          "operation": "modify",
+          "description": "Extend the shared startup error component (if needed) to support distinct messaging for profile-load/authorization failures and to accept callbacks for retrying the specific failing step, while keeping the UI consistent and composed from shadcn/ui components. Verify the component's usage instructions before implementing."
         }
       ]
     }

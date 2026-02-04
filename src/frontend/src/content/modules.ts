@@ -251,6 +251,85 @@ export const MODULES: Module[] = [
         prefillContent: 'Reflect on how being a soldier has positively impacted your life:\n\n1. What personal strengths have you developed through service?\n2. What relationships or connections have enriched your life?\n3. What skills have you gained that benefit you in all areas of life?\n4. How has service shaped your character and identity?\n5. What are you most proud of in your journey as a soldier?'
       }
     ]
+  },
+  {
+    id: 'sleep-performance-1',
+    category: 'Sleep Performance',
+    title: 'Sleep as a Force Multiplier',
+    description: 'Understand why sleep is the foundation of physical and mental performance, and how to optimize it.',
+    content: [
+      {
+        type: 'quote',
+        text: 'Sleep is essential for physical recovery, cognitive function, and overall readiness. Soldiers require 7-8 hours of quality sleep per night to maintain optimal performance.',
+        citation: {
+          source: 'FM 7-22: Holistic Health and Fitness',
+          reference: 'Chapter 8, Sleep'
+        }
+      },
+      {
+        type: 'quote',
+        text: 'Sleep is the single most effective thing we can do to reset our brain and body health each day.',
+        citation: {
+          source: 'Matthew Walker — Why We Sleep',
+          reference: 'Introduction'
+        }
+      },
+      {
+        type: 'interpretation',
+        text: 'Sleep isn\'t a luxury—it\'s a tactical advantage. Research from Matthew Walker\'s "Why We Sleep" reveals that even modest sleep deprivation (6 hours or less) impairs cognitive performance as much as being legally drunk. Reaction time slows, decision-making degrades, emotional regulation fails, and injury risk skyrockets. Yet many soldiers treat sleep as optional, sacrificing it for training, work, or entertainment. This is a strategic error. Elite military units and championship teams prioritize sleep because they understand: you can\'t out-train bad sleep. Every hour of quality sleep is a force multiplier for the next day\'s performance.'
+      },
+      {
+        type: 'interpretation',
+        text: 'The Science of Sleep Debt: Sleep debt accumulates like financial debt—with interest. Missing one hour of sleep doesn\'t just cost you that hour; it compounds over days and weeks, degrading performance, mood, and health. FM 7-22 emphasizes that chronic sleep deprivation increases injury rates, slows recovery, weakens immune function, and impairs learning. You can\'t "catch up" on weekends—the damage is already done. The solution is consistency: prioritize 7-8 hours every night, not just when convenient. Think of sleep as mission-critical preparation, not downtime.'
+      },
+      {
+        type: 'interpretation',
+        text: 'Sleep and Physical Performance: During deep sleep, your body releases growth hormone, repairs muscle tissue, consolidates motor learning, and restores energy systems. Matthew Walker\'s research shows that athletes who sleep 8+ hours have faster sprint times, better accuracy, quicker reaction times, and significantly lower injury rates than those sleeping 6 hours or less. For soldiers, this translates directly to combat readiness: better marksmanship, faster decision-making, improved endurance, and reduced risk of training injuries. If you want to perform at your peak, sleep is non-negotiable.'
+      },
+      {
+        type: 'interpretation',
+        text: 'Sleep and Mental Performance: Sleep is when your brain consolidates memories, processes emotions, and clears metabolic waste. Without adequate sleep, learning is impaired—you literally can\'t form new memories effectively. Emotional regulation fails, making you more reactive, irritable, and prone to poor decisions. FM 7-22 notes that sleep-deprived soldiers show impaired judgment, reduced situational awareness, and increased risk-taking behavior. In high-stakes environments, these deficits can be catastrophic. Prioritizing sleep isn\'t soft—it\'s smart leadership and tactical discipline.'
+      },
+      {
+        type: 'interpretation',
+        text: 'Sleep Hygiene Fundamentals: Create conditions for quality sleep. FM 7-22 and sleep science agree on the basics: (1) Consistent schedule—same bedtime and wake time, even on weekends. (2) Dark, cool, quiet environment—65-68°F is optimal. (3) No screens 1 hour before bed—blue light suppresses melatonin. (4) No caffeine after 2 PM—it has a 6-hour half-life. (5) No alcohol before bed—it fragments sleep and blocks REM. (6) Wind-down routine—signal your brain it\'s time to sleep. These aren\'t suggestions—they\'re performance protocols used by elite operators and athletes worldwide.'
+      },
+      {
+        type: 'interpretation',
+        text: 'Tactical Napping: When you can\'t get a full night\'s sleep, strategic napping can help. FM 7-22 recommends 20-30 minute "power naps" to restore alertness without entering deep sleep (which causes grogginess). Naps longer than 30 minutes or after 3 PM can interfere with nighttime sleep. Matthew Walker notes that naps improve learning, memory, and emotional regulation—but they don\'t replace nighttime sleep. Use naps tactically during sustained operations, but never as a substitute for proper sleep hygiene.'
+      },
+      {
+        type: 'interpretation',
+        text: 'Sleep and Recovery: Sleep is when adaptation happens. All the stress you impose through training—lifting weights, running miles, practicing skills—only becomes strength if you sleep. Without adequate sleep, training becomes destructive rather than constructive. You break down tissue but never fully rebuild it. FM 7-22 emphasizes that recovery is a pillar of the H2F system, and sleep is the foundation of recovery. If you\'re training hard but not sleeping well, you\'re working against yourself. Prioritize sleep as seriously as you prioritize training.'
+      }
+    ],
+    prompts: [
+      {
+        text: 'Assess your current sleep habits and identify improvements',
+        prefillTitle: 'My Sleep Performance Assessment',
+        prefillContent: '**CURRENT SLEEP PATTERNS**\nAverage hours per night (last 7 days): ___\nBedtime consistency (same time ±30 min?): Yes / No\nWake time consistency: Yes / No\nHow I feel most mornings: (energized / okay / groggy / exhausted)\n\n**SLEEP ENVIRONMENT**\nRoom darkness: (completely dark / some light / bright)\nRoom temperature: ___ °F (optimal is 65-68°F)\nNoise level: (silent / some noise / disruptive)\nMattress/pillow comfort: (excellent / adequate / poor)\n\n**SLEEP DISRUPTORS**\nCheck all that apply:\n□ Screen time within 1 hour of bed\n□ Caffeine after 2 PM\n□ Alcohol before bed\n□ Irregular schedule (shift work, late duties)\n□ Stress/racing thoughts\n□ Physical discomfort or pain\n□ Roommate noise/disruption\n□ Early morning PT conflicts with sleep need\n\n**PERFORMANCE IMPACT**\nWhen I don\'t sleep well, I notice:\n□ Slower reaction time\n□ Poor decision-making\n□ Irritability/mood swings\n□ Reduced motivation\n□ Increased injury risk\n□ Difficulty learning new skills\n□ Decreased physical performance\n\n**IMPROVEMENT PLAN**\nBased on FM 7-22 and "Why We Sleep," I will:\n\n1. Sleep Schedule:\n   Target bedtime: ___\n   Target wake time: ___\n   Target hours: ___ (aim for 7-8)\n\n2. Sleep Hygiene Changes (choose 2-3 to start):\n   □ No screens 1 hour before bed\n   □ No caffeine after 2 PM\n   □ No alcohol before bed\n   □ Create wind-down routine: ___\n   □ Improve room darkness (blackout curtains, eye mask)\n   □ Adjust room temperature\n   □ Use white noise or earplugs\n\n3. Barriers and Solutions:\n   Barrier: ___\n   Solution: ___\n\n**COMMITMENT**\nI commit to prioritizing sleep as a force multiplier for my performance. I understand that sleep is not optional—it\'s mission-critical preparation.\n\nStart date: ___\nCheck-in date (1 week): ___'
+      },
+      {
+        text: 'Track your sleep consistency and performance correlation',
+        prefillTitle: 'Sleep Performance Log',
+        prefillContent: '**WEEKLY SLEEP LOG**\n\nDay 1:\nBedtime: ___ | Wake time: ___ | Total hours: ___\nQuality (1-10): ___\nNext-day performance (1-10): ___\nNotes: ___\n\nDay 2:\nBedtime: ___ | Wake time: ___ | Total hours: ___\nQuality (1-10): ___\nNext-day performance (1-10): ___\nNotes: ___\n\nDay 3:\nBedtime: ___ | Wake time: ___ | Total hours: ___\nQuality (1-10): ___\nNext-day performance (1-10): ___\nNotes: ___\n\nDay 4:\nBedtime: ___ | Wake time: ___ | Total hours: ___\nQuality (1-10): ___\nNext-day performance (1-10): ___\nNotes: ___\n\nDay 5:\nBedtime: ___ | Wake time: ___ | Total hours: ___\nQuality (1-10): ___\nNext-day performance (1-10): ___\nNotes: ___\n\nDay 6:\nBedtime: ___ | Wake time: ___ | Total hours: ___\nQuality (1-10): ___\nNext-day performance (1-10): ___\nNotes: ___\n\nDay 7:\nBedtime: ___ | Wake time: ___ | Total hours: ___\nQuality (1-10): ___\nNext-day performance (1-10): ___\nNotes: ___\n\n**WEEKLY ANALYSIS**\nAverage sleep: ___ hours\nMost consistent nights: ___\nBest performance days: ___\nCorrelation I notice: ___\n\n**INSIGHTS**\nWhat helped me sleep well: ___\nWhat disrupted my sleep: ___\nHow sleep affected my training: ___\nHow sleep affected my mood: ___\nHow sleep affected my decision-making: ___\n\n**NEXT WEEK ADJUSTMENTS**\nWhat I\'ll keep doing: ___\nWhat I\'ll change: ___'
+      },
+      {
+        text: 'Design your optimal wind-down routine',
+        prefillTitle: 'My Sleep Wind-Down Routine',
+        prefillContent: '**WIND-DOWN ROUTINE DESIGN**\n\nBased on FM 7-22 and sleep science, create a consistent pre-sleep routine that signals your brain it\'s time to rest.\n\n**TIMING**\nTarget bedtime: ___\nWind-down starts: ___ (60-90 minutes before bed)\n\n**PHASE 1: TRANSITION (60-90 min before bed)**\n□ Finish last meal/snack\n□ Complete evening hygiene\n□ Lay out next day\'s uniform/gear\n□ Review tomorrow\'s schedule\n□ Set alarm\n□ Other: ___\n\n**PHASE 2: WIND-DOWN (30-60 min before bed)**\nChoose 2-3 calming activities:\n□ Read (physical book, not screen)\n□ Light stretching or mobility work\n□ Breathwork or meditation\n□ Journal reflection\n□ Listen to calming music or podcast\n□ Warm shower\n□ Other: ___\n\n**PHASE 3: SLEEP PREP (15-30 min before bed)**\n□ Dim lights or use red light only\n□ Set room temperature to 65-68°F\n□ Ensure room is dark (curtains, eye mask)\n□ White noise or earplugs if needed\n□ Phone on silent, away from bed\n□ Final bathroom trip\n□ Other: ___\n\n**WHAT TO AVOID**\n□ Screens (phone, TV, tablet, laptop)\n□ Intense exercise\n□ Heavy meals\n□ Caffeine or alcohol\n□ Stressful conversations\n□ Work or problem-solving\n□ Bright lights\n\n**MY ROUTINE**\nWrite your specific wind-down sequence:\n\n___ PM: ___\n___ PM: ___\n___ PM: ___\n___ PM: ___\n___ PM: Lights out\n\n**COMMITMENT**\nI will follow this routine for 7 consecutive nights to establish the habit.\n\nStart date: ___\nReview date: ___\n\n**REFLECTION (after 1 week)**\nWhat worked well: ___\nWhat was challenging: ___\nHow my sleep improved: ___\nAdjustments for next week: ___'
+      },
+      {
+        text: 'Analyze caffeine and alcohol impact on your sleep',
+        prefillTitle: 'Caffeine & Alcohol Sleep Impact Analysis',
+        prefillContent: '**CAFFEINE AUDIT**\n\nCaffeine has a 6-hour half-life. If you consume 200mg at 4 PM, 100mg is still in your system at 10 PM, disrupting sleep quality even if you fall asleep.\n\n**Current Caffeine Habits:**\nMorning intake (time & amount): ___\nAfternoon intake (time & amount): ___\nEvening intake (time & amount): ___\nTotal daily caffeine: ___ mg\n\nCommon sources:\n- Coffee (8 oz): ~95mg\n- Energy drink (8 oz): ~80mg\n- Pre-workout: ~150-300mg\n- Soda (12 oz): ~35mg\n\n**Sleep Impact:**\nDo I have trouble falling asleep? Yes / No\nDo I wake during the night? Yes / No\nDo I feel rested in the morning? Yes / No\n\n**ALCOHOL AUDIT**\n\nAlcohol may help you fall asleep faster, but it fragments sleep, blocks REM (dream) sleep, and causes early waking. Matthew Walker calls it "sedation, not sleep."\n\n**Current Alcohol Habits:**\nFrequency: ___ nights per week\nTypical amount: ___\nTiming relative to bed: ___\n\n**Sleep Impact:**\nDo I wake up during the night after drinking? Yes / No\nDo I feel rested after nights with alcohol? Yes / No\nDo I snore more after drinking? Yes / No\n\n**OPTIMIZATION PLAN**\n\n**Caffeine Strategy:**\n□ Cut off caffeine by 2 PM (recommended)\n□ Reduce total daily intake to ___ mg\n□ Switch afternoon coffee to decaf\n□ Replace afternoon caffeine with water, walk, or power nap\n□ Eliminate pre-workout supplements after ___ PM\n\n**Alcohol Strategy:**\n□ No alcohol within 3 hours of bedtime\n□ Limit to ___ drinks maximum\n□ Alcohol-free nights: ___ per week\n□ Replace evening drinks with: ___\n\n**EXPERIMENT**\nI will test these changes for 7 days and track:\n- Sleep quality (1-10): ___\n- Time to fall asleep: ___\n- Night wakings: ___\n- Morning energy (1-10): ___\n- Next-day performance (1-10): ___\n\n**RESULTS (after 7 days)**\nWhat I noticed: ___\nPerformance changes: ___\nWill I continue these changes? Yes / No\nWhy or why not: ___'
+      },
+      {
+        text: 'Plan sleep strategy for high-tempo operations',
+        prefillTitle: 'Tactical Sleep Strategy for Sustained Operations',
+        prefillContent: '**SCENARIO PLANNING**\n\nDuring field exercises, deployments, or high-tempo training, perfect sleep isn\'t always possible. FM 7-22 and sleep science provide strategies to maintain performance when sleep is limited.\n\n**UPCOMING HIGH-TEMPO PERIOD**\nEvent/operation: ___\nDuration: ___\nExpected sleep disruption: ___\n\n**BANK SLEEP (Before)**\nIn the 3-5 days before sustained operations, prioritize extra sleep:\n□ Target 8-9 hours per night\n□ Maintain consistent schedule\n□ Optimize sleep hygiene\n□ Avoid alcohol and late caffeine\n□ Goal: Enter operation well-rested\n\n**TACTICAL NAPPING (During)**\nWhen nighttime sleep is limited, use strategic naps:\n□ 20-30 minute power naps (restore alertness, no grogginess)\n□ Nap before 3 PM if possible (won\'t disrupt night sleep)\n□ Even 10-15 minutes helps if that\'s all you have\n□ Find quiet, dark spot when possible\n□ Set alarm to avoid oversleeping\n\n**CAFFEINE TACTICS (During)**\nUse caffeine strategically, not constantly:\n□ Time caffeine for critical performance windows\n□ Avoid continuous dosing (causes tolerance and crash)\n□ "Caffeine nap": consume caffeine, nap 20 min, wake as it kicks in\n□ Stop caffeine 6+ hours before planned sleep\n□ Don\'t exceed 400mg daily (performance degrades beyond this)\n\n**RECOVERY SLEEP (After)**\nAfter sustained operations, prioritize recovery:\n□ First 24-48 hours: sleep as much as needed\n□ Return to consistent schedule within 3 days\n□ Avoid "revenge sleep" (sleeping 12+ hours repeatedly)\n□ Focus on quality: dark, cool, quiet, no alcohol\n□ Light exercise helps reset circadian rhythm\n\n**PERFORMANCE MONITORING**\nWatch for signs of dangerous sleep debt:\n□ Microsleeps (brief lapses in attention)\n□ Slowed reaction time\n□ Poor decision-making\n□ Emotional volatility\n□ Increased injury risk\n\nIf you notice these, communicate with leadership. Sleep-deprived soldiers are a liability, not an asset.\n\n**TEAM SLEEP PLAN**\nIf you\'re a leader, protect your team\'s sleep:\n□ Rotate guard/watch duties fairly\n□ Enforce sleep discipline (no unnecessary noise)\n□ Model good sleep behavior\n□ Plan operations around sleep needs when possible\n□ Recognize that rested soldiers perform better\n\n**COMMITMENT**\nI understand that sleep is a weapon system. Even in high-tempo operations, I will use these strategies to maintain readiness.\n\n**POST-OPERATION REFLECTION**\nWhat worked: ___\nWhat was challenging: ___\nHow sleep affected my performance: ___\nWhat I\'ll do differently next time: ___'
+      }
+    ]
   }
 ];
 
@@ -260,5 +339,6 @@ export const CATEGORIES = [
   'Decision Making',
   'Communication',
   'Team Cohesiveness',
-  'Identity & Values'
+  'Identity & Values',
+  'Sleep Performance'
 ];

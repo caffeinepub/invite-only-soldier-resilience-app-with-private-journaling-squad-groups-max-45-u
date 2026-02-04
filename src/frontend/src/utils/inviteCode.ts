@@ -1,5 +1,5 @@
 /**
- * Normalizes invite codes by trimming whitespace only.
+ * Normalizes invite/join codes by trimming whitespace only.
  * The backend handles case-insensitive validation.
  */
 export function normalizeInviteCode(code: string): string {

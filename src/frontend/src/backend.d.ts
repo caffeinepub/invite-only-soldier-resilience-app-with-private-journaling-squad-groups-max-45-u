@@ -58,15 +58,13 @@ export enum UserRole {
 }
 export interface backendInterface {
     acceptDisclaimer(): Promise<void>;
-    acceptInvite(username: string, inviteCode: string): Promise<void>;
     addJournaling(title: string, content: string, isShared: boolean, squadGroup: bigint | null): Promise<bigint>;
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
-    createSquadGroup(name: string): Promise<bigint>;
+    createSquadGroup(name: string, inviteCode: string): Promise<bigint>;
     deleteJournaling(entryId: bigint): Promise<void>;
     getAllReports(): Promise<Array<Report>>;
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
-    getGlobalInviteCode(): Promise<string>;
     getGuidelines(): Promise<string>;
     getJournaling(entryId: bigint): Promise<Journaling | null>;
     getMyJournalEntries(): Promise<Array<Journaling>>;
@@ -78,6 +76,7 @@ export interface backendInterface {
     isCallerAdmin(): Promise<boolean>;
     joinSquadGroup(inviteCode: string): Promise<bigint>;
     leaveSquadGroup(squadId: bigint): Promise<void>;
+    registerUser(username: string): Promise<void>;
     reportAbuse(reportedEntry: bigint | null, reportedUser: Principal | null, reason: string, details: string | null): Promise<bigint>;
     rotateSquadInviteCode(squadId: bigint): Promise<string>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;

@@ -141,15 +141,13 @@ export enum UserRole {
 export interface backendInterface {
     _initializeAccessControlWithSecret(userSecret: string): Promise<void>;
     acceptDisclaimer(): Promise<void>;
-    acceptInvite(username: string, inviteCode: string): Promise<void>;
     addJournaling(title: string, content: string, isShared: boolean, squadGroup: bigint | null): Promise<bigint>;
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
-    createSquadGroup(name: string): Promise<bigint>;
+    createSquadGroup(name: string, inviteCode: string): Promise<bigint>;
     deleteJournaling(entryId: bigint): Promise<void>;
     getAllReports(): Promise<Array<Report>>;
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
-    getGlobalInviteCode(): Promise<string>;
     getGuidelines(): Promise<string>;
     getJournaling(entryId: bigint): Promise<Journaling | null>;
     getMyJournalEntries(): Promise<Array<Journaling>>;
@@ -161,6 +159,7 @@ export interface backendInterface {
     isCallerAdmin(): Promise<boolean>;
     joinSquadGroup(inviteCode: string): Promise<bigint>;
     leaveSquadGroup(squadId: bigint): Promise<void>;
+    registerUser(username: string): Promise<void>;
     reportAbuse(reportedEntry: bigint | null, reportedUser: Principal | null, reason: string, details: string | null): Promise<bigint>;
     rotateSquadInviteCode(squadId: bigint): Promise<string>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
@@ -198,20 +197,6 @@ export class Backend implements backendInterface {
             return result;
         }
     }
-    async acceptInvite(arg0: string, arg1: string): Promise<void> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.acceptInvite(arg0, arg1);
-                return result;
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.acceptInvite(arg0, arg1);
-            return result;
-        }
-    }
     async addJournaling(arg0: string, arg1: string, arg2: boolean, arg3: bigint | null): Promise<bigint> {
         if (this.processError) {
             try {
@@ -240,17 +225,17 @@ export class Backend implements backendInterface {
             return result;
         }
     }
-    async createSquadGroup(arg0: string): Promise<bigint> {
+    async createSquadGroup(arg0: string, arg1: string): Promise<bigint> {
         if (this.processError) {
             try {
-                const result = await this.actor.createSquadGroup(arg0);
+                const result = await this.actor.createSquadGroup(arg0, arg1);
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.createSquadGroup(arg0);
+            const result = await this.actor.createSquadGroup(arg0, arg1);
             return result;
         }
     }
@@ -308,20 +293,6 @@ export class Backend implements backendInterface {
         } else {
             const result = await this.actor.getCallerUserRole();
             return from_candid_UserRole_n16(this._uploadFile, this._downloadFile, result);
-        }
-    }
-    async getGlobalInviteCode(): Promise<string> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.getGlobalInviteCode();
-                return result;
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.getGlobalInviteCode();
-            return result;
         }
     }
     async getGuidelines(): Promise<string> {
@@ -475,6 +446,20 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.leaveSquadGroup(arg0);
+            return result;
+        }
+    }
+    async registerUser(arg0: string): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.registerUser(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.registerUser(arg0);
             return result;
         }
     }

@@ -31,9 +31,9 @@ export default function Modules() {
       </div>
 
       <Tabs value={selectedCategory} onValueChange={setSelectedCategory}>
-        <TabsList className="grid w-full grid-cols-2 lg:grid-cols-6">
+        <TabsList className="grid w-full grid-cols-2 lg:grid-cols-7 gap-1">
           {CATEGORIES.map((cat) => (
-            <TabsTrigger key={cat} value={cat} className="text-xs">
+            <TabsTrigger key={cat} value={cat} className="text-xs px-2">
               {cat}
             </TabsTrigger>
           ))}
