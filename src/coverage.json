@@ -1,34 +1,59 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-04T13:28:42.200Z",
+  "generatedAt": "2026-02-04T12:57:49.971Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 1,
-    "implemented": 0,
+    "total": 3,
+    "implemented": 3,
     "items": [
       {
-        "id": "REQ-12",
-        "summary": "Update the backend global registration invite code so that `acceptInvite` only accepts the invite code \"dagger\" (replacing the current value), enabling users to register and enter the app with that code.",
-        "status": "unknown",
-        "plannedFiles": [],
-        "matchedFiles": []
+        "id": "REQ-10",
+        "summary": "Include both (a) short attributed insights/quotes and (b) general summaries inspired by public high-performance figures, covering: Wim Hof, David Goggins, Shawn Ryan, Joe Rogan, Tom Brady, Michael Jordan, Mike Tyson, and Jocko Willink. Do not include copyrighted or unverifiable verbatim quotes; use paraphrased, attribution-style statements (e.g., “Inspired by …”).",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/content/modules.ts"
+        ],
+        "matchedFiles": [
+          "frontend/src/content/modules.ts"
+        ]
+      },
+      {
+        "id": "REQ-11",
+        "summary": "Add at least one new reflection prompt to the same existing module so users can start a guided journal entry from the module, with `prefillTitle` and `prefillContent` specifically tailored to applying stress-vs-distress concepts and influencer-inspired practices.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/content/modules.ts",
+          "frontend/src/pages/Modules.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/content/modules.ts"
+        ]
+      },
+      {
+        "id": "REQ-9",
+        "summary": "Add new stress-related learning content (stress vs. distress / eustress vs. distress) as additional content inside an existing learning module in `frontend/src/content/modules.ts` (do not create a new module).",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/content/modules.ts"
+        ],
+        "matchedFiles": [
+          "frontend/src/content/modules.ts"
+        ]
       }
     ]
   },
   "changedFiles": [
-    "backend/main.mo",
-    "backend/migration.mo",
     "build-request.json",
+    "build-template/README.md",
+    "caffeine.lock.json",
     "feature_evidence.json",
+    "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/backend.d.ts",
-    "frontend/src/backend.ts",
-    "frontend/src/declarations/backend.did.d.ts",
-    "frontend/src/declarations/backend.did.js",
+    "frontend/src/content/modules.ts",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

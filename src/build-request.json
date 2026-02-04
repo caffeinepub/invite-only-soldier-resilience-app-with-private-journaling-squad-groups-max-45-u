@@ -1,34 +1,72 @@
 {
   "kind": "build_request",
-  "title": "Change global registration invite code to \"dagger\"",
+  "title": "Add stress vs. distress content to an existing learning module with reflection prompt",
   "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-12",
-      "text": "Update the backend global registration invite code so that `acceptInvite` only accepts the invite code \"dagger\" (replacing the current value), enabling users to register and enter the app with that code.",
-      "target": "backend",
+      "id": "REQ-9",
+      "text": "Add new stress-related learning content (stress vs. distress / eustress vs. distress) as additional content inside an existing learning module in `frontend/src/content/modules.ts` (do not create a new module).",
+      "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-4"
+          "msg-1"
         ],
         "quotes": [
-          "I can’t enter the app without an invite can you make the reservation vote code dagger"
+          "Add as content without n an existing module"
         ]
       },
       "acceptanceCriteria": [
-        "In `backend/main.mo`, the `globalInviteCode` constant is set to \"dagger\".",
-        "Calling `acceptInvite(username, \"dagger\")` succeeds when capacity is not exceeded and the username is unique.",
-        "Calling `acceptInvite(username, <any other code>)` traps with an invalid invite code error (unchanged behavior)."
+        "`frontend/src/content/modules.ts` is updated to extend (not add) at least one existing `Module` entry by adding new `content` items focused on stress vs. distress.",
+        "No new `Module` object is added to `MODULES`; changes are limited to adding content to an existing module.",
+        "All added user-facing text is in English."
+      ]
+    },
+    {
+      "id": "REQ-10",
+      "text": "Include both (a) short attributed insights/quotes and (b) general summaries inspired by public high-performance figures, covering: Wim Hof, David Goggins, Shawn Ryan, Joe Rogan, Tom Brady, Michael Jordan, Mike Tyson, and Jocko Willink. Do not include copyrighted or unverifiable verbatim quotes; use paraphrased, attribution-style statements (e.g., “Inspired by …”).",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "Both"
+        ]
+      },
+      "acceptanceCriteria": [
+        "The updated module content includes items that reference each specified figure by name with paraphrased/attribution-style insights (no long verbatim quotes).",
+        "The content also includes general explanatory sections defining and contrasting stress vs. distress (including practical framing and examples).",
+        "No backend changes are required to render the new content; the Modules page continues to render from `MODULES` without runtime errors."
+      ]
+    },
+    {
+      "id": "REQ-11",
+      "text": "Add at least one new reflection prompt to the same existing module so users can start a guided journal entry from the module, with `prefillTitle` and `prefillContent` specifically tailored to applying stress-vs-distress concepts and influencer-inspired practices.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "Yes"
+        ]
+      },
+      "acceptanceCriteria": [
+        "The chosen existing module’s `prompts` array includes at least one new prompt related to stress vs. distress.",
+        "Clicking “Start” on the new prompt in `frontend/src/pages/Modules.tsx` navigates to `/journal` with `prefillTitle` and `prefillContent` populated (via the existing search params behavior).",
+        "The prefill template includes structured questions/checklist items that help the user identify stressors, distinguish eustress vs. distress, and choose an action + recovery plan."
       ]
     }
   ],
   "constraints": [
-    "Respect the single-actor backend architecture; implement changes only in `backend/main.mo`.",
-    "Do not modify any files under `frontend/src/components/ui` or other immutable frontend paths."
+    "Frontend immutable paths must not be edited: `frontend/src/hooks/useInternetIdentity.ts`, `frontend/src/hooks/useInternetIdentity.tsx`, `frontend/src/hooks/useActor.ts`, `frontend/src/main.tsx`, and anything under `frontend/src/components/ui`.",
+    "Do not add a new learning module entry; only add content/prompts to an existing module in `frontend/src/content/modules.ts`.",
+    "Do not include copyrighted text verbatim from public figures; use paraphrased/attribution-style summaries instead."
   ],
   "nonGoals": [
-    "Do not change squad (group) invite code generation or rotation behavior.",
-    "Do not change the 45-user registration cap or other onboarding steps (disclaimer/guidelines acceptance)."
+    "No changes to backend canister logic or storage models.",
+    "No new onboarding flow changes beyond the existing modules/journaling integration.",
+    "No changes to authentication, invite system, squads, reporting, or admin moderation."
   ],
   "imageRequirements": {
     "required": [],

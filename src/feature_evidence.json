@@ -1,4 +1,62 @@
 {
   "kind": "feature_evidence_report",
-  "features": []
+  "features": [
+    {
+      "featureId": "feature-add-new-stress-related-learning-content-stress-vs-distress-eustress-vs-distress-as-additional-content-inside-an-existing-learning-module-in-frontend-src-content-modules-ts-do-not-create-a-new-module",
+      "featureTitle": "Add new stress-related learning content (stress vs. distress / eustress vs. distress) as additional content inside an existing learning module in `frontend/src/content/modules.ts` (do not create a new module).",
+      "files": [
+        "frontend/src/content/modules.ts"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-9"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-include-both-a-short-attributed-insights-quotes-and-b-general-summaries-inspired-by-public-high-performance-figures-covering-wim-hof-david-goggins-shawn-ryan-joe-rogan-tom-brady-michael-jordan-mike-tyson-and-jocko-willink-do-not-include-copyrighted-or-unverifiable-verbatim-quotes-use-paraphrased-attribution-style-statements-e-g-inspired-by",
+      "featureTitle": "Include both (a) short attributed insights/quotes and (b) general summaries inspired by public high-performance figures, covering: Wim Hof, David Goggins, Shawn Ryan, Joe Rogan, Tom Brady, Michael Jordan, Mike Tyson, and Jocko Willink. Do not include copyrighted or unverifiable verbatim quotes; use paraphrased, attribution-style statements (e.g., “Inspired by …”).",
+      "files": [
+        "frontend/src/content/modules.ts"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-10"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-at-least-one-new-reflection-prompt-to-the-same-existing-module-so-users-can-start-a-guided-journal-entry-from-the-module-with-prefilltitle-and-prefillcontent-specifically-tailored-to-applying-stress-vs-distress-concepts-and-influencer-inspired-practices",
+      "featureTitle": "Add at least one new reflection prompt to the same existing module so users can start a guided journal entry from the module, with `prefillTitle` and `prefillContent` specifically tailored to applying stress-vs-distress concepts and influencer-inspired practices.",
+      "files": [
+        "frontend/src/content/modules.ts"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-11"
+      ],
+      "confidence": "high"
+    }
+  ]
 }
