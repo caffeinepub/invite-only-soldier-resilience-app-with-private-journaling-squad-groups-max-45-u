@@ -1,69 +1,260 @@
 {
   "kind": "build_request",
-  "title": "Fix app failing to load after Internet Identity sign-in",
-  "priority": "high",
+  "title": "Add dedicated Sleep Performance pillar with dashboard, tactical modes, sleep-debt mapping, and tools",
+  "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-1",
-      "text": "Fix authenticated app initialization so the frontend can create a logged-in actor even when the admin bootstrap secret is not present. Specifically: do not let `useActor` block or crash the app if `_initializeAccessControlWithSecret` traps (e.g., missing/empty `caffeineAdminToken` or missing backend env token); instead, continue with a usable authenticated actor and surface a clear error message in the UI only if the failure prevents core user flows.",
+      "id": "REQ-26",
+      "text": "Create a new top-level app section named \"Sleep Performance\" that is clearly separated from other pillars (Physical Training, Mental Readiness, Mission Performance) and is reachable from the main app navigation with equal prominence.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-4"
         ],
         "quotes": [
-          "The app does not open.\n\nThe sign in does not let me in"
+          "Design Sleep Performance as its own dedicated section of a soldier readiness app — equal in importance to Physical Training, Mental Readiness, and Mission Performance."
         ]
       },
       "acceptanceCriteria": [
-        "After successful Internet Identity login, the app no longer gets stuck on a loading screen due to actor initialization errors.",
-        "If access-control bootstrap fails, the user sees an English error message that explains something like: \"App initialization failed. Please refresh and try again.\" (and the app remains usable for normal sign-in/onboarding when possible)."
+        "A user can navigate to a dedicated Sleep Performance area via the primary navigation (not buried under Settings).",
+        "Sleep Performance screens use the defined tone: tactical, practical, non-judgmental, mission-focused (no wellness/lifestyle framing).",
+        "Sleep Performance UI is distinct from existing Daily Dashboard/readiness pages (separate routes/pages/components)."
       ]
     },
     {
-      "id": "REQ-2",
-      "text": "Fix open registration and onboarding by updating backend authorization logic so a newly authenticated (but not yet registered) user can reach onboarding and successfully register. At minimum: (1) `registerUser` must not call an admin-only role-assignment path that traps for normal users; it must grant the caller the `#user` role in a way that works for self-registration, and (2) `getCallerUserProfile` must not trap for users who are authenticated but not yet registered; it should return `null` in that case so the frontend can show the onboarding flow.",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "msg-1"
-        ],
-        "quotes": [
-          "The sign in does not let me in"
-        ]
-      },
-      "acceptanceCriteria": [
-        "A new Internet Identity user can sign in, see the onboarding flow, register a username, accept the disclaimer/guidelines, and then access the main app shell.",
-        "Calling `getCallerUserProfile` before registration returns `null` (or equivalent optional none) rather than trapping with an authorization error.",
-        "Calling `registerUser` as a non-admin does not trap and results in the caller being treated as a `#user` for subsequent gated endpoints."
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "text": "Add a user-visible error state for the post-login profile load/authorization step so that if `getCallerUserProfile` (or other initial authenticated calls) fails, the UI shows an English message and a retry action instead of appearing to not open.",
+      "id": "REQ-27",
+      "text": "Implement a \"Daily Sleep Performance Dashboard\" that displays: last sleep window, rolling sleep debt, estimated cognitive readiness percentage, an injury risk indicator, and an emotional regulation impact indicator, with soldier-credible explanatory language (e.g., \"Based on your sleep, reaction time and decision-making may be degraded today.\").",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-4"
         ],
         "quotes": [
-          "The app does not open."
+          "1. Daily Sleep Performance Dashboard\n\nDisplay:\n\t•\tLast sleep window\n\t•\tSleep debt (rolling)\n\t•\tEstimated cognitive readiness %\n\t•\tInjury risk indicator\n\t•\tEmotional regulation impact",
+          "“Based on your sleep, reaction time and decision-making may be degraded today.”"
         ]
       },
       "acceptanceCriteria": [
-        "If the current-user profile query errors, the user sees a clear error message and a button like \"Retry\" (or equivalent) to re-attempt loading without a full hard refresh.",
-        "The app does not remain indefinitely in a spinner-only state when the initial authenticated queries fail."
+        "Dashboard renders all listed fields and updates when the user logs/edits sleep inputs.",
+        "Explanatory text avoids shame/idealized sleep and frames impacts as performance effects.",
+        "Dashboard remains usable in Field Mode (low-noise UI) without losing core metrics."
+      ]
+    },
+    {
+      "id": "REQ-28",
+      "text": "Add a daily Sleep Performance flow that follows: check-in → analysis → action, and persists all Sleep Performance data locally (offline-first, device-scoped).",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "Generate:\n\t2.\tA daily sleep flow (check-in → analysis → action)"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Check-in captures sleep window data at minimum and stores it locally under the existing device-scoped local profile.",
+        "Analysis step shows computed sleep debt and mapped performance impacts from the logged data.",
+        "Action step provides mode-adjusted, short actionable recommendations (naps, caffeine timing, downshift routines, etc.).",
+        "All Sleep Performance features work without Internet Identity or backend connectivity."
+      ]
+    },
+    {
+      "id": "REQ-29",
+      "text": "Implement \"Tactical Sleep Modes\" as a selectable setting: Field Mode, Garrison Mode, Shift/CQ/Staff Duty Mode, High-Stress/Post-Event Mode; each mode must dynamically adjust guidance on sleep duration expectations, nap strategy, caffeine timing, and wind-down protocols.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "2. Tactical Sleep Modes\n\nDesign selectable modes that dynamically alter guidance:\n\t•\tField Mode\n\t•\tGarrison Mode\n\t•\tShift / CQ / Staff Duty Mode\n\t•\tHigh-Stress / Post-Event Mode\n\nEach mode adjusts:\n\t•\tSleep duration expectations\n\t•\tNap strategy\n\t•\tCaffeine timing\n\t•\tWind-down protocols"
+        ]
+      },
+      "acceptanceCriteria": [
+        "User can select a mode and the selection persists locally.",
+        "Action recommendations in the Sleep Performance flow change based on the selected mode.",
+        "Mode guidance uses operational language and acknowledges constrained schedules."
+      ]
+    },
+    {
+      "id": "REQ-30",
+      "text": "Create a Sleep Debt → Readiness mapping system that tracks cumulative sleep debt and converts debt into quantified performance degradation outputs for: reaction time, PT injury risk, emotional volatility, and judgment errors (avoid vague language; quantify impact where possible).",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "3. Sleep Debt → Readiness Mapping\n\nCreate a system that:\n\t•\tTracks cumulative sleep debt\n\t•\tConverts debt into performance degradation:\n\t•\tReaction time\n\t•\tPT injury risk\n\t•\tEmotional volatility\n\t•\tJudgment errors\n\nAvoid vague language; quantify impact where possible."
+        ]
+      },
+      "acceptanceCriteria": [
+        "Rolling sleep debt is computed over a defined recent window and displayed.",
+        "The dashboard and/or analysis view shows numerical/graded outputs for each performance area (not only qualitative labels).",
+        "Copy explains that these are estimates and keeps the tone mission-focused (no moralizing)."
+      ]
+    },
+    {
+      "id": "REQ-31",
+      "text": "Add \"Pain-Aware Sleep Optimization\" with optional inputs for neck pain, back pain, and nerve symptoms; provide sleep positioning logic, pillow guidance, 30–90 second micro-routines (neck/jaw/nerve prep), and red-flag alerts for worsening neurologic symptoms.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "4. Pain-Aware Sleep Optimization\n\nInclude optional inputs for:\n\t•\tNeck pain\n\t•\tBack pain\n\t•\tNerve symptoms\n\nProvide:\n\t•\tSleep positioning logic\n\t•\tPillow guidance\n\t•\t30–90 second micro routines (neck, jaw, nerve prep)\n\t•\tRed-flag alerts for worsening neurologic symptoms"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Pain inputs are optional and can be skipped without blocking sleep logging.",
+        "When pain inputs are provided, the action step includes tailored positioning/pillow guidance and at least one micro-routine option.",
+        "Red-flag content is presented in neutral, operational language and clearly indicates when to seek professional evaluation."
+      ]
+    },
+    {
+      "id": "REQ-32",
+      "text": "Implement a \"Caffeine & Stimulant Timing Engine\" that allows logging caffeine sources, estimates clearance windows, and recommends last intake times; frame caffeine as a tool, not a vice.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "5. Caffeine & Stimulant Timing Engine\n\nImplement a tactical caffeine system:\n\t•\tLog caffeine sources\n\t•\tEstimate clearance windows\n\t•\tRecommend last intake times\n\t•\tFrame caffeine as a tool, not a vice"
+        ]
+      },
+      "acceptanceCriteria": [
+        "User can log at least: time, source/type, and amount (or preset sizes) in the Sleep Performance section.",
+        "UI shows an estimated clearance window and a recommended last intake time relative to planned sleep.",
+        "Language avoids shaming and positions caffeine as mission utility with tradeoffs."
+      ]
+    },
+    {
+      "id": "REQ-33",
+      "text": "Add a \"Nervous System Downshift\" tool that provides 2–5 minute pre-sleep routines using non-spiritual, operational language and includes breathing, jaw/neck release, and grounding cues.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "6. Nervous System Downshift (2–5 min)\n\nDesign ultra-short pre-sleep routines that:\n\t•\tShift from threat mode to rest mode\n\t•\tUse non-spiritual, operational language\n\t•\tInclude breathing, jaw/neck release, grounding cues"
+        ]
+      },
+      "acceptanceCriteria": [
+        "At least 2 routines are available with clear durations between 2 and 5 minutes.",
+        "Routines are presented as step-by-step actions with concise, soldier-credible language.",
+        "Routines can be accessed from the daily Action step without leaving the Sleep Performance section."
+      ]
+    },
+    {
+      "id": "REQ-34",
+      "text": "Add \"Micro-Naps & Controlled Rest\" guidance with 10/20/30/90-minute options, sleep-cycle–aligned wakeup guidance, and post-nap reactivation guidance; normalize naps as performance tools.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "7. Micro-Naps & Controlled Rest\n\nNormalize naps as performance tools:\n\t•\t10 / 20 / 30 / 90-minute options\n\t•\tSleep-cycle–aligned wakeups\n\t•\tPost-nap reactivation guidance"
+        ]
+      },
+      "acceptanceCriteria": [
+        "User can select a nap duration option and receive tailored guidance for that option.",
+        "Guidance includes a clear wakeup recommendation and a short reactivation plan.",
+        "Copy explicitly normalizes naps/controlled rest as operational tools (no stigma)."
+      ]
+    },
+    {
+      "id": "REQ-35",
+      "text": "Add \"Stress-Related Sleep Disruption Support\" with optional, stigma-free check-ins for nightmares, hypervigilance, racing thoughts, and startle response; provide normalization, grounding tools, and quiet guidance on escalation if needed.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "8. Stress-Related Sleep Disruption Support\n\nInclude optional, stigma-free check-ins for:\n\t•\tNightmares\n\t•\tHypervigilance\n\t•\tRacing thoughts\n\t•\tStartle response\n\nProvide normalization, grounding tools, and quiet guidance on escalation if needed."
+        ]
+      },
+      "acceptanceCriteria": [
+        "Check-ins are optional and do not block core sleep logging.",
+        "Each check-in produces at least one immediate tool (2–5 min) and one follow-up suggestion (e.g., timing, environment, leadership/medical escalation guidance).",
+        "User-facing text is non-judgmental, operational, and avoids clinical diagnosis claims."
+      ]
+    },
+    {
+      "id": "REQ-36",
+      "text": "Create \"Command-Safe Education Tiles\" in the Sleep Performance section with short, shareable, factual, operational, neutral tiles including: \"Sleep deprivation equals intoxication-level impairment\", \"3 nights <5 hrs increases injury risk\", and \"Sleep loss degrades marksmanship and judgment\".",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "9. Command-Safe Education Tiles\n\nCreate short, shareable education elements:\n\t•\t“Sleep deprivation equals intoxication-level impairment”\n\t•\t“3 nights <5 hrs increases injury risk”\n\t•\t“Sleep loss degrades marksmanship and judgment”\n\nTone: factual, operational, neutral."
+        ]
+      },
+      "acceptanceCriteria": [
+        "Tiles appear in Sleep Performance and can be quickly skimmed (headline + 1–3 sentence body).",
+        "Tone is neutral and avoids moralizing or lifestyle framing.",
+        "Tiles can be copied or otherwise shared via simple UI affordance (e.g., copy text)."
+      ]
+    },
+    {
+      "id": "REQ-37",
+      "text": "Integrate Sleep Performance with existing gamification patterns by adding consistency streaks and readiness improvements tied to sleep behavior, plus unlockable sleep optimization tools (all stored locally and compatible with offline-first behavior).",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "10. Gamification & Progress\n\nIntegrate:\n\t•\tConsistency streaks\n\t•\tReadiness improvements tied to sleep behavior\n\t•\tUnlockable recovery and optimization tools"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Sleep-related streak is calculated from sleep logging consistency and displayed in Sleep Performance.",
+        "At least one unlock mechanism exists for sleep tools (e.g., unlocking additional downshift routines or advanced nap guidance) driven by streak or adherence metrics.",
+        "No backend dependency is required for streaks/unlocks."
+      ]
+    },
+    {
+      "id": "REQ-38",
+      "text": "Provide in-app language examples written for soldiers across Sleep Performance (dashboard insights, mode guidance, caffeine guidance, nap guidance, and stress disruption support) and ensure the section consistently frames sleep as combat readiness (not wellness/recovery/lifestyle).",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "Tone: Tactical, practical, non-judgmental, mission-focused",
+          "Translate all science into plain, soldier-credible language.",
+          "Sleep must be framed as a performance domain, not wellness, recovery, or lifestyle.",
+          "Generate:\n\t3.\tIn-app language examples written for soldiers"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Sleep Performance UI text consistently uses mission-focused framing (e.g., decision-making, reaction time, durability).",
+        "No user-facing strings include shaming language about imperfect sleep.",
+        "At least 10 distinct pieces of soldier-oriented microcopy exist across the section (not counting the education tile headlines)."
       ]
     }
   ],
   "constraints": [
-    "Backend must remain a single Motoko actor in backend/main.mo (do not introduce additional backend services).",
-    "Do not edit files under frontend/src/components/ui (compose them instead).",
-    "Do not modify frontend immutable paths (frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, and frontend/src/components/ui). If changes are required, implement wrappers or alternatives in new files and update call sites."
+    "Use English for all user-facing text.",
+    "Do not edit files under frontend immutable paths (frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, frontend/src/components/ui). Compose existing UI components rather than modifying them.",
+    "Keep Sleep Performance offline-first and device-local by default; do not require Internet Identity or backend connectivity for core functionality.",
+    "Maintain the app’s non-judgmental, mission-focused tone; avoid wellness/lifestyle framing and avoid “sleep shaming”.",
+    "Respect the existing Field Mode global simplification behavior and ensure Sleep Performance remains usable when enabled."
   ],
   "nonGoals": [
-    "Do not add new authentication providers (Internet Identity remains the only auth method).",
-    "Do not redesign unrelated product features (journaling, groups, modules, reports) beyond what is necessary to fix app loading/sign-in/registration."
+    "Implementing or fixing backend groups/squads/shared entries/admin moderation functionality.",
+    "Adding third-party authentication providers or requiring sign-in for Sleep Performance.",
+    "Adding real-time features (e.g., WebSockets) or external databases/services.",
+    "Medical diagnosis, therapy, or claims beyond neutral, educational guidance; the section must remain performance-focused with red-flag escalation guidance only."
   ],
   "imageRequirements": {
     "required": [],

@@ -1,44 +1,66 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-04T20:55:21.608Z",
-  "summary": "Frontend now uses a new `useSafeActor` hook that creates an authenticated actor while swallowing `_initializeAccessControlWithSecret` failures, and adds explicit UI error screens (with Retry) for actor-init and profile-load failures. Backend `getCallerUserProfile` is changed to return `null` for unregistered callers (no auth trap). However, the diff does not provide evidence that `registerUser` was updated to avoid an admin-only role-assignment trap, and the access-control bootstrap failure message is not clearly surfaced in the UI (only logged/kept as `initWarning`).",
-  "missing_requirements": [
+  "generatedAt": "2026-02-05T01:57:32.250Z",
+  "summary": "Diff adds a dedicated Sleep Performance pillar with new routes/pages (dashboard, check-in, analysis, action), local-only storage + computations (sleep debt/readiness/risks), tactical mode selection persisted locally, caffeine logging/clearance guidance, optional pain/stress inputs with tailored guidance, and command-safe education tiles with copy/share UI. Diff also includes multiple unrelated changes (queries/onboarding/public landing/groups/missions/admin) not requested by this BuildRequest.",
+  "missing_requirements": [],
+  "hallucinated_features": [
     {
-      "id": "REQ-1",
-      "requirement": "If access-control bootstrap fails (e.g., `_initializeAccessControlWithSecret` traps), the user sees a clear English error message (e.g., \"App initialization failed. Please refresh and try again.\"), while keeping the app usable when possible.",
-      "reason": "`useSafeActor` catches bootstrap errors and stores `initWarning`, but no UI uses/displays `initWarning`; the only UI error state shown is for full actor initialization failure (`actorError`), not for bootstrap warnings.",
+      "description": "Changes/additions to backend-dependent Groups/Squads features (squad management pages, shared entries, invite code management, reporting).",
+      "reason": "BuildRequest non-goals explicitly exclude implementing/fixing backend groups/squads/shared entries/admin moderation functionality; these changes are outside the Sleep Performance scope described.",
       "evidence": [
-        "frontend/src/hooks/useSafeActor.ts",
-        "frontend/src/App.tsx"
+        "frontend-file-summaries.txt (Squads.tsx, SquadSharedEntries.tsx, invite code utils, report dialog, groups-related pages)"
       ]
     },
     {
-      "id": "REQ-2",
-      "requirement": "`registerUser` must not call an admin-only role-assignment path that traps for normal users; it must grant the caller the `#user` role in a way that works for self-registration.",
-      "reason": "The provided `backend/main.mo` diff section is truncated and does not include the `registerUser` implementation, so there is no evidence in the diff summary that `registerUser` was changed to avoid an admin-only path or to self-assign `#user`.",
+      "description": "Public landing page with Internet Identity sign-in flow adjustments.",
+      "reason": "BuildRequest focuses on Sleep Performance and explicitly states Sleep Performance must not require Internet Identity; public landing/II sign-in updates are not requested as part of the Sleep Performance pillar work.",
       "evidence": [
-        "backend/main.mo (truncated)"
+        "frontend-file-summaries.txt (frontend/src/pages/PublicLanding.tsx)"
       ]
-    }
-  ],
-  "hallucinated_features": [
+    },
     {
-      "description": "Added/changed multiple unrelated product/UX features and content (DAGGER branding, expanded learning modules including a comprehensive Sleep Performance module, multiple page/layout redesigns, reporting workflow details, Tailwind theme changes) as described in `frontend-file-summaries.txt`.",
-      "reason": "These are outside the BuildRequest scope/non-goals (no redesign of unrelated features) and are not requested by REQ-1/2/3. The diff summary includes textual claims of these changes even though they are not part of the stated requirements.",
+      "description": "Admin reports page backend-dependent report listing/status updates.",
+      "reason": "Admin moderation/reporting is listed as a non-goal; changes are not requested for Sleep Performance implementation.",
       "evidence": [
-        "frontend-file-summaries.txt"
+        "frontend-file-summaries.txt (frontend/src/pages/AdminReports.tsx)"
+      ]
+    },
+    {
+      "description": "Mission content and unlock rules updates unrelated to Sleep Performance (new missions demonstrating assessment unlock integration).",
+      "reason": "BuildRequest does not request modifications to Missions/Modules content as part of adding the Sleep Performance pillar.",
+      "evidence": [
+        "frontend-file-summaries.txt (frontend/src/content/modules.ts, frontend/src/pages/Modules.tsx)"
+      ]
+    },
+    {
+      "description": "React Query hook restructuring for optional backend-dependent features.",
+      "reason": "Not requested in BuildRequest; Sleep Performance requirements are frontend local/offline-first and do not require query layer refactors.",
+      "evidence": [
+        "frontend-file-summaries.txt (frontend/src/hooks/useQueries.ts)"
+      ]
+    },
+    {
+      "description": "Onboarding flow changes (local-only onboarding collecting display name, disclaimer/guidelines acceptance, etc.).",
+      "reason": "Not requested by BuildRequest, which is specifically about adding a Sleep Performance pillar and its tools/flows.",
+      "evidence": [
+        "frontend-file-summaries.txt (frontend/src/components/onboarding/OnboardingFlow.tsx)"
       ]
     }
   ],
   "confidence": 0.62,
   "changed_files": [
-    "backend/main.mo",
     "frontend-file-summaries.txt",
     "frontend/src/App.tsx",
-    "frontend/src/components/system/AppStartupErrorState.tsx",
-    "frontend/src/hooks/useQueries.ts",
-    "frontend/src/hooks/useSafeActor.ts",
+    "frontend/src/components/layout/AppShell.tsx",
+    "frontend/src/content/sleepPerformanceCopy.ts",
+    "frontend/src/hooks/useSleepPerformance.ts",
+    "frontend/src/pages/SleepPerformanceAction.tsx",
+    "frontend/src/pages/SleepPerformanceAnalysis.tsx",
+    "frontend/src/pages/SleepPerformanceCheckIn.tsx",
+    "frontend/src/pages/SleepPerformanceDashboard.tsx",
+    "frontend/src/utils/localDataStore.ts",
+    "frontend/src/utils/sleepPerformance.ts",
     "project_state.json"
   ]
 }

@@ -1,55 +1,369 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Unblock post-Internet Identity app load by hardening actor init and adding retryable startup errors",
+  "title": "Sleep Performance pillar: offline-first dashboard, flow, tactical modes, tools, and mapping",
   "requirements": [
     {
-      "id": "REQ-1",
-      "summary": "Prevent authenticated actor initialization from blocking/crashing when access-control bootstrap secret is missing, and keep the app usable after login.",
+      "id": "REQ-26",
+      "summary": "Add a new top-level Sleep Performance section with dedicated routes and primary navigation access equal to other pillars.",
       "acceptanceCriteria": [
-        "After successful Internet Identity login, the app no longer gets stuck on a loading screen due to actor initialization errors.",
-        "If access-control bootstrap fails, the user sees an English error message that explains something like: \"App initialization failed. Please refresh and try again.\" (and the app remains usable for normal sign-in/onboarding when possible)."
+        "A user can navigate to a dedicated Sleep Performance area via the primary navigation (not buried under Settings).",
+        "Sleep Performance screens use the defined tone: tactical, practical, non-judgmental, mission-focused (no wellness/lifestyle framing).",
+        "Sleep Performance UI is distinct from existing Daily Dashboard/readiness pages (separate routes/pages/components)."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/hooks/useSafeActor.ts",
-          "operation": "create",
-          "description": "Create a new actor hook that mirrors the behavior of the immutable useActor, but wraps the access-control bootstrap call in a try/catch so `_initializeAccessControlWithSecret` failures do not reject actor creation. Track a non-blocking initialization warning state for bootstrap failures and expose a retry function for re-creating the actor."
-        },
-        {
-          "path": "frontend/src/hooks/useQueries.ts",
-          "operation": "modify",
-          "description": "Switch query hooks to depend on the new `useSafeActor` (instead of the immutable `useActor`) so authenticated calls remain functional even when access-control bootstrap fails. Ensure hooks still gate query execution on actor availability and avoid throwing states that would dead-end the UI."
-        },
-        {
-          "path": "frontend/src/components/system/AppStartupErrorState.tsx",
-          "operation": "create",
-          "description": "Add a reusable, user-visible startup error component that can display an English message and provide a retry action (button) to re-attempt actor/profile loading. Compose existing shadcn/ui components (do not edit files under frontend/src/components/ui). Verify the component's usage instructions before implementing."
-        },
-        {
           "path": "frontend/src/App.tsx",
           "operation": "modify",
-          "description": "Update authenticated initialization gating to avoid spinner-only dead-ends when actor initialization partially fails. Use the `AppStartupErrorState` component to surface a clear message only when initialization failures block core flows, and wire up retry to re-attempt actor creation and dependent queries. Verify the component's usage instructions before implementing."
+          "description": "Register dedicated Sleep Performance routes (dashboard + check-in/analysis/action) as top-level navigable pages, separate from the existing Daily Dashboard."
+        },
+        {
+          "path": "frontend/src/components/layout/AppShell.tsx",
+          "operation": "modify",
+          "description": "Add a primary navigation item labeled \"Sleep Performance\" with equal prominence to Dashboard/Journal/Groups/Missions/Assessments, ensuring it routes to the Sleep Performance dashboard."
+        },
+        {
+          "path": "frontend/src/pages/SleepPerformanceDashboard.tsx",
+          "operation": "create",
+          "description": "Create the Sleep Performance landing page (Daily Sleep Performance Dashboard) with mission-focused layout distinct from existing readiness pages."
         }
       ]
     },
     {
-      "id": "REQ-3",
-      "summary": "Add a retryable error UI for failures during post-login profile load/authorization so the app does not appear to not open.",
+      "id": "REQ-27",
+      "summary": "Implement the Daily Sleep Performance Dashboard with core sleep metrics, performance impact indicators, and soldier-credible explanatory language that remains usable in Field Mode.",
       "acceptanceCriteria": [
-        "If the current-user profile query errors, the user sees a clear error message and a button like \"Retry\" (or equivalent) to re-attempt loading without a full hard refresh.",
-        "The app does not remain indefinitely in a spinner-only state when the initial authenticated queries fail."
+        "Dashboard renders all listed fields and updates when the user logs/edits sleep inputs.",
+        "Explanatory text avoids shame/idealized sleep and frames impacts as performance effects.",
+        "Dashboard remains usable in Field Mode (low-noise UI) without losing core metrics."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/SleepPerformanceDashboard.tsx",
+          "operation": "modify",
+          "description": "Render dashboard metrics: last sleep window, rolling sleep debt, estimated cognitive readiness %, injury risk indicator, and emotional regulation impact indicator; include mission-focused explanatory copy and ensure Field Mode keeps the core metrics visible."
+        },
+        {
+          "path": "frontend/src/hooks/useSleepPerformance.ts",
+          "operation": "create",
+          "description": "Add a local-only hook to read/write sleep inputs and derived dashboard outputs, scoped to the existing device-local profile UUID, and expose a refresh path for updates after log/edit."
+        },
+        {
+          "path": "frontend/src/utils/sleepPerformance.ts",
+          "operation": "create",
+          "description": "Implement computation helpers for last sleep window formatting, rolling sleep debt calculation, and derived indicators (cognitive readiness %, injury risk, emotional regulation impact) used by the dashboard and flow."
+        }
+      ]
+    },
+    {
+      "id": "REQ-28",
+      "summary": "Add an offline-first daily Sleep Performance flow (check-in → analysis → action) that persists all Sleep Performance data locally under the device-scoped profile.",
+      "acceptanceCriteria": [
+        "Check-in captures sleep window data at minimum and stores it locally under the existing device-scoped local profile.",
+        "Analysis step shows computed sleep debt and mapped performance impacts from the logged data.",
+        "Action step provides mode-adjusted, short actionable recommendations (naps, caffeine timing, downshift routines, etc.).",
+        "All Sleep Performance features work without Internet Identity or backend connectivity."
       ],
       "file_operations": [
         {
           "path": "frontend/src/App.tsx",
           "operation": "modify",
-          "description": "Handle `useGetCallerUserProfile` error states explicitly after login: replace indefinite loading/spinner-only behavior with the `AppStartupErrorState` component showing an English error message and a Retry action that re-runs the profile query (and, if needed, re-initializes the authenticated actor). Verify the component's usage instructions before implementing."
+          "description": "Wire the check-in → analysis → action flow into routes under the Sleep Performance section so users can complete the daily sequence entirely offline."
         },
         {
-          "path": "frontend/src/components/system/AppStartupErrorState.tsx",
+          "path": "frontend/src/pages/SleepPerformanceCheckIn.tsx",
+          "operation": "create",
+          "description": "Create the Sleep Performance check-in page to capture (at minimum) last sleep window inputs and optionally additional context inputs, saving locally via the Sleep Performance local-data hook."
+        },
+        {
+          "path": "frontend/src/pages/SleepPerformanceAnalysis.tsx",
+          "operation": "create",
+          "description": "Create the Sleep Performance analysis page showing computed rolling sleep debt and mapped performance impacts based on the logged sleep data, with mission-focused explanatory copy."
+        },
+        {
+          "path": "frontend/src/pages/SleepPerformanceAction.tsx",
+          "operation": "create",
+          "description": "Create the Sleep Performance action page presenting short, mode-adjusted recommendations (naps, caffeine timing, downshift routines, pain-aware guidance, stress disruption tools) without requiring any backend connectivity."
+        },
+        {
+          "path": "frontend/src/utils/localDataStore.ts",
           "operation": "modify",
-          "description": "Extend the shared startup error component (if needed) to support distinct messaging for profile-load/authorization failures and to accept callbacks for retrying the specific failing step, while keeping the UI consistent and composed from shadcn/ui components. Verify the component's usage instructions before implementing."
+          "description": "Extend the local data store with device-scoped persistence for Sleep Performance logs and related Sleep Performance state (sleep windows, optional check-ins, caffeine logs, modes, streak/unlocks), and include reset support in the existing reset function."
+        }
+      ]
+    },
+    {
+      "id": "REQ-29",
+      "summary": "Add Tactical Sleep Modes (Field, Garrison, Shift/CQ/Staff Duty, High-Stress/Post-Event) as a locally persisted setting that dynamically adjusts Sleep Performance action guidance.",
+      "acceptanceCriteria": [
+        "User can select a mode and the selection persists locally.",
+        "Action recommendations in the Sleep Performance flow change based on the selected mode.",
+        "Mode guidance uses operational language and acknowledges constrained schedules."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/utils/localDataStore.ts",
+          "operation": "modify",
+          "description": "Add device-scoped local persistence for the selected Tactical Sleep Mode (and any related Sleep Performance preferences) so the selection survives refresh and offline operation."
+        },
+        {
+          "path": "frontend/src/hooks/useSleepPerformance.ts",
+          "operation": "modify",
+          "description": "Expose getters/setters for Tactical Sleep Mode and return mode-adjusted guidance inputs for the action step using locally stored mode selection."
+        },
+        {
+          "path": "frontend/src/pages/SleepPerformanceDashboard.tsx",
+          "operation": "modify",
+          "description": "Add a mode selector entry point (or clear link to mode selection within the Sleep Performance section) and surface the active mode in mission-focused language."
+        },
+        {
+          "path": "frontend/src/pages/SleepPerformanceAction.tsx",
+          "operation": "modify",
+          "description": "Dynamically adjust guidance for sleep duration expectations, nap strategy, caffeine timing, and wind-down protocols based on the selected Tactical Sleep Mode."
+        }
+      ]
+    },
+    {
+      "id": "REQ-30",
+      "summary": "Implement a quantified Sleep Debt → Readiness mapping that tracks rolling cumulative sleep debt and converts it into numerical/graded performance degradation outputs.",
+      "acceptanceCriteria": [
+        "Rolling sleep debt is computed over a defined recent window and displayed.",
+        "The dashboard and/or analysis view shows numerical/graded outputs for each performance area (not only qualitative labels).",
+        "Copy explains that these are estimates and keeps the tone mission-focused (no moralizing)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/utils/sleepPerformance.ts",
+          "operation": "modify",
+          "description": "Implement the rolling-window sleep debt computation and mapping functions that output quantified estimates for reaction time degradation, PT injury risk elevation, emotional volatility elevation, and judgment error risk elevation; include estimate disclaimers in returned copy metadata."
+        },
+        {
+          "path": "frontend/src/pages/SleepPerformanceAnalysis.tsx",
+          "operation": "modify",
+          "description": "Display the rolling sleep debt and the numerical/graded mapping outputs for reaction time, PT injury risk, emotional volatility, and judgment errors with mission-focused estimate language."
+        },
+        {
+          "path": "frontend/src/pages/SleepPerformanceDashboard.tsx",
+          "operation": "modify",
+          "description": "Surface key mapped outputs (at minimum cognitive readiness %, injury risk indicator, emotional regulation impact indicator) in compact dashboard tiles suitable for Field Mode."
+        }
+      ]
+    },
+    {
+      "id": "REQ-31",
+      "summary": "Add Pain-Aware Sleep Optimization with optional pain inputs and tailored positioning/pillow guidance, micro-routines, and neutral red-flag escalation alerts.",
+      "acceptanceCriteria": [
+        "Pain inputs are optional and can be skipped without blocking sleep logging.",
+        "When pain inputs are provided, the action step includes tailored positioning/pillow guidance and at least one micro-routine option.",
+        "Red-flag content is presented in neutral, operational language and clearly indicates when to seek professional evaluation."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/SleepPerformanceCheckIn.tsx",
+          "operation": "modify",
+          "description": "Add optional check-in inputs for neck pain, back pain, and nerve symptoms without blocking core sleep window logging."
+        },
+        {
+          "path": "frontend/src/utils/sleepPerformance.ts",
+          "operation": "modify",
+          "description": "Add pain-aware guidance logic that maps optional pain inputs to positioning recommendations, pillow guidance, and a short menu of 30–90 second micro-routines; include neutral red-flag escalation messaging for worsening neurologic symptoms."
+        },
+        {
+          "path": "frontend/src/pages/SleepPerformanceAction.tsx",
+          "operation": "modify",
+          "description": "When pain inputs are present, show tailored positioning/pillow guidance plus at least one selectable 30–90 second micro-routine and display red-flag content in operational, non-diagnostic language."
+        }
+      ]
+    },
+    {
+      "id": "REQ-32",
+      "summary": "Implement a Caffeine & Stimulant Timing Engine for logging caffeine sources and producing clearance estimates and recommended last intake times framed as a performance tool.",
+      "acceptanceCriteria": [
+        "User can log at least: time, source/type, and amount (or preset sizes) in the Sleep Performance section.",
+        "UI shows an estimated clearance window and a recommended last intake time relative to planned sleep.",
+        "Language avoids shaming and positions caffeine as mission utility with tradeoffs."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/utils/localDataStore.ts",
+          "operation": "modify",
+          "description": "Add local persistence for caffeine/stimulant logs (time, source/type, amount/preset) scoped to the device-local profile UUID, including reset support."
+        },
+        {
+          "path": "frontend/src/utils/sleepPerformance.ts",
+          "operation": "modify",
+          "description": "Add caffeine timing calculations to estimate clearance windows and recommend last intake times relative to planned sleep window, including neutral tradeoff messaging suitable for soldiers."
+        },
+        {
+          "path": "frontend/src/pages/SleepPerformanceAction.tsx",
+          "operation": "modify",
+          "description": "Add a caffeine logging UI within the Sleep Performance section and display computed clearance window + recommended last intake time using non-shaming, mission utility framing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-33",
+      "summary": "Add a Nervous System Downshift tool with 2–5 minute routines using operational language and including breathing, jaw/neck release, and grounding cues, accessible from the Action step.",
+      "acceptanceCriteria": [
+        "At least 2 routines are available with clear durations between 2 and 5 minutes.",
+        "Routines are presented as step-by-step actions with concise, soldier-credible language.",
+        "Routines can be accessed from the daily Action step without leaving the Sleep Performance section."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/content/sleepPerformanceCopy.ts",
+          "operation": "create",
+          "description": "Add soldier-oriented downshift routine content (at least 2 routines) with explicit 2–5 minute durations and step-by-step operational instructions (breathing, jaw/neck release, grounding cues)."
+        },
+        {
+          "path": "frontend/src/components/sleep/DownshiftRoutineCard.tsx",
+          "operation": "create",
+          "description": "Create a reusable component to present a downshift routine as concise step-by-step actions with duration and mission-focused framing. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/SleepPerformanceAction.tsx",
+          "operation": "modify",
+          "description": "Add an in-section Downshift area that lists at least 2 routines (2–5 minutes) and allows starting/reading them directly from the Action step without navigating out of Sleep Performance."
+        }
+      ]
+    },
+    {
+      "id": "REQ-34",
+      "summary": "Add Micro-Naps & Controlled Rest guidance with 10/20/30/90-minute options, cycle-aligned wake guidance, and post-nap reactivation guidance that normalizes naps as performance tools.",
+      "acceptanceCriteria": [
+        "User can select a nap duration option and receive tailored guidance for that option.",
+        "Guidance includes a clear wakeup recommendation and a short reactivation plan.",
+        "Copy explicitly normalizes naps/controlled rest as operational tools (no stigma)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/content/sleepPerformanceCopy.ts",
+          "operation": "modify",
+          "description": "Add nap guidance content for 10/20/30/90-minute options including wakeup guidance (cycle-aligned where applicable) and a short reactivation plan, with explicit normalization as an operational tool."
+        },
+        {
+          "path": "frontend/src/components/sleep/NapGuidancePanel.tsx",
+          "operation": "create",
+          "description": "Create a UI panel component that lets users select a nap duration (10/20/30/90) and renders the corresponding wakeup and reactivation guidance. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/SleepPerformanceAction.tsx",
+          "operation": "modify",
+          "description": "Integrate Micro-Naps & Controlled Rest guidance into the Action step using the nap panel so users can select an option and immediately receive tailored guidance within Sleep Performance."
+        }
+      ]
+    },
+    {
+      "id": "REQ-35",
+      "summary": "Add Stress-Related Sleep Disruption Support with optional stigma-free check-ins and immediate grounding tools plus quiet escalation guidance.",
+      "acceptanceCriteria": [
+        "Check-ins are optional and do not block core sleep logging.",
+        "Each check-in produces at least one immediate tool (2–5 min) and one follow-up suggestion (e.g., timing, environment, leadership/medical escalation guidance).",
+        "User-facing text is non-judgmental, operational, and avoids clinical diagnosis claims."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/SleepPerformanceCheckIn.tsx",
+          "operation": "modify",
+          "description": "Add optional, stigma-free check-ins for nightmares, hypervigilance, racing thoughts, and startle response without blocking core sleep window logging."
+        },
+        {
+          "path": "frontend/src/content/sleepPerformanceCopy.ts",
+          "operation": "modify",
+          "description": "Add stress-disruption content that provides (for each check-in) at least one immediate 2–5 minute tool and one follow-up suggestion (environment/timing/escalation guidance), using neutral, operational language and avoiding diagnosis claims."
+        },
+        {
+          "path": "frontend/src/pages/SleepPerformanceAction.tsx",
+          "operation": "modify",
+          "description": "When stress disruption check-ins are present, show immediate grounding tools (2–5 min) and a quiet follow-up suggestion within the Action step, maintaining non-judgmental, mission-focused framing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-36",
+      "summary": "Create command-safe education tiles in Sleep Performance with skimmable headlines and share/copy affordance.",
+      "acceptanceCriteria": [
+        "Tiles appear in Sleep Performance and can be quickly skimmed (headline + 1–3 sentence body).",
+        "Tone is neutral and avoids moralizing or lifestyle framing.",
+        "Tiles can be copied or otherwise shared via simple UI affordance (e.g., copy text)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/content/sleepPerformanceCopy.ts",
+          "operation": "modify",
+          "description": "Add command-safe education tile copy with the required topics: \"Sleep deprivation equals intoxication-level impairment\", \"3 nights <5 hrs increases injury risk\", and \"Sleep loss degrades marksmanship and judgment\", each with 1–3 sentence neutral body text."
+        },
+        {
+          "path": "frontend/src/components/sleep/EducationTiles.tsx",
+          "operation": "create",
+          "description": "Create a tiles component that renders headline + 1–3 sentence body and provides a simple copy-to-clipboard UI affordance. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/SleepPerformanceDashboard.tsx",
+          "operation": "modify",
+          "description": "Place the command-safe education tiles within the Sleep Performance section in a skimmable layout appropriate for both normal UI and Field Mode."
+        }
+      ]
+    },
+    {
+      "id": "REQ-37",
+      "summary": "Integrate Sleep Performance with gamification via local streaks, readiness improvement feedback, and at least one unlockable sleep tool, all offline-first.",
+      "acceptanceCriteria": [
+        "Sleep-related streak is calculated from sleep logging consistency and displayed in Sleep Performance.",
+        "At least one unlock mechanism exists for sleep tools (e.g., unlocking additional downshift routines or advanced nap guidance) driven by streak or adherence metrics.",
+        "No backend dependency is required for streaks/unlocks."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/utils/localDataStore.ts",
+          "operation": "modify",
+          "description": "Add local persistence for Sleep Performance streak/unlock state (device-scoped) and ensure it resets with the existing reset function."
+        },
+        {
+          "path": "frontend/src/utils/sleepPerformance.ts",
+          "operation": "modify",
+          "description": "Implement local-only sleep consistency streak calculations based on logged sleep check-ins and define at least one unlock rule for a Sleep Performance tool (e.g., additional downshift routines or advanced nap guidance)."
+        },
+        {
+          "path": "frontend/src/pages/SleepPerformanceDashboard.tsx",
+          "operation": "modify",
+          "description": "Display the sleep logging consistency streak and show progress toward (or status of) at least one unlocked Sleep Performance tool without requiring backend connectivity."
+        },
+        {
+          "path": "frontend/src/pages/SleepPerformanceAction.tsx",
+          "operation": "modify",
+          "description": "Gate at least one tool variant behind a local unlock condition (streak/adherence), while keeping core Sleep Performance actions available offline."
+        }
+      ]
+    },
+    {
+      "id": "REQ-38",
+      "summary": "Provide consistent soldier-oriented microcopy across Sleep Performance that frames sleep as combat readiness and avoids shaming language, including at least 10 distinct microcopy items.",
+      "acceptanceCriteria": [
+        "Sleep Performance UI text consistently uses mission-focused framing (e.g., decision-making, reaction time, durability).",
+        "No user-facing strings include shaming language about imperfect sleep.",
+        "At least 10 distinct pieces of soldier-oriented microcopy exist across the section (not counting the education tile headlines)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/content/sleepPerformanceCopy.ts",
+          "operation": "modify",
+          "description": "Add and centralize at least 10 distinct soldier-oriented microcopy strings used across dashboard insights, mode guidance, caffeine guidance, nap guidance, and stress disruption support, ensuring English-only, mission-focused, non-judgmental language."
+        },
+        {
+          "path": "frontend/src/pages/SleepPerformanceDashboard.tsx",
+          "operation": "modify",
+          "description": "Replace ad-hoc strings with mission-focused microcopy references for dashboard insights (including examples like performance impacts on reaction time/decision-making) to ensure consistent tone and no lifestyle framing."
+        },
+        {
+          "path": "frontend/src/pages/SleepPerformanceAnalysis.tsx",
+          "operation": "modify",
+          "description": "Use the shared soldier-oriented microcopy for estimate disclaimers and mapped impact explanations so analysis copy remains tactical and non-moralizing."
+        },
+        {
+          "path": "frontend/src/pages/SleepPerformanceAction.tsx",
+          "operation": "modify",
+          "description": "Use the shared microcopy for mode guidance, caffeine guidance, nap guidance, downshift routines, and stress disruption support so the entire section consistently frames sleep as readiness."
         }
       ]
     }

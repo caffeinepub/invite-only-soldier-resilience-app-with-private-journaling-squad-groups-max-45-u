@@ -1,242 +1,399 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "DAGGER - Holistic Health and Fitness is an Internet Computer (Motoko canister) + React web app for soldiers’ personal development. It provides Internet Identity sign-in, open account registration (username only) with a 45-user cap, onboarding that requires accepting a non-affiliation disclaimer and community guidelines, private journaling with optional sharing to small invite-code-based groups, doctrine-informed learning modules that deep-link into prefilled journal reflections, and an abuse reporting + admin moderation workflow.",
+  "summary": "DAGGER (brand shown as “Resilience”; title “DAGGER - Holistic Health and Fitness”) is an offline-first React SPA for service members focused on interactive daily readiness tracking and coaching, private device-local journaling, mission-like learning modules, and offline self-awareness/resilience assessments (OCEAN, MBTI, DISC, Strengths, GAT-style). The core UX is public-first with no accounts/login, creates a device-scoped local UUID profile on first launch, and stores all personal data locally with graceful degradation when backend methods are unavailable. Scope now also includes a dedicated Sleep Performance pillar (treated as a performance domain) with sleep debt mapping, tactical sleep modes, caffeine timing, naps/controlled rest, and stress-related sleep support, plus optional stress/distress content inspired by public figures integrated into existing modules.",
   "existing_features": [
     {
       "id": "IF-1",
-      "title": "Internet Identity authentication with persisted delegation",
+      "title": "Device-scoped local profile (UUID) with onboarding/consent flags",
       "synonyms": [
-        "II login",
-        "AuthClient",
-        "DelegationIdentity"
+        "LocalProfile",
+        "dagger-local-profile",
+        "device UUID profile"
       ],
-      "description": "Provides an InternetIdentityProvider that initializes an AuthClient, restores a stored delegation on reload, exposes login/logout and status flags, and logs in via a configured II provider with ~30-day maxTimeToLive.",
+      "description": "Creates/loads a device-local profile in localStorage containing a generated localUuid, optional display name/call sign fields, disclaimer/guidelines acceptance flags + timestamps, optional onboarding metadata, and createdAt. Includes update/reset helpers and cross-tab sync via the storage event.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-2",
-      "title": "Identity-aware canister actor creation",
+      "title": "Skippable onboarding flow (disclaimer + guidelines acknowledgement)",
       "synonyms": [
-        "useActor",
-        "Authenticated actor",
-        "Anonymous actor"
+        "OnboardingFlow",
+        "consent overlay"
       ],
-      "description": "Creates an anonymous backend actor when unauthenticated and an identity-bound actor when authenticated; actor instances are cached via React Query and re-created when the identity principal changes.",
+      "description": "Non-blocking onboarding overlay collects optional display name and “what brought you here” selection and requires checking disclaimer and guideline acknowledgements to complete; users can skip and complete later via an in-app reminder banner.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-3",
-      "title": "Access control initialization with secret token bootstrap",
+      "title": "App shell with navigation, user menu, mobile sheet, and reset-local-data dialog",
       "synonyms": [
-        "Admin bootstrap token",
-        "CAFFEINE_ADMIN_TOKEN",
-        "_initializeAccessControlWithSecret"
+        "AppShell",
+        "navigation header"
       ],
-      "description": "On authenticated actor creation, calls a backend initializer that reads an environment variable token and compares it with a user-provided secret to optionally assign the first admin; otherwise assigns user role.",
+      "description": "Provides global layout with responsive navigation links (Dashboard, Journal, Groups, Missions, Assessments), a Field Mode toggle, user menu links (Guidelines, Settings & About), onboarding reminder banner, and a destructive confirmation dialog that resets all device-local data and profile state.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-4",
-      "title": "Secret parameter handling via URL hash + session storage",
+      "title": "Central localStorage data store scoped by localUuid with global reset",
       "synonyms": [
-        "getSecretParameter",
-        "hash secret extraction",
-        "session persisted token"
+        "localDataStore",
+        "resetAllLocalData"
       ],
-      "description": "Implements utilities to read sensitive parameters from the URL hash (not query string), persist them in sessionStorage, and remove them from the URL via replaceState to reduce accidental leakage.",
+      "description": "Central CRUD utilities for locally storing journals, daily readiness inputs, readiness streak state, mission progression, and assessment history under namespaced keys; includes a full reset function clearing all per-user keys.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-5",
-      "title": "Role-based access control (RBAC) API",
+      "title": "Local-only journal CRUD with editor and mission reflection deep-link prefill",
       "synonyms": [
-        "AccessControl",
-        "isCallerAdmin",
-        "getCallerUserRole"
+        "Journal",
+        "JournalEditor",
+        "private reflections"
       ],
-      "description": "Backend maintains per-principal roles (guest/user/admin) and exposes APIs to query caller role, check admin status, and assign roles (admin-only). Backend methods gate access using hasPermission/isAdmin checks.",
+      "description": "Journal list and editor support create/edit/delete with client-side validation and delete confirmation. Journal editor supports prefilled title/content passed via router search params (used by mission reflection prompts). Entries are labeled as local/private on-device.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-6",
-      "title": "Open registration with username uniqueness and capacity cap",
+      "title": "Daily readiness logging (local-only) with scoring, explanations, and streak tracking",
       "synonyms": [
-        "registerUser",
-        "account creation"
+        "DailyDashboard",
+        "useSubmitDailyInput",
+        "readiness factors"
       ],
-      "description": "Allows any authenticated user to register by choosing a username (no global invite code). Enforces unique usernames and caps total registered users to 45.",
+      "description": "Users log sleep, training load, stress, and pain via sliders. The app calculates readiness as 70% factor average + 30% streak bonus (up to 30 points), generates explanation text, stores daily inputs locally, and maintains streak/high-readiness-day counts.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-7",
-      "title": "Onboarding flow: registration + disclaimer/guidelines acceptance",
+      "title": "Readiness visualization, coaching actions, and gamification badges",
       "synonyms": [
-        "OnboardingFlow",
-        "acceptDisclaimer"
+        "ReadinessMeter",
+        "CoachActionsCard",
+        "GamificationCard"
       ],
-      "description": "Two-step onboarding UI collects a username, then requires users to accept a disclaimer and community guidelines before the app grants access to core features; acceptance is persisted via acceptDisclaimer.",
+      "description": "Dashboard renders readiness tiering (Optimized/Ready/Moderate/Degraded), factor breakdown progress bars, analysis text, prioritized actionable coaching guidance, streak display, and simple badges derived from streak length and readiness score.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-8",
-      "title": "User profile storage and retrieval",
+      "title": "Field Mode (low-noise UI) toggle with global styling adjustments",
       "synonyms": [
-        "UserProfile",
-        "getCallerUserProfile",
-        "Settings & About"
+        "Field Mode",
+        "tap-target mode"
       ],
-      "description": "Stores a per-principal profile (username, joinedAt, disclaimerStatus, inviteCode placeholder) and provides APIs to fetch/save profiles. Frontend uses the caller profile to gate onboarding and to display profile info.",
+      "description": "Persisted toggle that applies a global CSS class to simplify UI hierarchy, reduce visual noise, and enforce larger tap targets across controls for field usage.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-9",
-      "title": "Private journaling CRUD with onboarding gating",
+      "title": "Online/offline status detection for UX banners",
       "synonyms": [
-        "Journal entries",
-        "Journaling"
+        "useOnlineStatus",
+        "navigator.onLine"
       ],
-      "description": "Backend supports creating, listing, updating, and deleting journal entries owned by the caller. All journaling APIs require the caller to be a registered user who completed onboarding (disclaimer accepted).",
+      "description": "Tracks browser connectivity using online/offline events and provides an isOnline flag used for dashboard messaging (offline banner, syncing banner, pending changes indicator).",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-10",
-      "title": "Journal editor UI with optional group sharing",
+      "title": "Mission system data model (steps, choices, timed steps, win conditions, XP, side quests, unlock rules)",
       "synonyms": [
-        "JournalEditor",
-        "Share toggle"
+        "types/missions.ts",
+        "Mission schema"
       ],
-      "description": "Frontend journal editor supports create/edit/delete, validation, and an optional share-to-group toggle with group selection; shared entries become visible to members of the selected group.",
+      "description": "Defines typed mission structures including briefing/decision/scenario/timed steps, scoring, win conditions, XP rewards, side quests and unlock rules. Includes rank tiers and helpers to compute rank progression from XP.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-11",
-      "title": "Invite-code-based groups (create/join/leave/view/members/rotate)",
+      "title": "Mission library UI with locked/unlocked state and operator progression panel",
       "synonyms": [
-        "Squad groups",
-        "Groups",
-        "Join code"
+        "Modules page",
+        "MissionCard",
+        "OperatorProgressPanel"
       ],
-      "description": "Backend implements group creation with a creator-chosen join code, joining by join code, leaving (owner cannot leave), fetching group details and member lists (member-only or admin), and rotating the join code (owner-only). Group membership is capped at 45 members.",
+      "description": "Mission library organized by category tabs displays mission briefing, win conditions, XP reward, side quest counts, completion state, and lock reasons. Operator status panel shows XP, rank, progress-to-next-rank, and unlocked items.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-12",
-      "title": "Groups UI: list, create, and join",
+      "title": "Interactive mission runner with timed decisions, scoring, and debrief",
       "synonyms": [
-        "Groups page",
-        "Create group dialog",
-        "Join group dialog"
+        "MissionRunner",
+        "MissionDebrief"
       ],
-      "description": "Provides a Groups page that lists the user’s groups and includes dialogs to create a group (requires join code) and join an existing group by join code, with user-friendly error handling.",
+      "description": "Runs missions step-by-step, records decisions, supports timed steps with countdown and auto-choice on timeout, computes score/max score, calculates XP (full on pass / half on fail), and renders a debrief with win-condition evaluation and optional reflection CTA deep-linking to the Journal.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-13",
-      "title": "Group detail page with shared entries, members, invite code tools, and reporting",
+      "title": "Local-only mission progression persistence (XP, rank/tier, unlockables, mission history)",
       "synonyms": [
-        "GroupSharedEntries",
-        "Shared feed",
-        "Members tab"
+        "useMissionProgression",
+        "dagger-mission-progression-*"
       ],
-      "description": "Group detail UI shows shared entries and a members list. Owners can copy/rotate the join code; non-owners can leave. Users can report other members’ shared entries via an embedded reporting dialog.",
+      "description": "Stores operator progression in localStorage per device UUID: accumulates XP, computes rank/tier, records mission history, and adds unlockable markers for completed side quests.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-14",
-      "title": "Learning modules library with reflection deep-links",
+      "title": "Mission unlock rules including assessment-driven gating (frontend-evaluated)",
       "synonyms": [
-        "Modules",
-        "Reflection prompts",
-        "Prefilled journaling"
+        "MissionUnlockRule",
+        "assessment unlocks"
       ],
-      "description": "Frontend ships doctrine-informed learning modules organized by category; each module includes quotes/interpretations and reflection prompts that navigate to journaling with prefilled title/content (including a Sleep Performance category).",
+      "description": "Supports unlock gating by rank, readiness streak, mission completion, performance threshold, and assessment completion/outcome patterns. Assessment-based rules are evaluated in the MissionCard UI using local assessment history.",
       "reqIds": [],
       "version": 1
     },
     {
       "id": "IF-15",
-      "title": "Community guidelines endpoint and UI page",
+      "title": "Offline assessments module (entry, run, results, history/trends, leader view)",
       "synonyms": [
-        "getGuidelines",
-        "Guidelines page"
+        "Assessments",
+        "AssessmentRun",
+        "AssessmentResults",
+        "AssessmentHistory",
+        "AssessmentLeaderView"
       ],
-      "description": "Backend provides a guidelines text endpoint; frontend includes a Guidelines page and also presents guidelines during onboarding.",
-      "reqIds": [],
+      "description": "Provides an offline-first assessments module with routes to list assessments, run questionnaires, show results, view history and basic trends, and view leader-focused guidance based on locally stored results.",
+      "reqIds": [
+        "REQ-18",
+        "REQ-21",
+        "REQ-25"
+      ],
       "version": 1
     },
     {
       "id": "IF-16",
-      "title": "Abuse reporting submission system",
+      "title": "Assessment definitions, deterministic scoring, and outcome briefing/scenario content",
       "synonyms": [
-        "reportAbuse",
-        "ReportDialog"
+        "content/assessments.ts",
+        "assessmentScoring",
+        "OutcomeBriefingCards",
+        "assessmentOutcomes"
       ],
-      "description": "Users can submit abuse reports for a shared journal entry and/or a user, selecting a reason and optional details. Backend validates that reported entries are shared and that reports involve users sharing a group context.",
-      "reqIds": [],
+      "description": "Implements placeholder questionnaires and deterministic scoring for OCEAN (dimensional), MBTI (type), DISC (dimensional), Strengths themes (dimensional), and GAT-style resilience (banded). Results render military-focused “what it measures / mission relevance / actionable insights” content as cards including interactive scenario choices.",
+      "reqIds": [
+        "REQ-19",
+        "REQ-20"
+      ],
       "version": 1
     },
     {
       "id": "IF-17",
-      "title": "Admin moderation console for reports",
+      "title": "Local assessment result storage, history, and trend deltas",
       "synonyms": [
-        "AdminReports",
-        "getAllReports",
-        "updateReportStatus"
+        "useAssessments",
+        "dagger-assessments-*"
       ],
-      "description": "Admins can view all reports, see status badges (open/in review/resolved), sort with open reports prioritized, and update report status from the UI via admin-only backend methods.",
-      "reqIds": [],
+      "description": "Stores assessment runs in localStorage per device UUID, provides history retrieval per assessment type, returns latest run, computes simple trend summaries (first vs latest outcome label and per-score deltas), and exposes helpers used for mission unlock logic.",
+      "reqIds": [
+        "REQ-21",
+        "REQ-23"
+      ],
       "version": 1
     },
     {
       "id": "IF-18",
-      "title": "Authenticated app shell with navigation, theming, and logout",
+      "title": "Assessment completion rewards integrated into mission progression (XP grant pathway)",
       "synonyms": [
-        "AppShell",
-        "Navigation header",
-        "next-themes"
+        "assessment XP reward",
+        "progression rewards"
       ],
-      "description": "Provides the main authenticated layout with header navigation (Journal/Groups/Modules), mobile drawer, user dropdown (Guidelines, Settings, conditional Admin Reports), theme support, and logout that clears identity and React Query cache.",
-      "reqIds": [],
+      "description": "Assessment completion grants XP by emitting a synthetic MissionResult into the mission progression system (e.g., +50 XP on completion) so progression UI updates without requiring a mission run.",
+      "reqIds": [
+        "REQ-22"
+      ],
       "version": 1
     },
     {
       "id": "IF-19",
-      "title": "Backend state migration for removing legacy global invite code fields",
+      "title": "Optional backend connectivity via Internet Identity + canister actor hooks",
       "synonyms": [
-        "migration.mo",
-        "state migration"
+        "InternetIdentityProvider",
+        "useSafeActor",
+        "useActor"
       ],
-      "description": "Includes a migration module that transforms an older actor state into the current state shape by dropping legacy global invite code and used-invite-codes fields while preserving existing user, journal, group, and report data.",
+      "description": "Provides Internet Identity authentication context, creates anonymous or identity-bound DFINITY actors, and uses React Query to manage actor lifecycle. Actor changes trigger invalidation/refetch of dependent queries.",
       "reqIds": [],
       "version": 1
     },
     {
-      "id": "feature-fix-authenticated-app-initialization-so-the-frontend-can-create-a-logged-in-actor-even-when-the-admin-bootstrap-secret-is-not-present-specifically-do-not-let-useactor-block-or-crash-the-app-if-initializeaccesscontrolwithsecret-traps-e-g-missing-empty-caffeineadmintoken-or-missing-backend-env-token-instead-continue-with-a-usable-authenticated-actor-and-surface-a-clear-error-message-in-the-ui-only-if-the-failure-prevents-core-user-flows",
-      "title": "Fix authenticated app initialization so the frontend can create a logged-in actor even when the admin bootstrap secret is not present. Specifically: do not let `useActor` block or crash the app if `_initializeAccessControlWithSecret` traps (e.g., missing/empty `caffeineAdminToken` or missing backend env token); instead, continue with a usable authenticated actor and surface a clear error message in the UI only if the failure prevents core user flows.",
+      "id": "IF-20",
+      "title": "Backend-dependent groups, shared entries, abuse reporting, and admin moderation UIs (graceful offline degradation)",
+      "synonyms": [
+        "Groups",
+        "GroupSharedEntries",
+        "ReportDialog",
+        "AdminReports"
+      ],
+      "description": "Frontend includes pages and React Query hooks for creating/joining/leaving groups, viewing group members and shared entries, submitting abuse reports, and reviewing/updating report statuses. UI disables actions and displays clear offline/unavailable messaging when backend support is missing.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-21",
+      "title": "Community guidelines and disclaimer content surfaced in onboarding and settings",
+      "synonyms": [
+        "Guidelines page",
+        "DISCLAIMER_TEXT"
+      ],
+      "description": "Includes an explicit non-affiliation disclaimer (OPSEC/privacy reminders) and a community guidelines page, with acknowledgement captured during onboarding and status visible in settings.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-22",
+      "title": "Motoko backend proof-of-concept: readiness APIs, user profile stubs, and RBAC mixin",
+      "synonyms": [
+        "backend/main.mo",
+        "AccessControl",
+        "MixinAuthorization"
+      ],
+      "description": "Motoko canister defines types and in-memory maps for user profiles, journaling, groups, reports, daily readiness inputs, and readiness state. Implements readiness calculation/storage and dashboard query, plus role-based access control initialization via an env-var admin token and role queries/assignment helpers (with several user-profile methods stubbed/trapping).",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-23",
+      "title": "Invite/join code normalization utility",
+      "synonyms": [
+        "normalizeInviteCode",
+        "join code trimming"
+      ],
+      "description": "Client-side normalization trims whitespace on invite/join codes before sending to backend; backend is expected to handle case-insensitive validation.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "IF-24",
+      "title": "Backend error message parsing for offline-first UX",
+      "synonyms": [
+        "parseBackendError",
+        "offline-first error mapping"
+      ],
+      "description": "Parses backend/actor errors into user-friendly messages emphasizing offline availability and permission constraints without referencing authentication/sign-in flows.",
+      "reqIds": [],
+      "version": 1
+    },
+    {
+      "id": "feature-create-a-new-top-level-app-section-named-sleep-performance-that-is-clearly-separated-from-other-pillars-physical-training-mental-readiness-mission-performance-and-is-reachable-from-the-main-app-navigation-with-equal-prominence",
+      "title": "Create a new top-level app section named \"Sleep Performance\" that is clearly separated from other pillars (Physical Training, Mental Readiness, Mission Performance) and is reachable from the main app navigation with equal prominence.",
       "reqIds": [
-        "REQ-1"
+        "REQ-26"
       ],
       "version": 1
     },
     {
-      "id": "feature-add-a-user-visible-error-state-for-the-post-login-profile-load-authorization-step-so-that-if-getcalleruserprofile-or-other-initial-authenticated-calls-fails-the-ui-shows-an-english-message-and-a-retry-action-instead-of-appearing-to-not-open",
-      "title": "Add a user-visible error state for the post-login profile load/authorization step so that if `getCallerUserProfile` (or other initial authenticated calls) fails, the UI shows an English message and a retry action instead of appearing to not open.",
+      "id": "feature-implement-a-daily-sleep-performance-dashboard-that-displays-last-sleep-window-rolling-sleep-debt-estimated-cognitive-readiness-percentage-an-injury-risk-indicator-and-an-emotional-regulation-impact-indicator-with-soldier-credible-explanatory-language-e-g-based-on-your-sleep-reaction-time-and-decision-making-may-be-degraded-today",
+      "title": "Implement a \"Daily Sleep Performance Dashboard\" that displays: last sleep window, rolling sleep debt, estimated cognitive readiness percentage, an injury risk indicator, and an emotional regulation impact indicator, with soldier-credible explanatory language (e.g., \"Based on your sleep, reaction time and decision-making may be degraded today.\").",
       "reqIds": [
-        "REQ-3"
+        "REQ-27"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-daily-sleep-performance-flow-that-follows-check-in-analysis-action-and-persists-all-sleep-performance-data-locally-offline-first-device-scoped",
+      "title": "Add a daily Sleep Performance flow that follows: check-in → analysis → action, and persists all Sleep Performance data locally (offline-first, device-scoped).",
+      "reqIds": [
+        "REQ-28"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-tactical-sleep-modes-as-a-selectable-setting-field-mode-garrison-mode-shift-cq-staff-duty-mode-high-stress-post-event-mode-each-mode-must-dynamically-adjust-guidance-on-sleep-duration-expectations-nap-strategy-caffeine-timing-and-wind-down-protocols",
+      "title": "Implement \"Tactical Sleep Modes\" as a selectable setting: Field Mode, Garrison Mode, Shift/CQ/Staff Duty Mode, High-Stress/Post-Event Mode; each mode must dynamically adjust guidance on sleep duration expectations, nap strategy, caffeine timing, and wind-down protocols.",
+      "reqIds": [
+        "REQ-29"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-create-a-sleep-debt-readiness-mapping-system-that-tracks-cumulative-sleep-debt-and-converts-debt-into-quantified-performance-degradation-outputs-for-reaction-time-pt-injury-risk-emotional-volatility-and-judgment-errors-avoid-vague-language-quantify-impact-where-possible",
+      "title": "Create a Sleep Debt → Readiness mapping system that tracks cumulative sleep debt and converts debt into quantified performance degradation outputs for: reaction time, PT injury risk, emotional volatility, and judgment errors (avoid vague language; quantify impact where possible).",
+      "reqIds": [
+        "REQ-30"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-pain-aware-sleep-optimization-with-optional-inputs-for-neck-pain-back-pain-and-nerve-symptoms-provide-sleep-positioning-logic-pillow-guidance-30-90-second-micro-routines-neck-jaw-nerve-prep-and-red-flag-alerts-for-worsening-neurologic-symptoms",
+      "title": "Add \"Pain-Aware Sleep Optimization\" with optional inputs for neck pain, back pain, and nerve symptoms; provide sleep positioning logic, pillow guidance, 30–90 second micro-routines (neck/jaw/nerve prep), and red-flag alerts for worsening neurologic symptoms.",
+      "reqIds": [
+        "REQ-31"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-a-caffeine-stimulant-timing-engine-that-allows-logging-caffeine-sources-estimates-clearance-windows-and-recommends-last-intake-times-frame-caffeine-as-a-tool-not-a-vice",
+      "title": "Implement a \"Caffeine & Stimulant Timing Engine\" that allows logging caffeine sources, estimates clearance windows, and recommends last intake times; frame caffeine as a tool, not a vice.",
+      "reqIds": [
+        "REQ-32"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-nervous-system-downshift-tool-that-provides-2-5-minute-pre-sleep-routines-using-non-spiritual-operational-language-and-includes-breathing-jaw-neck-release-and-grounding-cues",
+      "title": "Add a \"Nervous System Downshift\" tool that provides 2–5 minute pre-sleep routines using non-spiritual, operational language and includes breathing, jaw/neck release, and grounding cues.",
+      "reqIds": [
+        "REQ-33"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-micro-naps-controlled-rest-guidance-with-10-20-30-90-minute-options-sleep-cycle-aligned-wakeup-guidance-and-post-nap-reactivation-guidance-normalize-naps-as-performance-tools",
+      "title": "Add \"Micro-Naps & Controlled Rest\" guidance with 10/20/30/90-minute options, sleep-cycle–aligned wakeup guidance, and post-nap reactivation guidance; normalize naps as performance tools.",
+      "reqIds": [
+        "REQ-34"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-stress-related-sleep-disruption-support-with-optional-stigma-free-check-ins-for-nightmares-hypervigilance-racing-thoughts-and-startle-response-provide-normalization-grounding-tools-and-quiet-guidance-on-escalation-if-needed",
+      "title": "Add \"Stress-Related Sleep Disruption Support\" with optional, stigma-free check-ins for nightmares, hypervigilance, racing thoughts, and startle response; provide normalization, grounding tools, and quiet guidance on escalation if needed.",
+      "reqIds": [
+        "REQ-35"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-create-command-safe-education-tiles-in-the-sleep-performance-section-with-short-shareable-factual-operational-neutral-tiles-including-sleep-deprivation-equals-intoxication-level-impairment-3-nights-5-hrs-increases-injury-risk-and-sleep-loss-degrades-marksmanship-and-judgment",
+      "title": "Create \"Command-Safe Education Tiles\" in the Sleep Performance section with short, shareable, factual, operational, neutral tiles including: \"Sleep deprivation equals intoxication-level impairment\", \"3 nights <5 hrs increases injury risk\", and \"Sleep loss degrades marksmanship and judgment\".",
+      "reqIds": [
+        "REQ-36"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-integrate-sleep-performance-with-existing-gamification-patterns-by-adding-consistency-streaks-and-readiness-improvements-tied-to-sleep-behavior-plus-unlockable-sleep-optimization-tools-all-stored-locally-and-compatible-with-offline-first-behavior",
+      "title": "Integrate Sleep Performance with existing gamification patterns by adding consistency streaks and readiness improvements tied to sleep behavior, plus unlockable sleep optimization tools (all stored locally and compatible with offline-first behavior).",
+      "reqIds": [
+        "REQ-37"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-provide-in-app-language-examples-written-for-soldiers-across-sleep-performance-dashboard-insights-mode-guidance-caffeine-guidance-nap-guidance-and-stress-disruption-support-and-ensure-the-section-consistently-frames-sleep-as-combat-readiness-not-wellness-recovery-lifestyle",
+      "title": "Provide in-app language examples written for soldiers across Sleep Performance (dashboard insights, mode guidance, caffeine guidance, nap guidance, and stress disruption support) and ensure the section consistently frames sleep as combat readiness (not wellness/recovery/lifestyle).",
+      "reqIds": [
+        "REQ-38"
       ],
       "version": 1
     }
@@ -244,40 +401,64 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Remove any global/invite-code gate for initial app access; allow anyone to create an account and use the core app, while keeping invite codes only for joining/creating groups.",
+      "summary": "Add dedicated Sleep Performance pillar (dashboard, sleep debt→readiness mapping, tactical sleep modes, pain-aware optimization, caffeine timing engine, nervous system downshift routines, naps/controlled rest, stress-related sleep disruption support, command-safe education tiles, gamification).",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Integrate stress vs distress + stress-management content inspired by/including quotes & summaries from public figures (e.g., Wim Hof, David Goggins, Shawn Ryan, Joe Rogan, Tom Brady, Michael Jordan, Mike Tyson, Jocko Willink) into an existing module, with journaling reflection prompts.",
       "reqIds": [],
       "status": "pending"
     },
     {
       "id": "AR-3",
-      "summary": "Fix open registration and onboarding by updating backend authorization logic so a newly authenticated (but not yet registered) user can reach onboarding and successfully register. At minimum: (1) `registerUser` must not call an admin-only role-assignment path that traps for normal users; it must grant the caller the `#user` role in a way that works for self-registration, and (2) `getCallerUserProfile` must not trap for users who are authenticated but not yet registered; it should return `null` in that case so the frontend can show the onboarding flow.",
-      "reqIds": [
-        "REQ-2"
-      ],
+      "summary": "Ensure app is fully public-first with no sign-in/auth flows; create local-only device UUID profile on first launch; onboarding is local-only and non-blocking; data remains device-local; remove auth guards/protected routes and replace auth checks with useLocalProfile seam.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-4",
+      "summary": "Redesign core user-facing readiness experience (daily dashboard/logging/coaching/visualization) to be interactive and game-like with real-time feedback, cause-and-effect readiness scoring (new transparent model), micro-interactions, and Field Mode as a global simplification toggle.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-5",
+      "summary": "Gamify learning modules as missions (win conditions, XP rewards, rank/tier progression, unlockables, side quests, scenario-based/timed decisions, performance- and streak-based unlock progression).",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-6",
+      "summary": "Add Soldier Self-Awareness & Resilience module with placeholder assessments (OCEAN, MBTI, DISC, StrengthsFinder, GAT/resilience/EI), outcome-specific military-focused insights, local storage/trends, XP/badges, and mission unlocks tied to outcomes; include leader guidance.",
+      "reqIds": [],
       "status": "pending"
     }
   ],
   "architectural_notes": [
-    "Internet Computer architecture: a Motoko canister exposes a Candid API consumed by a typed frontend actor.",
-    "Authorization uses a Motoko mixin (MixinAuthorization) backed by an AccessControl state module implementing RBAC (guest/user/admin).",
-    "Frontend authentication is implemented with @dfinity/auth-client (Internet Identity) and long-lived DelegationIdentity (30 days).",
-    "Frontend data access is centralized in TanStack React Query hooks (queries/mutations) with explicit cache invalidation after writes.",
-    "Actor creation is identity-aware (anonymous vs authenticated) and performs access-control initialization on authenticated actor creation.",
-    "Client routing uses TanStack Router; the root route gates between Public Landing, Onboarding, and the authenticated AppShell.",
-    "UI stack: Tailwind CSS + shadcn/ui components, lucide icons, next-themes for light/dark mode, and sonner for toasts.",
-    "Sensitive bootstrap values (admin token) are passed via URL hash and persisted in sessionStorage, then removed from the URL to reduce leakage."
+    "Offline-first persistence uses localStorage namespaced by a device-scoped localUuid (profile, journals, daily inputs/readiness state, mission progression, assessment history).",
+    "TanStack Router is used for public-first routing (no auth-gated routes); onboarding is a non-blocking overlay controlled by local flags.",
+    "React Query is used for canister actor-backed queries/mutations; actor identity changes trigger cache invalidation/refetch.",
+    "Clear separation between local-only hooks (useLocalProfile/useLocalData/useDashboard/useAssessments/useMissionProgression) and backend-dependent hooks (useQueries) with graceful fallbacks.",
+    "Content-driven design: missions and assessments are defined as static content modules plus deterministic client-side scoring and rendering components.",
+    "DFINITY integration via InternetIdentityProvider and actor creation utilities; anonymous actor is used when unauthenticated.",
+    "UI stack: TailwindCSS + shadcn/ui components, lucide-react icons, next-themes for light/dark mode.",
+    "“Field Mode” is a localStorage-backed global UI mode that increases tap targets and reduces visual noise via CSS class overrides.",
+    "Motoko backend uses an authorization mixin (MixinAuthorization) and an AccessControl module to assign roles with an env-var admin token.",
+    "Developer documentation exists in-code for the Assessments module (content/assessments/README.md) describing flows, scoring, and extension points."
   ],
   "known_issues": [
-    "Backend registerUser calls AccessControl.assignRole (admin-only) with the registering caller; this likely traps for non-admin users and can break open registration.",
-    "Canister state is not upgrade-safe: runtime Maps/vars are not stored in stable variables with preupgrade/postupgrade hooks, so upgrades may lose state (migration module exists but stability is not evident here).",
-    "Group join code validation is case-sensitive on the backend (group.inviteCode == inviteCode) despite frontend comments claiming case-insensitive backend validation.",
-    "rotateSquadInviteCode is not a true rotation: invite codes are deterministically generated from squadId, so rotating may produce the same value; codes are also predictable.",
-    "joinSquadGroup performs a linear scan over all groups to find a matching invite code (O(n)), which will not scale.",
-    "Frontend “My Groups” list is derived by scanning the caller’s journal entries for squadGroup references rather than querying actual membership; membership may not appear until a journal entry is associated.",
-    "GroupSharedEntries incorrectly uses UserProfile.joinedAt as if it were a Principal to match authors/owners/me, leading to “Unknown” authors and incorrect badges.",
-    "Guidelines page fetches guidelines from the backend but renders hard-coded guideline content instead of the fetched string.",
-    "_initializeAccessControlWithSecret traps if the CAFFEINE_ADMIN_TOKEN env var is not set; the frontend calls this during authenticated actor creation, risking total app failure in misconfigured deployments.",
-    "reportAbuse does not enforce that at least one of reportedEntry or reportedUser is provided, allowing a targetless report if a client bypasses UI validation."
+    "Groups are effectively non-functional: useGetMySquads() is hardcoded to return an empty array (commented as a stub).",
+    "Backend canister (backend/main.mo) does not implement most group, journaling, reporting, or admin endpoints expected by the frontend, so many backend-dependent UI actions will be disabled or fail.",
+    "Guidelines query has a local fallback, but useGetGuidelines() is disabled when actor is null (enabled requires actor), and Guidelines.tsx renders static text instead of using the fetched `guidelines` value.",
+    "GroupSharedEntries.tsx attempts to match members to entries by comparing `member.joinedAt` (a timestamp) to `entry.author` (Principal); this type mismatch breaks author labeling/owner detection.",
+    "Assessment reward persistence is inconsistent: AssessmentRun mutates `result.rewardGranted = true` after saving; the updated flag is not re-saved to local storage, and the computed `badgeName` is unused (no unlockable stored).",
+    "useMissionProgression.applyMissionResult always adds XP and appends history; despite comments about deduplication, repeated runs (including assessments) can grant duplicate XP.",
+    "Mission side-quest evaluation is simplified: all side quests complete when scorePercentage >= 80, ignoring each side quest’s declared condition; MissionRunner also keeps an unused sideQuestsCompleted state.",
+    "DailyDashboard shows “syncing/queued” messaging when offline, but readiness logging is purely local and no sync queue or cloud merge exists.",
+    "Backend readiness `getLastInput` returns the first entry in a Map iterator (not necessarily the latest), and backend state is in-memory (no stable persistence across upgrades).",
+    "Access gating regression: invite-code/sign-in flow can block app from opening/previewing; must be removed/disabled to satisfy public-first, no-auth requirement."
   ],
   "isFixRequest": true,
   "gameProjectType": "none",

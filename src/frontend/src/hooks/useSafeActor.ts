@@ -3,7 +3,6 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { type backendInterface } from '../backend';
 import { createActorWithConfig } from '../config';
-import { getSecretParameter } from '../utils/urlParams';
 
 const SAFE_ACTOR_QUERY_KEY = 'safeActor';
 
@@ -31,14 +30,8 @@ export function useSafeActor() {
 
       const actor = await createActorWithConfig(actorOptions);
       
-      // Try to initialize access control, but don't fail actor creation if it errors
-      try {
-        const adminToken = getSecretParameter('caffeineAdminToken') || '';
-        await actor._initializeAccessControlWithSecret(adminToken);
-      } catch (error) {
-        console.warn('Access control initialization failed:', error);
-        setInitWarning('App initialization encountered an issue. Some features may be limited.');
-      }
+      // No explicit initialization needed - backend handles authorization internally
+      // based on registered user status and principal checks
       
       return actor;
     },

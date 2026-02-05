@@ -1,111 +1,38 @@
 import { useState } from 'react';
-import { useRegisterUser, useAcceptDisclaimer } from '../../hooks/useQueries';
+import { useLocalProfile } from '../../hooks/useLocalProfile';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DISCLAIMER_TEXT } from '../../content/disclaimer';
 
-export default function OnboardingFlow() {
-  const [step, setStep] = useState<'register' | 'disclaimer'>('register');
-  const [username, setUsername] = useState('');
+interface OnboardingFlowProps {
+  onSkip: () => void;
+}
+
+export default function OnboardingFlow({ onSkip }: OnboardingFlowProps) {
+  const { profile, update } = useLocalProfile();
+  const [displayName, setDisplayName] = useState(profile.displayName || '');
   const [acceptedDisclaimer, setAcceptedDisclaimer] = useState(false);
   const [acceptedGuidelines, setAcceptedGuidelines] = useState(false);
+  const [whatBroughtYouHere, setWhatBroughtYouHere] = useState(profile.whatBroughtYouHere || '');
 
-  const registerMutation = useRegisterUser();
-  const acceptDisclaimerMutation = useAcceptDisclaimer();
-
-  const handleRegisterSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      await registerMutation.mutateAsync(username.trim());
-      setStep('disclaimer');
-    } catch (error: any) {
-      // Error will be shown via mutation state
-    }
+  const handleComplete = () => {
+    update({
+      displayName: displayName.trim() || undefined,
+      disclaimerAccepted: acceptedDisclaimer,
+      disclaimerAcceptedAt: Date.now(),
+      guidelinesAccepted: acceptedGuidelines,
+      guidelinesAcceptedAt: Date.now(),
+      whatBroughtYouHere: whatBroughtYouHere || undefined,
+    });
+    onSkip();
   };
 
-  const handleDisclaimerSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!acceptedDisclaimer || !acceptedGuidelines) return;
-
-    try {
-      await acceptDisclaimerMutation.mutateAsync();
-    } catch (error: any) {
-      // Error will be shown via mutation state
-    }
-  };
-
-  const getErrorMessage = (error: any): string => {
-    if (!error) return '';
-    const message = error.message || String(error);
-    if (message.includes('Maximum number of users reached')) {
-      return 'This app has reached its maximum capacity of 45 users. Registration is currently closed.';
-    }
-    if (message.includes('Username already taken')) {
-      return 'This username is already taken. Please choose a different one.';
-    }
-    if (message.includes('User already registered')) {
-      return 'You are already registered. Please refresh the page.';
-    }
-    return 'An error occurred. Please try again.';
-  };
-
-  if (step === 'register') {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-background p-4">
-        <Card className="w-full max-w-md">
-          <CardHeader className="text-center">
-            <div className="flex justify-center mb-4">
-              <img
-                src="/assets/generated/dagger-icon-mark.dim_256x256.png"
-                alt="DAGGER"
-                className="h-16 w-16 object-contain"
-              />
-            </div>
-            <CardTitle>Create Your Account</CardTitle>
-            <CardDescription>Choose a username to get started</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleRegisterSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="username">Username</Label>
-                <Input
-                  id="username"
-                  type="text"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  placeholder="Choose a username"
-                  required
-                  minLength={3}
-                  maxLength={20}
-                  disabled={registerMutation.isPending}
-                />
-                <p className="text-xs text-muted-foreground">
-                  This username will be visible to other members in your groups
-                </p>
-              </div>
-
-              {registerMutation.isError && (
-                <Alert variant="destructive">
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>{getErrorMessage(registerMutation.error)}</AlertDescription>
-                </Alert>
-              )}
-
-              <Button type="submit" className="w-full" disabled={registerMutation.isPending}>
-                {registerMutation.isPending ? 'Creating Account...' : 'Continue'}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
+  const canComplete = acceptedDisclaimer && acceptedGuidelines;
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
@@ -115,14 +42,45 @@ export default function OnboardingFlow() {
             <img
               src="/assets/generated/dagger-icon-mark.dim_256x256.png"
               alt="DAGGER"
-              className="h-12 w-12 object-contain"
+              className="h-16 w-16 object-contain"
             />
           </div>
-          <CardTitle>Important Information</CardTitle>
-          <CardDescription>Please review and accept the following before continuing</CardDescription>
+          <CardTitle>Welcome to Resilience</CardTitle>
+          <CardDescription>Let's get you set up (you can skip and do this later)</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleDisclaimerSubmit} className="space-y-6">
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="displayName">Display Name or Call Sign (Optional)</Label>
+              <Input
+                id="displayName"
+                type="text"
+                value={displayName}
+                onChange={(e) => setDisplayName(e.target.value)}
+                placeholder="How should we address you?"
+                maxLength={30}
+              />
+              <p className="text-xs text-muted-foreground">
+                This is stored locally on your device only
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="whatBrought">What brought you here? (Optional)</Label>
+              <Select value={whatBroughtYouHere} onValueChange={setWhatBroughtYouHere}>
+                <SelectTrigger id="whatBrought">
+                  <SelectValue placeholder="Select an option..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="personal-growth">Personal growth and resilience</SelectItem>
+                  <SelectItem value="team-cohesion">Team cohesion and leadership</SelectItem>
+                  <SelectItem value="mental-readiness">Mental readiness and performance</SelectItem>
+                  <SelectItem value="peer-support">Peer support and connection</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
             <div className="space-y-4">
               <div className="space-y-2">
                 <h3 className="font-semibold">Disclaimer</h3>
@@ -165,7 +123,6 @@ export default function OnboardingFlow() {
                   id="disclaimer"
                   checked={acceptedDisclaimer}
                   onCheckedChange={(checked) => setAcceptedDisclaimer(checked === true)}
-                  disabled={acceptDisclaimerMutation.isPending}
                 />
                 <label htmlFor="disclaimer" className="text-sm leading-none peer-disabled:cursor-not-allowed">
                   I have read and understand the disclaimer
@@ -177,7 +134,6 @@ export default function OnboardingFlow() {
                   id="guidelines"
                   checked={acceptedGuidelines}
                   onCheckedChange={(checked) => setAcceptedGuidelines(checked === true)}
-                  disabled={acceptDisclaimerMutation.isPending}
                 />
                 <label htmlFor="guidelines" className="text-sm leading-none peer-disabled:cursor-not-allowed">
                   I agree to follow the community guidelines
@@ -185,21 +141,15 @@ export default function OnboardingFlow() {
               </div>
             </div>
 
-            {acceptDisclaimerMutation.isError && (
-              <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>{getErrorMessage(acceptDisclaimerMutation.error)}</AlertDescription>
-              </Alert>
-            )}
-
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={!acceptedDisclaimer || !acceptedGuidelines || acceptDisclaimerMutation.isPending}
-            >
-              {acceptDisclaimerMutation.isPending ? 'Processing...' : 'Complete Setup'}
-            </Button>
-          </form>
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={onSkip} className="flex-1">
+                Skip for Now
+              </Button>
+              <Button onClick={handleComplete} disabled={!canComplete} className="flex-1">
+                Complete Setup
+              </Button>
+            </div>
+          </div>
         </CardContent>
       </Card>
     </div>

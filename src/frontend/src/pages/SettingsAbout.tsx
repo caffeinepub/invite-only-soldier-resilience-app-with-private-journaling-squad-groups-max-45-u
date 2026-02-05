@@ -1,53 +1,94 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { useGetCallerUserProfile } from '../hooks/useQueries';
-import { Shield, Info, User } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { useLocalProfile } from '../hooks/useLocalProfile';
+import { Shield, Info, User, Code } from 'lucide-react';
 import { DISCLAIMER_TEXT } from '../content/disclaimer';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { useState } from 'react';
+import { toast } from 'sonner';
 
 export default function SettingsAbout() {
-  const { data: userProfile } = useGetCallerUserProfile();
+  const { profile, update } = useLocalProfile();
+  const [displayName, setDisplayName] = useState(profile.displayName || '');
+  const [isEditing, setIsEditing] = useState(false);
+
+  const handleSave = () => {
+    update({ displayName: displayName.trim() || undefined });
+    setIsEditing(false);
+    toast.success('Display name updated');
+  };
 
   return (
     <div className="container max-w-3xl py-8 space-y-6">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Settings & About</h1>
-        <p className="text-muted-foreground">Your profile and app information</p>
+        <p className="text-muted-foreground">Your local profile and app information</p>
       </div>
 
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
             <User className="h-5 w-5 text-primary" />
-            <CardTitle>Profile</CardTitle>
+            <CardTitle>Local Profile</CardTitle>
           </div>
+          <CardDescription>Stored on this device only</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-3">
+        <CardContent className="space-y-4">
           <div>
-            <p className="text-sm font-medium text-muted-foreground">Username</p>
-            <p className="text-lg">{userProfile?.username}</p>
+            <Label htmlFor="displayName">Display Name</Label>
+            <div className="flex gap-2 mt-1">
+              <Input
+                id="displayName"
+                value={displayName}
+                onChange={(e) => setDisplayName(e.target.value)}
+                placeholder="Your name or call sign"
+                disabled={!isEditing}
+                maxLength={30}
+              />
+              {isEditing ? (
+                <>
+                  <Button onClick={handleSave}>Save</Button>
+                  <Button variant="outline" onClick={() => {
+                    setDisplayName(profile.displayName || '');
+                    setIsEditing(false);
+                  }}>
+                    Cancel
+                  </Button>
+                </>
+              ) : (
+                <Button onClick={() => setIsEditing(true)}>Edit</Button>
+              )}
+            </div>
           </div>
           <div>
-            <p className="text-sm font-medium text-muted-foreground">Member Since</p>
-            <p className="text-lg">
-              {userProfile?.joinedAt
-                ? new Date(Number(userProfile.joinedAt) / 1000000).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                  })
-                : 'Unknown'}
+            <p className="text-sm font-medium text-muted-foreground">Device ID</p>
+            <p className="text-xs font-mono bg-muted p-2 rounded mt-1 break-all">{profile.localUuid}</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              This unique ID is used to store your data locally. Share it with support if you need help.
             </p>
           </div>
           <div>
-            <p className="text-sm font-medium text-muted-foreground">Disclaimer Accepted</p>
-            <p className="text-lg">
-              {userProfile?.disclaimerStatus?.accepted
-                ? new Date(Number(userProfile.disclaimerStatus.timestamp) / 1000000).toLocaleDateString('en-US', {
+            <p className="text-sm font-medium text-muted-foreground">Profile Created</p>
+            <p className="text-sm">
+              {new Date(profile.createdAt).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+              })}
+            </p>
+          </div>
+          <div>
+            <p className="text-sm font-medium text-muted-foreground">Disclaimer & Guidelines</p>
+            <p className="text-sm">
+              {profile.disclaimerAccepted && profile.disclaimerAcceptedAt
+                ? `Accepted on ${new Date(profile.disclaimerAcceptedAt).toLocaleDateString('en-US', {
                     year: 'numeric',
                     month: 'long',
                     day: 'numeric'
-                  })
-                : 'Not accepted'}
+                  })}`
+                : 'Not yet accepted'}
             </p>
           </div>
         </CardContent>
@@ -91,10 +132,16 @@ export default function SettingsAbout() {
             </p>
           </div>
           <div>
-            <p className="text-sm font-medium text-muted-foreground">Privacy</p>
+            <p className="text-sm font-medium text-muted-foreground">Privacy & Data</p>
             <p className="text-sm">
-              Journal entries are private by default. You control what you share and with whom. All shared content is
-              visible only to members of the squad you choose.
+              All your data (journal entries, readiness inputs, streaks) is stored locally on this device only.
+              Nothing is sent to a server by default. You control your data completely.
+            </p>
+          </div>
+          <div>
+            <p className="text-sm font-medium text-muted-foreground">Offline-First</p>
+            <p className="text-sm">
+              This app works fully offline. No account or internet connection required. Your data stays on your device.
             </p>
           </div>
         </CardContent>

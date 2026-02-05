@@ -1,20 +1,17 @@
 import { useState, useEffect } from 'react';
-import { useAddJournaling, useUpdateJournaling, useDeleteJournaling, useGetMySquads } from '../../hooks/useQueries';
+import { useLocalJournalEntries } from '../../hooks/useLocalData';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Switch } from '@/components/ui/switch';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { X, Save, Trash2, Lock, Users, AlertCircle } from 'lucide-react';
+import { X, Save, Trash2, Lock } from 'lucide-react';
 import { toast } from 'sonner';
-import type { Journaling } from '../../backend';
+import type { LocalJournalEntry } from '../../utils/localDataStore';
 
 interface JournalEditorProps {
-  entry: Journaling | null;
+  entry: LocalJournalEntry | null;
   onClose: () => void;
   prefillTitle?: string;
   prefillContent?: string;
@@ -23,21 +20,15 @@ interface JournalEditorProps {
 export default function JournalEditor({ entry, onClose, prefillTitle, prefillContent }: JournalEditorProps) {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [isShared, setIsShared] = useState(false);
-  const [selectedSquad, setSelectedSquad] = useState<string>('');
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
-  const { data: squads = [] } = useGetMySquads();
-  const addMutation = useAddJournaling();
-  const updateMutation = useUpdateJournaling();
-  const deleteMutation = useDeleteJournaling();
+  const { add, update, remove } = useLocalJournalEntries();
 
   useEffect(() => {
     if (entry) {
       setTitle(entry.title);
       setContent(entry.content);
-      setIsShared(entry.isShared);
-      setSelectedSquad(entry.squadGroup?.toString() || '');
     } else if (prefillTitle || prefillContent) {
       setTitle(prefillTitle || '');
       setContent(prefillContent || '');
@@ -50,49 +41,40 @@ export default function JournalEditor({ entry, onClose, prefillTitle, prefillCon
       return;
     }
 
-    if (isShared && !selectedSquad) {
-      toast.error('Please select a group to share with');
-      return;
-    }
-
+    setIsSaving(true);
     try {
       if (entry) {
-        await updateMutation.mutateAsync({
-          entryId: entry.id,
+        update(entry.id, {
           title: title.trim(),
           content: content.trim(),
-          isShared,
-          squadGroup: isShared && selectedSquad ? BigInt(selectedSquad) : null
         });
         toast.success('Entry updated successfully');
       } else {
-        await addMutation.mutateAsync({
+        add({
           title: title.trim(),
           content: content.trim(),
-          isShared,
-          squadGroup: isShared && selectedSquad ? BigInt(selectedSquad) : null
+          isShared: false,
         });
         toast.success('Entry created successfully');
       }
       onClose();
     } catch (error: any) {
-      toast.error(error.message || 'Failed to save entry');
+      toast.error('Failed to save entry');
+    } finally {
+      setIsSaving(false);
     }
   };
 
   const handleDelete = async () => {
     if (!entry) return;
     try {
-      await deleteMutation.mutateAsync(entry.id);
+      remove(entry.id);
       toast.success('Entry deleted successfully');
       onClose();
     } catch (error: any) {
-      toast.error(error.message || 'Failed to delete entry');
+      toast.error('Failed to delete entry');
     }
   };
-
-  const isSaving = addMutation.isPending || updateMutation.isPending;
-  const isDeleting = deleteMutation.isPending;
 
   return (
     <div className="container max-w-4xl py-8 space-y-6">
@@ -108,9 +90,9 @@ export default function JournalEditor({ entry, onClose, prefillTitle, prefillCon
           <CardHeader>
             <div className="flex items-center gap-2">
               <Lock className="h-5 w-5 text-primary" />
-              <CardTitle>Private Entry</CardTitle>
+              <CardTitle>Local Entry</CardTitle>
             </div>
-            <CardDescription>Your reflections are private by default</CardDescription>
+            <CardDescription>Stored privately on your device only</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
@@ -139,60 +121,12 @@ export default function JournalEditor({ entry, onClose, prefillTitle, prefillCon
           </CardContent>
         </Card>
 
-        {squads.length > 0 && (
-          <Card className="border-secondary/20">
-            <CardHeader>
-              <div className="flex items-center gap-2">
-                <Users className="h-5 w-5 text-secondary-foreground" />
-                <CardTitle>Share with Group</CardTitle>
-              </div>
-              <CardDescription>Optionally share this entry with one of your groups</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label>Share this entry</Label>
-                  <p className="text-sm text-muted-foreground">Make this entry visible to group members</p>
-                </div>
-                <Switch checked={isShared} onCheckedChange={setIsShared} disabled={isSaving} />
-              </div>
-
-              {isShared && (
-                <div className="space-y-2">
-                  <Label htmlFor="squad">Select Group</Label>
-                  <Select value={selectedSquad} onValueChange={setSelectedSquad} disabled={isSaving}>
-                    <SelectTrigger id="squad">
-                      <SelectValue placeholder="Choose a group..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {squads.map((squad) => (
-                        <SelectItem key={squad.id.toString()} value={squad.id.toString()}>
-                          {squad.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
-
-              {isShared && (
-                <Alert>
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertDescription className="text-sm">
-                    Shared entries are visible to all members of the selected group. You can unshare at any time.
-                  </AlertDescription>
-                </Alert>
-              )}
-            </CardContent>
-          </Card>
-        )}
-
         <div className="flex items-center justify-between">
           <div>
             {entry && (
-              <Button variant="destructive" onClick={() => setShowDeleteDialog(true)} disabled={isDeleting}>
+              <Button variant="destructive" onClick={() => setShowDeleteDialog(true)}>
                 <Trash2 className="h-4 w-4 mr-2" />
-                {isDeleting ? 'Deleting...' : 'Delete Entry'}
+                Delete Entry
               </Button>
             )}
           </div>
@@ -213,7 +147,7 @@ export default function JournalEditor({ entry, onClose, prefillTitle, prefillCon
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Entry?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete this journal entry. This action cannot be undone.
+              This will permanently delete this journal entry from your device. This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

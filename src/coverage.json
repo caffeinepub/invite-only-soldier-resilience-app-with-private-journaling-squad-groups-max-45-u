@@ -1,64 +1,234 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-04T20:55:21.628Z",
+  "generatedAt": "2026-02-05T01:57:32.274Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 3,
-    "implemented": 2,
+    "total": 13,
+    "implemented": 13,
     "items": [
       {
-        "id": "REQ-1",
-        "summary": "Fix authenticated app initialization so the frontend can create a logged-in actor even when the admin bootstrap secret is not present. Specifically: do not let `useActor` block or crash the app if `_initializeAccessControlWithSecret` traps (e.g., missing/empty `caffeineAdminToken` or missing backend env token); instead, continue with a usable authenticated actor and surface a clear error message in the UI only if the failure prevents core user flows.",
+        "id": "REQ-26",
+        "summary": "Create a new top-level app section named \"Sleep Performance\" that is clearly separated from other pillars (Physical Training, Mental Readiness, Mission Performance) and is reachable from the main app navigation with equal prominence.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/hooks/useSafeActor.ts",
-          "frontend/src/hooks/useQueries.ts",
-          "frontend/src/components/system/AppStartupErrorState.tsx",
-          "frontend/src/App.tsx"
+          "frontend/src/App.tsx",
+          "frontend/src/components/layout/AppShell.tsx",
+          "frontend/src/pages/SleepPerformanceDashboard.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/hooks/useSafeActor.ts",
-          "frontend/src/hooks/useQueries.ts",
-          "frontend/src/components/system/AppStartupErrorState.tsx",
-          "frontend/src/App.tsx"
+          "frontend/src/App.tsx",
+          "frontend/src/components/layout/AppShell.tsx",
+          "frontend/src/pages/SleepPerformanceDashboard.tsx"
         ]
       },
       {
-        "id": "REQ-2",
-        "summary": "Fix open registration and onboarding by updating backend authorization logic so a newly authenticated (but not yet registered) user can reach onboarding and successfully register. At minimum: (1) `registerUser` must not call an admin-only role-assignment path that traps for normal users; it must grant the caller the `#user` role in a way that works for self-registration, and (2) `getCallerUserProfile` must not trap for users who are authenticated but not yet registered; it should return `null` in that case so the frontend can show the onboarding flow.",
-        "status": "unknown",
-        "plannedFiles": [],
-        "matchedFiles": []
+        "id": "REQ-27",
+        "summary": "Implement a \"Daily Sleep Performance Dashboard\" that displays: last sleep window, rolling sleep debt, estimated cognitive readiness percentage, an injury risk indicator, and an emotional regulation impact indicator, with soldier-credible explanatory language (e.g., \"Based on your sleep, reaction time and decision-making may be degraded today.\").",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/SleepPerformanceDashboard.tsx",
+          "frontend/src/hooks/useSleepPerformance.ts",
+          "frontend/src/utils/sleepPerformance.ts"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/SleepPerformanceDashboard.tsx",
+          "frontend/src/hooks/useSleepPerformance.ts",
+          "frontend/src/utils/sleepPerformance.ts"
+        ]
       },
       {
-        "id": "REQ-3",
-        "summary": "Add a user-visible error state for the post-login profile load/authorization step so that if `getCallerUserProfile` (or other initial authenticated calls) fails, the UI shows an English message and a retry action instead of appearing to not open.",
+        "id": "REQ-28",
+        "summary": "Add a daily Sleep Performance flow that follows: check-in → analysis → action, and persists all Sleep Performance data locally (offline-first, device-scoped).",
         "status": "implemented",
         "plannedFiles": [
           "frontend/src/App.tsx",
-          "frontend/src/components/system/AppStartupErrorState.tsx"
+          "frontend/src/pages/SleepPerformanceCheckIn.tsx",
+          "frontend/src/pages/SleepPerformanceAnalysis.tsx",
+          "frontend/src/pages/SleepPerformanceAction.tsx",
+          "frontend/src/utils/localDataStore.ts"
         ],
         "matchedFiles": [
           "frontend/src/App.tsx",
-          "frontend/src/components/system/AppStartupErrorState.tsx"
+          "frontend/src/pages/SleepPerformanceCheckIn.tsx",
+          "frontend/src/pages/SleepPerformanceAnalysis.tsx",
+          "frontend/src/pages/SleepPerformanceAction.tsx",
+          "frontend/src/utils/localDataStore.ts"
+        ]
+      },
+      {
+        "id": "REQ-29",
+        "summary": "Implement \"Tactical Sleep Modes\" as a selectable setting: Field Mode, Garrison Mode, Shift/CQ/Staff Duty Mode, High-Stress/Post-Event Mode; each mode must dynamically adjust guidance on sleep duration expectations, nap strategy, caffeine timing, and wind-down protocols.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/utils/localDataStore.ts",
+          "frontend/src/hooks/useSleepPerformance.ts",
+          "frontend/src/pages/SleepPerformanceDashboard.tsx",
+          "frontend/src/pages/SleepPerformanceAction.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/utils/localDataStore.ts",
+          "frontend/src/hooks/useSleepPerformance.ts",
+          "frontend/src/pages/SleepPerformanceDashboard.tsx",
+          "frontend/src/pages/SleepPerformanceAction.tsx"
+        ]
+      },
+      {
+        "id": "REQ-30",
+        "summary": "Create a Sleep Debt → Readiness mapping system that tracks cumulative sleep debt and converts debt into quantified performance degradation outputs for: reaction time, PT injury risk, emotional volatility, and judgment errors (avoid vague language; quantify impact where possible).",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/utils/sleepPerformance.ts",
+          "frontend/src/pages/SleepPerformanceAnalysis.tsx",
+          "frontend/src/pages/SleepPerformanceDashboard.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/utils/sleepPerformance.ts",
+          "frontend/src/pages/SleepPerformanceAnalysis.tsx",
+          "frontend/src/pages/SleepPerformanceDashboard.tsx"
+        ]
+      },
+      {
+        "id": "REQ-31",
+        "summary": "Add \"Pain-Aware Sleep Optimization\" with optional inputs for neck pain, back pain, and nerve symptoms; provide sleep positioning logic, pillow guidance, 30–90 second micro-routines (neck/jaw/nerve prep), and red-flag alerts for worsening neurologic symptoms.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/SleepPerformanceCheckIn.tsx",
+          "frontend/src/utils/sleepPerformance.ts",
+          "frontend/src/pages/SleepPerformanceAction.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/SleepPerformanceCheckIn.tsx",
+          "frontend/src/utils/sleepPerformance.ts",
+          "frontend/src/pages/SleepPerformanceAction.tsx"
+        ]
+      },
+      {
+        "id": "REQ-32",
+        "summary": "Implement a \"Caffeine & Stimulant Timing Engine\" that allows logging caffeine sources, estimates clearance windows, and recommends last intake times; frame caffeine as a tool, not a vice.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/utils/localDataStore.ts",
+          "frontend/src/utils/sleepPerformance.ts",
+          "frontend/src/pages/SleepPerformanceAction.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/utils/localDataStore.ts",
+          "frontend/src/utils/sleepPerformance.ts",
+          "frontend/src/pages/SleepPerformanceAction.tsx"
+        ]
+      },
+      {
+        "id": "REQ-33",
+        "summary": "Add a \"Nervous System Downshift\" tool that provides 2–5 minute pre-sleep routines using non-spiritual, operational language and includes breathing, jaw/neck release, and grounding cues.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/content/sleepPerformanceCopy.ts",
+          "frontend/src/components/sleep/DownshiftRoutineCard.tsx",
+          "frontend/src/pages/SleepPerformanceAction.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/content/sleepPerformanceCopy.ts",
+          "frontend/src/pages/SleepPerformanceAction.tsx"
+        ]
+      },
+      {
+        "id": "REQ-34",
+        "summary": "Add \"Micro-Naps & Controlled Rest\" guidance with 10/20/30/90-minute options, sleep-cycle–aligned wakeup guidance, and post-nap reactivation guidance; normalize naps as performance tools.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/content/sleepPerformanceCopy.ts",
+          "frontend/src/components/sleep/NapGuidancePanel.tsx",
+          "frontend/src/pages/SleepPerformanceAction.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/content/sleepPerformanceCopy.ts",
+          "frontend/src/pages/SleepPerformanceAction.tsx"
+        ]
+      },
+      {
+        "id": "REQ-35",
+        "summary": "Add \"Stress-Related Sleep Disruption Support\" with optional, stigma-free check-ins for nightmares, hypervigilance, racing thoughts, and startle response; provide normalization, grounding tools, and quiet guidance on escalation if needed.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/SleepPerformanceCheckIn.tsx",
+          "frontend/src/content/sleepPerformanceCopy.ts",
+          "frontend/src/pages/SleepPerformanceAction.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/SleepPerformanceCheckIn.tsx",
+          "frontend/src/content/sleepPerformanceCopy.ts",
+          "frontend/src/pages/SleepPerformanceAction.tsx"
+        ]
+      },
+      {
+        "id": "REQ-36",
+        "summary": "Create \"Command-Safe Education Tiles\" in the Sleep Performance section with short, shareable, factual, operational, neutral tiles including: \"Sleep deprivation equals intoxication-level impairment\", \"3 nights <5 hrs increases injury risk\", and \"Sleep loss degrades marksmanship and judgment\".",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/content/sleepPerformanceCopy.ts",
+          "frontend/src/components/sleep/EducationTiles.tsx",
+          "frontend/src/pages/SleepPerformanceDashboard.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/content/sleepPerformanceCopy.ts",
+          "frontend/src/pages/SleepPerformanceDashboard.tsx"
+        ]
+      },
+      {
+        "id": "REQ-37",
+        "summary": "Integrate Sleep Performance with existing gamification patterns by adding consistency streaks and readiness improvements tied to sleep behavior, plus unlockable sleep optimization tools (all stored locally and compatible with offline-first behavior).",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/utils/localDataStore.ts",
+          "frontend/src/utils/sleepPerformance.ts",
+          "frontend/src/pages/SleepPerformanceDashboard.tsx",
+          "frontend/src/pages/SleepPerformanceAction.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/utils/localDataStore.ts",
+          "frontend/src/utils/sleepPerformance.ts",
+          "frontend/src/pages/SleepPerformanceDashboard.tsx",
+          "frontend/src/pages/SleepPerformanceAction.tsx"
+        ]
+      },
+      {
+        "id": "REQ-38",
+        "summary": "Provide in-app language examples written for soldiers across Sleep Performance (dashboard insights, mode guidance, caffeine guidance, nap guidance, and stress disruption support) and ensure the section consistently frames sleep as combat readiness (not wellness/recovery/lifestyle).",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/content/sleepPerformanceCopy.ts",
+          "frontend/src/pages/SleepPerformanceDashboard.tsx",
+          "frontend/src/pages/SleepPerformanceAnalysis.tsx",
+          "frontend/src/pages/SleepPerformanceAction.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/content/sleepPerformanceCopy.ts",
+          "frontend/src/pages/SleepPerformanceDashboard.tsx",
+          "frontend/src/pages/SleepPerformanceAnalysis.tsx",
+          "frontend/src/pages/SleepPerformanceAction.tsx"
         ]
       }
     ]
   },
   "changedFiles": [
-    "backend/main.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
     "frontend/src/App.tsx",
-    "frontend/src/components/system/AppStartupErrorState.tsx",
-    "frontend/src/hooks/useQueries.ts",
-    "frontend/src/hooks/useSafeActor.ts",
+    "frontend/src/components/layout/AppShell.tsx",
+    "frontend/src/content/sleepPerformanceCopy.ts",
+    "frontend/src/hooks/useSleepPerformance.ts",
+    "frontend/src/pages/SleepPerformanceAction.tsx",
+    "frontend/src/pages/SleepPerformanceAnalysis.tsx",
+    "frontend/src/pages/SleepPerformanceCheckIn.tsx",
+    "frontend/src/pages/SleepPerformanceDashboard.tsx",
+    "frontend/src/utils/localDataStore.ts",
+    "frontend/src/utils/sleepPerformance.ts",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

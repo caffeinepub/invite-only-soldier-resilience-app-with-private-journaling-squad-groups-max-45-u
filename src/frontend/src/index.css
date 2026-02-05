@@ -42,6 +42,12 @@
         --chart-3: 0.50 0.18 15;
         --chart-4: 0.70 0.10 0;
         --chart-5: 0.55 0.22 30;
+
+        /* Readiness state colors */
+        --readiness-optimized: 0.65 0.18 145;
+        --readiness-ready: 0.60 0.15 240;
+        --readiness-moderate: 0.70 0.18 85;
+        --readiness-degraded: 0.55 0.20 25;
     }
 
     .dark {
@@ -79,6 +85,12 @@
         --chart-3: 0.65 0.20 15;
         --chart-4: 0.50 0.12 0;
         --chart-5: 0.70 0.24 30;
+
+        /* Readiness state colors for dark mode */
+        --readiness-optimized: 0.70 0.20 145;
+        --readiness-ready: 0.65 0.18 240;
+        --readiness-moderate: 0.75 0.20 85;
+        --readiness-degraded: 0.60 0.22 25;
     }
 
     * {
@@ -88,5 +100,45 @@
     body {
         @apply bg-background text-foreground;
         font-feature-settings: "rlig" 1, "calt" 1;
+    }
+}
+
+/* Field Mode Styles */
+@layer components {
+    .field-mode {
+        /* Simplified visual hierarchy */
+        --muted: 0.96 0.005 0;
+        --border: 0.88 0.015 0;
+    }
+
+    .dark .field-mode {
+        --muted: 0.22 0.02 0;
+        --border: 0.30 0.025 0;
+    }
+
+    /* Larger tap targets in field mode */
+    .field-mode button,
+    .field-mode [role="button"] {
+        @apply min-h-[48px];
+    }
+
+    .field-mode input,
+    .field-mode select,
+    .field-mode textarea {
+        @apply min-h-[48px] text-base;
+    }
+
+    /* Reduced visual noise */
+    .field-mode .card {
+        @apply shadow-sm;
+    }
+
+    /* Simplified header in field mode */
+    .field-mode header {
+        @apply py-2;
+    }
+
+    .field-mode footer {
+        @apply py-4 text-xs;
     }
 }

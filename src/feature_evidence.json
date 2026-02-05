@@ -2,13 +2,12 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-fix-authenticated-app-initialization-so-the-frontend-can-create-a-logged-in-actor-even-when-the-admin-bootstrap-secret-is-not-present-specifically-do-not-let-useactor-block-or-crash-the-app-if-initializeaccesscontrolwithsecret-traps-e-g-missing-empty-caffeineadmintoken-or-missing-backend-env-token-instead-continue-with-a-usable-authenticated-actor-and-surface-a-clear-error-message-in-the-ui-only-if-the-failure-prevents-core-user-flows",
-      "featureTitle": "Fix authenticated app initialization so the frontend can create a logged-in actor even when the admin bootstrap secret is not present. Specifically: do not let `useActor` block or crash the app if `_initializeAccessControlWithSecret` traps (e.g., missing/empty `caffeineAdminToken` or missing backend env token); instead, continue with a usable authenticated actor and surface a clear error message in the UI only if the failure prevents core user flows.",
+      "featureId": "feature-create-a-new-top-level-app-section-named-sleep-performance-that-is-clearly-separated-from-other-pillars-physical-training-mental-readiness-mission-performance-and-is-reachable-from-the-main-app-navigation-with-equal-prominence",
+      "featureTitle": "Create a new top-level app section named \"Sleep Performance\" that is clearly separated from other pillars (Physical Training, Mental Readiness, Mission Performance) and is reachable from the main app navigation with equal prominence.",
       "files": [
         "frontend/src/App.tsx",
-        "frontend/src/components/system/AppStartupErrorState.tsx",
-        "frontend/src/hooks/useQueries.ts",
-        "frontend/src/hooks/useSafeActor.ts"
+        "frontend/src/components/layout/AppShell.tsx",
+        "frontend/src/pages/SleepPerformanceDashboard.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -19,16 +18,17 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-1"
+        "REQ-26"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-add-a-user-visible-error-state-for-the-post-login-profile-load-authorization-step-so-that-if-getcalleruserprofile-or-other-initial-authenticated-calls-fails-the-ui-shows-an-english-message-and-a-retry-action-instead-of-appearing-to-not-open",
-      "featureTitle": "Add a user-visible error state for the post-login profile load/authorization step so that if `getCallerUserProfile` (or other initial authenticated calls) fails, the UI shows an English message and a retry action instead of appearing to not open.",
+      "featureId": "feature-implement-a-daily-sleep-performance-dashboard-that-displays-last-sleep-window-rolling-sleep-debt-estimated-cognitive-readiness-percentage-an-injury-risk-indicator-and-an-emotional-regulation-impact-indicator-with-soldier-credible-explanatory-language-e-g-based-on-your-sleep-reaction-time-and-decision-making-may-be-degraded-today",
+      "featureTitle": "Implement a \"Daily Sleep Performance Dashboard\" that displays: last sleep window, rolling sleep debt, estimated cognitive readiness percentage, an injury risk indicator, and an emotional regulation impact indicator, with soldier-credible explanatory language (e.g., \"Based on your sleep, reaction time and decision-making may be degraded today.\").",
       "files": [
-        "frontend/src/App.tsx",
-        "frontend/src/components/system/AppStartupErrorState.tsx"
+        "frontend/src/hooks/useSleepPerformance.ts",
+        "frontend/src/pages/SleepPerformanceDashboard.tsx",
+        "frontend/src/utils/sleepPerformance.ts"
       ],
       "components": [
         "authorization@4.0.0",
@@ -39,7 +39,240 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-3"
+        "REQ-27"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-a-daily-sleep-performance-flow-that-follows-check-in-analysis-action-and-persists-all-sleep-performance-data-locally-offline-first-device-scoped",
+      "featureTitle": "Add a daily Sleep Performance flow that follows: check-in → analysis → action, and persists all Sleep Performance data locally (offline-first, device-scoped).",
+      "files": [
+        "frontend/src/App.tsx",
+        "frontend/src/pages/SleepPerformanceAction.tsx",
+        "frontend/src/pages/SleepPerformanceAnalysis.tsx",
+        "frontend/src/pages/SleepPerformanceCheckIn.tsx",
+        "frontend/src/utils/localDataStore.ts"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-28"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-implement-tactical-sleep-modes-as-a-selectable-setting-field-mode-garrison-mode-shift-cq-staff-duty-mode-high-stress-post-event-mode-each-mode-must-dynamically-adjust-guidance-on-sleep-duration-expectations-nap-strategy-caffeine-timing-and-wind-down-protocols",
+      "featureTitle": "Implement \"Tactical Sleep Modes\" as a selectable setting: Field Mode, Garrison Mode, Shift/CQ/Staff Duty Mode, High-Stress/Post-Event Mode; each mode must dynamically adjust guidance on sleep duration expectations, nap strategy, caffeine timing, and wind-down protocols.",
+      "files": [
+        "frontend/src/hooks/useSleepPerformance.ts",
+        "frontend/src/pages/SleepPerformanceAction.tsx",
+        "frontend/src/pages/SleepPerformanceDashboard.tsx",
+        "frontend/src/utils/localDataStore.ts"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-29"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-create-a-sleep-debt-readiness-mapping-system-that-tracks-cumulative-sleep-debt-and-converts-debt-into-quantified-performance-degradation-outputs-for-reaction-time-pt-injury-risk-emotional-volatility-and-judgment-errors-avoid-vague-language-quantify-impact-where-possible",
+      "featureTitle": "Create a Sleep Debt → Readiness mapping system that tracks cumulative sleep debt and converts debt into quantified performance degradation outputs for: reaction time, PT injury risk, emotional volatility, and judgment errors (avoid vague language; quantify impact where possible).",
+      "files": [
+        "frontend/src/pages/SleepPerformanceAnalysis.tsx",
+        "frontend/src/pages/SleepPerformanceDashboard.tsx",
+        "frontend/src/utils/sleepPerformance.ts"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-30"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-pain-aware-sleep-optimization-with-optional-inputs-for-neck-pain-back-pain-and-nerve-symptoms-provide-sleep-positioning-logic-pillow-guidance-30-90-second-micro-routines-neck-jaw-nerve-prep-and-red-flag-alerts-for-worsening-neurologic-symptoms",
+      "featureTitle": "Add \"Pain-Aware Sleep Optimization\" with optional inputs for neck pain, back pain, and nerve symptoms; provide sleep positioning logic, pillow guidance, 30–90 second micro-routines (neck/jaw/nerve prep), and red-flag alerts for worsening neurologic symptoms.",
+      "files": [
+        "frontend/src/pages/SleepPerformanceAction.tsx",
+        "frontend/src/pages/SleepPerformanceCheckIn.tsx",
+        "frontend/src/utils/sleepPerformance.ts"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-31"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-implement-a-caffeine-stimulant-timing-engine-that-allows-logging-caffeine-sources-estimates-clearance-windows-and-recommends-last-intake-times-frame-caffeine-as-a-tool-not-a-vice",
+      "featureTitle": "Implement a \"Caffeine & Stimulant Timing Engine\" that allows logging caffeine sources, estimates clearance windows, and recommends last intake times; frame caffeine as a tool, not a vice.",
+      "files": [
+        "frontend/src/pages/SleepPerformanceAction.tsx",
+        "frontend/src/utils/localDataStore.ts",
+        "frontend/src/utils/sleepPerformance.ts"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-32"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-a-nervous-system-downshift-tool-that-provides-2-5-minute-pre-sleep-routines-using-non-spiritual-operational-language-and-includes-breathing-jaw-neck-release-and-grounding-cues",
+      "featureTitle": "Add a \"Nervous System Downshift\" tool that provides 2–5 minute pre-sleep routines using non-spiritual, operational language and includes breathing, jaw/neck release, and grounding cues.",
+      "files": [
+        "frontend/src/content/sleepPerformanceCopy.ts",
+        "frontend/src/pages/SleepPerformanceAction.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-33"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-micro-naps-controlled-rest-guidance-with-10-20-30-90-minute-options-sleep-cycle-aligned-wakeup-guidance-and-post-nap-reactivation-guidance-normalize-naps-as-performance-tools",
+      "featureTitle": "Add \"Micro-Naps & Controlled Rest\" guidance with 10/20/30/90-minute options, sleep-cycle–aligned wakeup guidance, and post-nap reactivation guidance; normalize naps as performance tools.",
+      "files": [
+        "frontend/src/content/sleepPerformanceCopy.ts",
+        "frontend/src/pages/SleepPerformanceAction.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-34"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-stress-related-sleep-disruption-support-with-optional-stigma-free-check-ins-for-nightmares-hypervigilance-racing-thoughts-and-startle-response-provide-normalization-grounding-tools-and-quiet-guidance-on-escalation-if-needed",
+      "featureTitle": "Add \"Stress-Related Sleep Disruption Support\" with optional, stigma-free check-ins for nightmares, hypervigilance, racing thoughts, and startle response; provide normalization, grounding tools, and quiet guidance on escalation if needed.",
+      "files": [
+        "frontend/src/content/sleepPerformanceCopy.ts",
+        "frontend/src/pages/SleepPerformanceAction.tsx",
+        "frontend/src/pages/SleepPerformanceCheckIn.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-35"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-create-command-safe-education-tiles-in-the-sleep-performance-section-with-short-shareable-factual-operational-neutral-tiles-including-sleep-deprivation-equals-intoxication-level-impairment-3-nights-5-hrs-increases-injury-risk-and-sleep-loss-degrades-marksmanship-and-judgment",
+      "featureTitle": "Create \"Command-Safe Education Tiles\" in the Sleep Performance section with short, shareable, factual, operational, neutral tiles including: \"Sleep deprivation equals intoxication-level impairment\", \"3 nights <5 hrs increases injury risk\", and \"Sleep loss degrades marksmanship and judgment\".",
+      "files": [
+        "frontend/src/content/sleepPerformanceCopy.ts",
+        "frontend/src/pages/SleepPerformanceDashboard.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-36"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-integrate-sleep-performance-with-existing-gamification-patterns-by-adding-consistency-streaks-and-readiness-improvements-tied-to-sleep-behavior-plus-unlockable-sleep-optimization-tools-all-stored-locally-and-compatible-with-offline-first-behavior",
+      "featureTitle": "Integrate Sleep Performance with existing gamification patterns by adding consistency streaks and readiness improvements tied to sleep behavior, plus unlockable sleep optimization tools (all stored locally and compatible with offline-first behavior).",
+      "files": [
+        "frontend/src/pages/SleepPerformanceAction.tsx",
+        "frontend/src/pages/SleepPerformanceDashboard.tsx",
+        "frontend/src/utils/localDataStore.ts",
+        "frontend/src/utils/sleepPerformance.ts"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-37"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-provide-in-app-language-examples-written-for-soldiers-across-sleep-performance-dashboard-insights-mode-guidance-caffeine-guidance-nap-guidance-and-stress-disruption-support-and-ensure-the-section-consistently-frames-sleep-as-combat-readiness-not-wellness-recovery-lifestyle",
+      "featureTitle": "Provide in-app language examples written for soldiers across Sleep Performance (dashboard insights, mode guidance, caffeine guidance, nap guidance, and stress disruption support) and ensure the section consistently frames sleep as combat readiness (not wellness/recovery/lifestyle).",
+      "files": [
+        "frontend/src/content/sleepPerformanceCopy.ts",
+        "frontend/src/pages/SleepPerformanceAction.tsx",
+        "frontend/src/pages/SleepPerformanceAnalysis.tsx",
+        "frontend/src/pages/SleepPerformanceDashboard.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-38"
       ],
       "confidence": "high"
     }

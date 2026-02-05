@@ -1,90 +1,49 @@
-import { useInternetIdentity } from './hooks/useInternetIdentity';
-import { useGetCallerUserProfile } from './hooks/useQueries';
-import { useSafeActor } from './hooks/useSafeActor';
 import { RouterProvider, createRouter, createRootRoute, createRoute } from '@tanstack/react-router';
 import { ThemeProvider } from 'next-themes';
 import { Toaster } from '@/components/ui/sonner';
-import { useQueryClient } from '@tanstack/react-query';
-import PublicLanding from './pages/PublicLanding';
 import OnboardingFlow from './components/onboarding/OnboardingFlow';
 import AppShell from './components/layout/AppShell';
+import DailyDashboard from './pages/DailyDashboard';
 import Journal from './pages/Journal';
 import Groups from './pages/Groups';
 import GroupSharedEntries from './pages/GroupSharedEntries';
 import Modules from './pages/Modules';
+import MissionRun from './pages/MissionRun';
+import Assessments from './pages/Assessments';
+import AssessmentRun from './pages/AssessmentRun';
+import AssessmentResults from './pages/AssessmentResults';
+import AssessmentHistory from './pages/AssessmentHistory';
+import AssessmentLeaderView from './pages/AssessmentLeaderView';
 import Guidelines from './pages/Guidelines';
 import SettingsAbout from './pages/SettingsAbout';
 import AdminReports from './pages/AdminReports';
-import AppStartupErrorState from './components/system/AppStartupErrorState';
+import SleepPerformanceDashboard from './pages/SleepPerformanceDashboard';
+import SleepPerformanceCheckIn from './pages/SleepPerformanceCheckIn';
+import SleepPerformanceAnalysis from './pages/SleepPerformanceAnalysis';
+import SleepPerformanceAction from './pages/SleepPerformanceAction';
+import { useLocalProfile } from './hooks/useLocalProfile';
+import { useState } from 'react';
 
 function RootComponent() {
-  const { identity, isInitializing } = useInternetIdentity();
-  const { actor, isError: actorError, retry: retryActor } = useSafeActor();
-  const { 
-    data: userProfile, 
-    isLoading: profileLoading, 
-    isFetched,
-    isError: profileError,
-    refetch: refetchProfile 
-  } = useGetCallerUserProfile();
-  const queryClient = useQueryClient();
+  const { needsOnboarding } = useLocalProfile();
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
-  const isAuthenticated = !!identity;
-
-  // Show loading state during initialization
-  if (isInitializing || (isAuthenticated && profileLoading && !isFetched)) {
-    return (
-      <div className="flex h-screen items-center justify-center bg-background">
-        <div className="text-center">
-          <div className="mb-4 h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto" />
-          <p className="text-muted-foreground">Loading...</p>
-        </div>
-      </div>
-    );
+  // Allow users to defer onboarding - it's not blocking
+  if (needsOnboarding && showOnboarding) {
+    return <OnboardingFlow onSkip={() => setShowOnboarding(false)} />;
   }
 
-  // Handle actor initialization errors
-  if (isAuthenticated && actorError) {
-    return (
-      <AppStartupErrorState
-        title="App Initialization Failed"
-        message="Unable to connect to the application backend. Please try again."
-        onRetry={() => {
-          retryActor();
-          queryClient.invalidateQueries();
-        }}
-      />
-    );
-  }
-
-  // Handle profile loading errors after successful actor init
-  if (isAuthenticated && profileError && isFetched) {
-    return (
-      <AppStartupErrorState
-        title="Profile Load Failed"
-        message="Unable to load your profile. Please try again."
-        onRetry={() => {
-          refetchProfile();
-        }}
-      />
-    );
-  }
-
-  const needsOnboarding = isAuthenticated && isFetched && (!userProfile || !userProfile.disclaimerStatus?.accepted);
-
-  if (needsOnboarding) {
-    return <OnboardingFlow />;
-  }
-
-  if (!isAuthenticated) {
-    return <PublicLanding />;
-  }
-
-  return <AppShell />;
+  return <AppShell onShowOnboarding={() => setShowOnboarding(true)} needsOnboarding={needsOnboarding} />;
 }
 
 const rootRoute = createRootRoute({
   component: RootComponent
+});
+
+const dashboardRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/',
+  component: DailyDashboard
 });
 
 const journalRoute = createRoute({
@@ -111,6 +70,66 @@ const modulesRoute = createRoute({
   component: Modules
 });
 
+const missionRunRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/modules/$missionId',
+  component: MissionRun
+});
+
+const assessmentsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/assessments',
+  component: Assessments
+});
+
+const assessmentRunRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/assessments/run/$assessmentId',
+  component: AssessmentRun
+});
+
+const assessmentResultsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/assessments/results/$resultId',
+  component: AssessmentResults
+});
+
+const assessmentHistoryRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/assessments/history',
+  component: AssessmentHistory
+});
+
+const assessmentLeaderViewRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/assessments/leader-view',
+  component: AssessmentLeaderView
+});
+
+const sleepPerformanceRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/sleep',
+  component: SleepPerformanceDashboard
+});
+
+const sleepCheckInRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/sleep/check-in',
+  component: SleepPerformanceCheckIn
+});
+
+const sleepAnalysisRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/sleep/analysis',
+  component: SleepPerformanceAnalysis
+});
+
+const sleepActionRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/sleep/action',
+  component: SleepPerformanceAction
+});
+
 const guidelinesRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/guidelines',
@@ -129,26 +148,22 @@ const adminReportsRoute = createRoute({
   component: AdminReports
 });
 
-function IndexComponent() {
-  const { identity } = useInternetIdentity();
-  if (identity) {
-    return <Journal />;
-  }
-  return <PublicLanding />;
-}
-
-const indexRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: '/',
-  component: IndexComponent
-});
-
 const routeTree = rootRoute.addChildren([
-  indexRoute,
+  dashboardRoute,
   journalRoute,
   groupsRoute,
   groupEntriesRoute,
   modulesRoute,
+  missionRunRoute,
+  assessmentsRoute,
+  assessmentRunRoute,
+  assessmentResultsRoute,
+  assessmentHistoryRoute,
+  assessmentLeaderViewRoute,
+  sleepPerformanceRoute,
+  sleepCheckInRoute,
+  sleepAnalysisRoute,
+  sleepActionRoute,
   guidelinesRoute,
   settingsRoute,
   adminReportsRoute
