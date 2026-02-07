@@ -1,12 +1,12 @@
 # Specification
 
 ## Summary
-**Goal:** Replace the permanent left sidebar with a mobile-first, collapsible overlay drawer opened from a hamburger icon in a persistent header.
+**Goal:** Make the mobile sidebar drawer (below Tailwind `md`, <768px) close immediately on menu selection and never block interaction with the main content after closing.
 
 **Planned changes:**
-- Update the global AppShell layout to add a persistent header/top bar with a top-left hamburger menu icon.
-- Replace the always-visible left sidebar with a drawer that is hidden by default at all screen sizes and opens as a left-side overlay.
-- Implement drawer behaviors: slide-in animation, full-width on mobile, semi-transparent scrim that closes the drawer on tap/click, close (X) control inside the drawer, and auto-close on navigation item selection.
-- Ensure main content uses full width when the drawer is closed, and confirm overlay layering/scroll behavior avoids overlap/click-through issues while preserving existing routing (including the unchanged Life Lessons route at `/mental-performance/life-lessons`).
+- Update mobile-only sidebar nav item click handling to close the drawer instantly (before/independent of route navigation completion).
+- Ensure the drawer/backdrop do not capture pointer events or block scrolling/taps when the drawer is closed (e.g., conditional render and/or pointer-events handling while closed).
+- Add/verify a semi-transparent mobile-only backdrop that appears only when the drawer is open and closes the drawer when tapped outside.
+- Keep desktop (>=768px) persistent sidebar behavior and all existing UI/theme, labels, and routes unchanged (including `/mental-performance/life-lessons`).
 
-**User-visible outcome:** Users see a persistent top bar with a hamburger icon; tapping it opens a full-width (on mobile) navigation drawer with a scrim, and selecting a destination navigates and closes the drawer while the main content stays full-width when the drawer is closed.
+**User-visible outcome:** On phones, tapping any sidebar menu item closes the drawer immediately and the selected page is fully visible and interactive; tapping outside the open drawer closes it via a semi-transparent backdrop, while desktop behavior remains the same.

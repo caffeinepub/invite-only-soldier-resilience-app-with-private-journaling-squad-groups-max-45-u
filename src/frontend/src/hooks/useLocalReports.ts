@@ -4,11 +4,11 @@ import { useMissionProgression } from './useMissionProgression';
 import type { PersonalReport, CreateReportInput, UpdateReportInput } from '../types/personalReports';
 import {
   getPersonalReports,
-  savePersonalReports,
   addPersonalReport,
   updatePersonalReport as updateReportInStore,
   deletePersonalReport,
   submitPersonalReport,
+  markReportXpGranted,
 } from '../utils/localDataStore';
 
 export function useLocalReports() {
@@ -38,22 +38,29 @@ export function useLocalReports() {
     setReports((prev) => prev.filter((r) => r.id !== reportId));
   };
 
-  const submitReport = (reportId: string, xpAwarded: number): void => {
-    submitPersonalReport(profile.localUuid, reportId, xpAwarded);
+  const submitReport = (reportId: string): void => {
+    const report = reports.find(r => r.id === reportId);
+    if (!report) return;
+
+    submitPersonalReport(profile.localUuid, reportId);
+    
+    // Apply XP to mission progression system
+    if (!report.xpGranted) {
+      applyMissionResult({
+        missionId: `report-${reportId}`,
+        passed: true,
+        score: report.xpAwarded,
+        maxScore: report.xpAwarded,
+        xpEarned: report.xpAwarded,
+        sideQuestsCompleted: [],
+        completedAt: Date.now(),
+        choices: {},
+      });
+      markReportXpGranted(profile.localUuid, reportId);
+    }
+
     const updated = getPersonalReports(profile.localUuid);
     setReports(updated);
-
-    // Apply XP to mission progression system
-    applyMissionResult({
-      missionId: `report-${reportId}`,
-      passed: true,
-      score: xpAwarded,
-      maxScore: xpAwarded,
-      xpEarned: xpAwarded,
-      sideQuestsCompleted: [],
-      completedAt: Date.now(),
-      choices: {},
-    });
   };
 
   return {

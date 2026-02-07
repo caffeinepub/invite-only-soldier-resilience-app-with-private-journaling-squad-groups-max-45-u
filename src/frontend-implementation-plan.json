@@ -1,60 +1,67 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Collapsible full-width drawer navigation with hamburger header and scrim",
+  "title": "Mobile drawer: instant close on nav selection + non-blocking overlay (md breakpoint)",
   "requirements": [
     {
-      "id": "REQ-2",
-      "summary": "Replace the permanent left sidebar with an AppShell header + hamburger-triggered overlay drawer that is hidden by default on all screen sizes.",
+      "id": "REQ-1",
+      "summary": "On <md, close the mobile sidebar drawer immediately on any menu item click (before route navigation completes) so main content is instantly visible and interactive.",
       "acceptanceCriteria": [
-        "A header/top bar is rendered on all main screens (i.e., within AppShell) and includes a hamburger menu icon aligned to the top-left.",
-        "The navigation sidebar is not visible by default at any screen width (mobile/tablet/desktop).",
-        "Opening/closing the drawer does not break existing routing or page rendering (Dashboard, Daily Quotes, Journal, Groups, Missions, Assessments, Sleep Performance, Recommended Reading, etc.)."
+        "On screens <768px, opening the hamburger menu and tapping any nav item (e.g., Life Lessons, Journal, Dashboard, etc.) closes the drawer immediately.",
+        "After the drawer closes, the selected page content (videos/filters/search where applicable) is fully visible and clickable with no sidebar overlay blocking interaction.",
+        "Desktop behavior at >=768px remains unchanged (sidebar persistent; no auto-close requirement)."
       ],
       "file_operations": [
         {
           "path": "frontend/src/components/layout/AppShell.tsx",
           "operation": "modify",
-          "description": "Refactor AppShell to render a persistent header/top bar with a top-left hamburger control, and move the existing navigation + brand + user menu content into a hidden-by-default overlay drawer (no permanent sidebar on any breakpoint). Keep existing nav item list and route paths unchanged (especially Life Lessons). Use existing shadcn/ui primitives already imported (Button, ScrollArea, DropdownMenu, etc.) to compose the UI; verify the component's usage instructions before implementing."
-        },
+          "description": "Adjust mobile nav click handling so the drawer state closes synchronously/immediately before triggering navigation (e.g., force state flush prior to navigate) for <md only, keeping >=md behavior unchanged. Ensure this applies to all sidebar items, including Dashboard refresh behavior when already on '/'. Verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "summary": "Prevent the closed mobile drawer/backdrop from capturing pointer events or blocking scroll/taps after closing.",
+      "acceptanceCriteria": [
+        "When the mobile drawer is closed, all main content areas can be scrolled and interacted with normally (no invisible overlay capturing touches/clicks).",
+        "The drawer/backdrop layering does not interfere with the header controls after closing (hamburger is usable again)."
+      ],
+      "file_operations": [
         {
-          "path": "frontend/src/App.tsx",
+          "path": "frontend/src/components/layout/AppShell.tsx",
           "operation": "modify",
-          "description": "Verify AppShell remains the root layout wrapper for all existing routes so the new persistent header is present across main screens and routing remains unchanged. No route path changes; Life Lessons path must remain \"/mental-performance/life-lessons\"."
+          "description": "Ensure the off-canvas drawer cannot intercept interactions when closed by removing it from hit-testing (e.g., pointer-events-none when closed) and/or conditionally rendering/unmounting the drawer/backdrop when not open. Confirm z-index/layering so header and main content regain full interactivity immediately after closing. Verify the component's usage instructions before implementing."
         }
       ]
     },
     {
       "id": "REQ-3",
-      "summary": "Implement drawer interactions: full-width slide-in overlay, scrim click-to-close, explicit close (X), and auto-close on nav selection while navigating.",
+      "summary": "On <md, show a semi-transparent backdrop only while the drawer is open; tapping outside closes the drawer immediately.",
       "acceptanceCriteria": [
-        "When opened, the drawer slides in from the left and occupies the full viewport width on mobile.",
-        "A semi-transparent scrim appears behind the open drawer; clicking/tapping the scrim closes the drawer.",
-        "A close (X) control is visible in the drawer (top-right) and closes the drawer when clicked/tapped.",
-        "Clicking/tapping any nav item closes the drawer and navigates to the item’s route.",
-        "The Life Lessons nav item and route path remain unchanged (\"/mental-performance/life-lessons\")."
+        "On screens <768px, opening the drawer shows a semi-transparent backdrop behind it.",
+        "Tapping the backdrop closes the drawer immediately.",
+        "On >=768px, no mobile backdrop is shown."
       ],
       "file_operations": [
         {
           "path": "frontend/src/components/layout/AppShell.tsx",
           "operation": "modify",
-          "description": "Add drawer open/close state and implement interaction behaviors: hamburger opens; X closes; scrim closes on click/tap; selecting any nav Link closes the drawer after triggering navigation. Implement left-side slide-in animation and scrim layering using Tailwind utility classes and existing structure. Ensure Life Lessons item continues to use path \"/mental-performance/life-lessons\". Use existing shadcn/ui components (Button, ScrollArea, Separator, DropdownMenu) for controls; verify the component's usage instructions before implementing."
+          "description": "Add/verify the mobile-only backdrop behavior: render backdrop only when the drawer is open, ensure it sits behind the drawer, and closes the drawer immediately on tap/click. Keep backdrop hidden at >=md. Verify the component's usage instructions before implementing."
         }
       ]
     },
     {
       "id": "REQ-4",
-      "summary": "Ensure full-width main content when the drawer is closed and correct overlay layering/scroll behavior when open/closed.",
+      "summary": "Preserve existing UI/UX (dark theme, icons, labels, and route paths) while implementing only the mobile drawer behavior fixes.",
       "acceptanceCriteria": [
-        "With the drawer closed, main content spans full width (no persistent left offset such as md:ml-64).",
-        "With the drawer closed, main content scroll behavior matches current behavior (page content remains scrollable).",
-        "With the drawer open, background content is visually obscured by a semi-transparent scrim and is not accidentally clickable through the overlay."
+        "No visual/theme regressions are introduced outside of the mobile drawer open/close and backdrop behavior.",
+        "All existing navigation items and route paths remain the same (especially `/mental-performance/life-lessons`)."
       ],
       "file_operations": [
         {
           "path": "frontend/src/components/layout/AppShell.tsx",
           "operation": "modify",
-          "description": "Remove any persistent main-content left offset tied to the old sidebar (e.g., md:ml-64) so content uses full width when the drawer is closed. Ensure drawer + scrim use fixed positioning and z-index so overlay sits above header/content when open, and scrim intercepts pointer events. Preserve existing scroll behavior when closed; optionally lock background scroll only while drawer is open to avoid accidental interactions. Compose using existing shadcn/ui building blocks (Button/ScrollArea/etc.); verify the component's usage instructions before implementing."
+          "description": "Implement the drawer fixes without changing nav labels/paths (especially the Life Lessons path), icons, theme styling, or desktop sidebar behavior at >=md. Keep the existing layout structure and only adjust mobile drawer/backdrop interaction and layering. Verify the component's usage instructions before implementing."
         }
       ]
     }

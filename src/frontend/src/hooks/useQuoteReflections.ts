@@ -11,7 +11,7 @@ export function useQuoteReflections(quoteId: string) {
   useEffect(() => {
     setIsLoading(true);
     const stored = getQuoteReflection(profile.localUuid, quoteId);
-    setReflection(stored?.reflection || '');
+    setReflection(stored || '');
     setIsLoading(false);
   }, [profile.localUuid, quoteId]);
 

@@ -18,32 +18,24 @@ export const sleepPerformanceCopy = {
   
   // Mode descriptions
   modes: {
-    field: {
-      name: 'Field Mode',
-      description: 'Constrained schedules, variable conditions. Focus: maximize recovery in available windows.',
-      sleepTarget: '4-6 hours + tactical naps',
-      napStrategy: 'Prioritize 20-min naps when possible',
-      caffeineGuidance: 'Use strategically; avoid within 4 hours of planned rest',
-      windDown: 'Minimal routine: 2-min breathing, position check'
-    },
-    garrison: {
-      name: 'Garrison Mode',
+    standard: {
+      name: 'Standard Mode',
       description: 'Predictable schedules, controlled environment. Focus: build sleep banking and consistency.',
       sleepTarget: '7-8 hours',
       napStrategy: 'Optional 20-30 min naps for recovery',
       caffeineGuidance: 'Avoid after 1400 for 2200 sleep',
       windDown: 'Full routine: 5-min downshift, environment prep'
     },
-    shift: {
-      name: 'Shift / CQ / Staff Duty Mode',
-      description: 'Irregular hours, circadian disruption. Focus: anchor sleep windows and light management.',
-      sleepTarget: '6-7 hours in darkened space',
-      napStrategy: '90-min naps aligned to sleep cycles',
-      caffeineGuidance: 'Timed to shift start; stop 6 hours before planned sleep',
-      windDown: 'Light control critical; blackout + 3-min routine'
+    tactical: {
+      name: 'Tactical Mode',
+      description: 'Constrained schedules, variable conditions. Focus: maximize recovery in available windows.',
+      sleepTarget: '4-6 hours + tactical naps',
+      napStrategy: 'Prioritize 20-min naps when possible',
+      caffeineGuidance: 'Use strategically; avoid within 4 hours of planned rest',
+      windDown: 'Minimal routine: 2-min breathing, position check'
     },
-    'high-stress': {
-      name: 'High-Stress / Post-Event Mode',
+    recovery: {
+      name: 'Recovery Mode',
       description: 'Elevated arousal, hypervigilance. Focus: nervous system downshift and sleep protection.',
       sleepTarget: '6-8 hours; prioritize quality over duration',
       napStrategy: 'Short naps (10-20 min) to avoid deep sleep disruption',

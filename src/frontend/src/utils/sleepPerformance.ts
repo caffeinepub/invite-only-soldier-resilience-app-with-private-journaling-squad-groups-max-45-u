@@ -86,85 +86,46 @@ export function formatSleepWindow(log: SleepLog): string {
 
 export function estimateCaffeineClearance(log: CaffeineLog): { clearanceTime: number; halfLife: number } {
   const halfLife = 5 * 60 * 60 * 1000; // 5 hours in ms
-  const clearanceTime = log.time + (halfLife * 4); // ~4 half-lives for 94% clearance
+  const clearanceTime = log.timestamp + (halfLife * 4); // ~4 half-lives for 94% clearance
   
   return { clearanceTime, halfLife };
 }
 
 export function recommendLastCaffeineTime(plannedSleepTime: number): number {
-  // 6 hours before planned sleep
-  return plannedSleepTime - (6 * 60 * 60 * 1000);
+  const halfLife = 5 * 60 * 60 * 1000;
+  const clearanceNeeded = halfLife * 4;
+  return plannedSleepTime - clearanceNeeded;
 }
 
-export function getPainGuidance(painInputs?: SleepLog['painInputs']): {
-  positioning: string[];
-  pillowGuidance: string;
-  microRoutine: string;
-  redFlag: string | null;
-} {
-  if (!painInputs) {
-    return {
-      positioning: ['Neutral spine alignment', 'Support natural curves'],
-      pillowGuidance: 'Maintain head-neck alignment',
-      microRoutine: 'No specific routine needed',
-      redFlag: null
-    };
-  }
-
-  const positioning: string[] = [];
-  let pillowGuidance = '';
-  let microRoutine = '';
-  let redFlag: string | null = null;
-
-  if (painInputs.neckPain && painInputs.neckPain > 5) {
-    positioning.push('Side-lying with pillow between knees');
-    positioning.push('Avoid stomach sleeping');
-    pillowGuidance = 'Cervical support pillow maintaining natural curve';
-    microRoutine = '60-sec: Chin tucks (10 reps), gentle neck rotations (5 each side)';
-  }
-
-  if (painInputs.backPain && painInputs.backPain > 5) {
-    positioning.push('Side-lying with pillow between knees');
-    positioning.push('Or back-lying with pillow under knees');
-    pillowGuidance = 'Lumbar support if back-lying';
-    microRoutine = '90-sec: Knee-to-chest stretch (30s each side), pelvic tilts (10 reps)';
-  }
-
-  if (painInputs.nerveSymptoms) {
-    redFlag = 'Nerve symptoms require evaluation. If worsening numbness, weakness, or bowel/bladder changes occur, seek immediate medical attention.';
-  }
-
-  if (positioning.length === 0) {
-    positioning.push('Neutral spine alignment');
-  }
-
-  return { positioning, pillowGuidance, microRoutine, redFlag };
+export function getPainGuidance(painInputs?: { neckPain?: number; backPain?: number; nerveSymptoms?: boolean }): string | null {
+  if (!painInputs) return null;
+  
+  const hasPain = (painInputs.neckPain && painInputs.neckPain > 3) || 
+                  (painInputs.backPain && painInputs.backPain > 3) || 
+                  painInputs.nerveSymptoms;
+  
+  if (!hasPain) return null;
+  
+  return 'Consider sleep position adjustments and consult medical if pain persists.';
 }
 
-export function getStressDisruptionTools(stressInputs?: SleepLog['stressInputs']): {
-  immediateTool: string;
-  followUp: string;
-} | null {
+export function getStressDisruptionTools(stressInputs?: { nightmares?: boolean; hypervigilance?: boolean; racingThoughts?: boolean; startleResponse?: boolean }): string[] | null {
   if (!stressInputs) return null;
-
-  const hasAny = stressInputs.nightmares || stressInputs.hypervigilance || 
-                 stressInputs.racingThoughts || stressInputs.startleResponse;
-
-  if (!hasAny) return null;
-
-  let immediateTool = '';
-  let followUp = '';
-
-  if (stressInputs.hypervigilance || stressInputs.startleResponse) {
-    immediateTool = '4-min: Box breathing (4-4-4-4 count, 8 cycles). Ground with 5-4-3-2-1 sensory check.';
-    followUp = 'Consider environment adjustments: door positioning, lighting, noise control. If persistent, discuss with leadership or medical.';
-  } else if (stressInputs.racingThoughts) {
-    immediateTool = '3-min: Brain dump on paper. Then 4-7-8 breathing (4 cycles).';
-    followUp = 'Pre-sleep routine: 30-min wind-down, no screens, dim lighting. If ongoing, consider professional support.';
-  } else if (stressInputs.nightmares) {
-    immediateTool = '2-min: Grounding exercise. Reorient to present: name 5 objects, feel surface beneath you.';
-    followUp = 'Track patterns. If frequent or worsening, this warrants professional evaluation.';
+  
+  const tools: string[] = [];
+  
+  if (stressInputs.nightmares) {
+    tools.push('Imagery rehearsal therapy');
   }
-
-  return { immediateTool, followUp };
+  if (stressInputs.hypervigilance) {
+    tools.push('Progressive muscle relaxation');
+  }
+  if (stressInputs.racingThoughts) {
+    tools.push('Thought journaling before bed');
+  }
+  if (stressInputs.startleResponse) {
+    tools.push('Controlled breathing exercises');
+  }
+  
+  return tools.length > 0 ? tools : null;
 }

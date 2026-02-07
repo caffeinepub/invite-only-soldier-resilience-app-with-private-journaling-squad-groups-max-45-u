@@ -53,7 +53,6 @@ export default function JournalEditor({ entry, onClose, prefillTitle, prefillCon
         add({
           title: title.trim(),
           content: content.trim(),
-          isShared: false,
         });
         toast.success('Entry created successfully');
       }

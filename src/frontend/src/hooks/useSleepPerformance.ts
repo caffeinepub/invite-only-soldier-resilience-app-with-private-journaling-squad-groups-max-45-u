@@ -32,43 +32,50 @@ export function useSleepPerformance() {
   }, [profile.localUuid]);
 
   const logSleep = (log: Omit<SleepLog, 'id' | 'timestamp'>) => {
-    const newLog = addSleepLog(profile.localUuid, log);
+    const logWithTimestamp = { ...log, timestamp: Date.now() };
+    const newLog = addSleepLog(profile.localUuid, logWithTimestamp);
     setLogs(prev => [...prev, newLog]);
     
     // Update state
     const updatedState = getSleepPerformanceState(profile.localUuid);
-    updatedState.totalLogs += 1;
-    updatedState.lastLogTimestamp = Date.now();
-    
-    // Update streak
-    const daysSinceLastLog = updatedState.lastLogTimestamp 
-      ? (Date.now() - updatedState.lastLogTimestamp) / (1000 * 60 * 60 * 24)
-      : 999;
-    
-    if (daysSinceLastLog <= 1.5) {
-      updatedState.streakCount += 1;
-    } else {
-      updatedState.streakCount = 1;
-    }
+    const newConsecutiveGoodNights = log.duration >= 7 * 60 * 60 * 1000 
+      ? updatedState.consecutiveGoodNights + 1 
+      : 0;
     
     // Check for unlocks
-    if (updatedState.streakCount >= 7 && !updatedState.unlockedTools.includes('advanced-naps')) {
-      updatedState.unlockedTools.push('advanced-naps');
+    const newUnlockedNaps = [...updatedState.unlockedNapDurations];
+    if (newConsecutiveGoodNights >= 7 && !newUnlockedNaps.includes(20)) {
+      newUnlockedNaps.push(20);
+    }
+    if (newConsecutiveGoodNights >= 14 && !newUnlockedNaps.includes(30)) {
+      newUnlockedNaps.push(30);
+    }
+    if (newConsecutiveGoodNights >= 21 && !newUnlockedNaps.includes(90)) {
+      newUnlockedNaps.push(90);
     }
     
-    updateSleepPerformanceState(profile.localUuid, updatedState);
-    setState(updatedState);
+    const newState: SleepPerformanceState = {
+      ...updatedState,
+      consecutiveGoodNights: newConsecutiveGoodNights,
+      unlockedNapDurations: newUnlockedNaps,
+    };
+    
+    updateSleepPerformanceState(profile.localUuid, newState);
+    setState(newState);
     
     return newLog;
   };
 
   const setMode = (mode: SleepPerformanceState['mode']) => {
-    updateSleepPerformanceState(profile.localUuid, { mode });
-    setState(prev => ({ ...prev, mode }));
+    const currentState = getSleepPerformanceState(profile.localUuid);
+    const newState = { ...currentState, mode };
+    updateSleepPerformanceState(profile.localUuid, newState);
+    setState(newState);
   };
 
   const logCaffeine = (log: Omit<CaffeineLog, 'id' | 'timestamp'>) => {
-    const newLog = addCaffeineLog(profile.localUuid, log);
+    const logWithTimestamp = { ...log, timestamp: Date.now() };
+    const newLog = addCaffeineLog(profile.localUuid, logWithTimestamp);
     setCaffeineLogs(prev => [...prev, newLog]);
     return newLog;
   };

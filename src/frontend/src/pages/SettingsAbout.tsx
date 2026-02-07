@@ -8,9 +8,10 @@ import { DISCLAIMER_TEXT } from '../content/disclaimer';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { resetAllLocalData } from '../utils/localDataStore';
 
 export default function SettingsAbout() {
-  const { profile, update } = useLocalProfile();
+  const { profile, update, reset } = useLocalProfile();
   const [displayName, setDisplayName] = useState(profile.displayName || '');
   const [isEditing, setIsEditing] = useState(false);
 
@@ -18,6 +19,13 @@ export default function SettingsAbout() {
     update({ displayName: displayName.trim() || undefined });
     setIsEditing(false);
     toast.success('Display name updated');
+  };
+
+  const handleResetData = () => {
+    if (confirm('Are you sure you want to reset all local data? This action cannot be undone.')) {
+      resetAllLocalData(profile.localUuid);
+      toast.success('All local data has been reset');
+    }
   };
 
   return (
@@ -91,6 +99,14 @@ export default function SettingsAbout() {
                 : 'Not yet accepted'}
             </p>
           </div>
+          <div className="pt-4">
+            <Button variant="destructive" onClick={handleResetData}>
+              Reset All Local Data
+            </Button>
+            <p className="text-xs text-muted-foreground mt-2">
+              This will clear all journals, readiness inputs, mission progress, assessments, sleep logs, IZOF data, and other local data for this profile.
+            </p>
+          </div>
         </CardContent>
       </Card>
 
@@ -134,7 +150,7 @@ export default function SettingsAbout() {
           <div>
             <p className="text-sm font-medium text-muted-foreground">Privacy & Data</p>
             <p className="text-sm">
-              All your data (journal entries, readiness inputs, streaks) is stored locally on this device only.
+              All your data (journal entries, readiness inputs, streaks, IZOF data) is stored locally on this device only.
               Nothing is sent to a server by default. You control your data completely.
             </p>
           </div>

@@ -1,32 +1,43 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Mobile-first navigation update: replace permanent left sidebar with a collapsible full-width drawer opened via a hamburger icon, with semi-transparent scrim and auto-close behaviors; drawer remains collapsible on all screen sizes.",
+  "summary": "Implement mobile (<=767px) sidebar drawer behavior: starts closed, opens via hamburger, auto-closes immediately on menu selection and on outside-tap via backdrop; keep desktop (>=768px) persistent sidebar behavior unchanged.",
   "architectural_notes": [
-    "Navigation drawer behavior decisions: collapsible on all screen sizes; full-width drawer on mobile; semi-transparent scrim behind open drawer; close on outside tap, close icon, or navigation selection."
+    "Use Tailwind 'md' (768px) breakpoint: <md treat sidebar as temporary drawer/overlay (default closed), >=md keep persistent sidebar.",
+    "On mobile, close sidebar immediately on menu link click by resetting existing open/closed state; also close on backdrop/outside click."
   ],
-  "known_issues": [],
-  "isFixRequest": false,
+  "known_issues": [
+    "On mobile, sidebar remains open after navigation and overlays main content (videos/filters/search), blocking interaction."
+  ],
+  "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-update-the-global-appshell-layout-to-replace-the-permanent-left-sidebar-with-a-mobile-first-collapsible-drawer-that-is-hidden-by-default-on-all-screen-sizes-and-opened-via-a-hamburger-menu-icon-in-the-top-left-of-a-persistent-header-top-bar",
-      "title": "Update the global AppShell layout to replace the permanent left sidebar with a mobile-first collapsible drawer that is hidden by default on all screen sizes and opened via a hamburger menu icon in the top-left of a persistent header/top bar.",
+      "id": "feature-update-the-mobile-sidebar-drawer-behavior-below-tailwind-md-767px-so-the-drawer-closes-immediately-when-any-sidebar-menu-item-is-clicked-without-waiting-for-route-navigation-to-finish-and-the-main-content-becomes-fully-visible-and-interactive-no-overlap",
+      "title": "Update the mobile sidebar drawer behavior (below Tailwind `md` / <=767px) so the drawer closes immediately when any sidebar menu item is clicked, without waiting for route navigation to finish, and the main content becomes fully visible and interactive (no overlap).",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-ensure-the-mobile-drawer-cannot-block-taps-or-scrolling-after-it-has-been-closed-e-g-prevent-the-off-canvas-drawer-element-from-capturing-pointer-events-when-closed-and-or-only-render-the-drawer-backdrop-when-open",
+      "title": "Ensure the mobile drawer cannot block taps or scrolling after it has been closed (e.g., prevent the off-canvas drawer element from capturing pointer events when closed, and/or only render the drawer/backdrop when open).",
       "reqIds": [
         "REQ-2"
       ],
       "version": 1
     },
     {
-      "id": "feature-implement-the-drawer-interaction-behaviors-tapping-the-hamburger-opens-a-full-width-left-side-overlay-drawer-the-drawer-includes-a-close-x-control-tapping-outside-the-drawer-on-the-scrim-closes-it-selecting-any-navigation-menu-item-navigates-and-automatically-closes-the-drawer",
-      "title": "Implement the drawer interaction behaviors: tapping the hamburger opens a full-width left-side overlay drawer; the drawer includes a close (X) control; tapping outside the drawer (on the scrim) closes it; selecting any navigation menu item navigates and automatically closes the drawer.",
+      "id": "feature-add-verify-a-semi-transparent-backdrop-for-the-mobile-drawer-below-md-that-appears-only-when-the-drawer-is-open-and-closes-the-drawer-when-the-user-taps-outside-the-sidebar-area",
+      "title": "Add/verify a semi-transparent backdrop for the mobile drawer (below `md`) that appears only when the drawer is open and closes the drawer when the user taps outside the sidebar area.",
       "reqIds": [
         "REQ-3"
       ],
       "version": 1
     },
     {
-      "id": "feature-ensure-the-main-content-area-uses-the-full-available-width-when-the-drawer-is-closed-and-ensure-drawer-scrim-layering-z-index-positioning-does-not-cause-overlap-glitches-or-prevent-main-content-scrolling-when-the-drawer-is-closed",
-      "title": "Ensure the main content area uses the full available width when the drawer is closed, and ensure drawer/scrim layering (z-index/positioning) does not cause overlap glitches or prevent main content scrolling when the drawer is closed.",
+      "id": "feature-keep-existing-ui-ux-and-features-unchanged-aside-from-the-mobile-drawer-fix-preserve-dark-theme-styling-icons-existing-navigation-labels-paths-including-the-life-lessons-path-and-existing-page-functionality-video-list-filters-search-etc",
+      "title": "Keep existing UI/UX and features unchanged aside from the mobile drawer fix: preserve dark theme styling, icons, existing navigation labels/paths (including the Life Lessons path), and existing page functionality (video list, filters, search, etc.).",
       "reqIds": [
         "REQ-4"
       ],
@@ -36,12 +47,12 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Replace permanent left sidebar with a mobile-friendly collapsible drawer: hamburger icon on all main screens; sidebar hidden by default; full-width slide-in overlay from left with semi-transparent scrim; close on outside tap, close icon, or menu selection; main content expands to full width; drawer remains collapsible on all screen sizes.",
+      "summary": "Fix mobile sidebar overlay: auto-close drawer on any menu item click (immediate), show hamburger again, add backdrop tap-to-close; keep desktop persistent sidebar unchanged (Tailwind md breakpoint).",
       "reqIds": [],
       "status": "pending"
     }
   ],
-  "projectName": "Convert permanent sidebar into collapsible full-width drawer with hamburger menu and scrim",
+  "projectName": "Fix mobile sidebar drawer to auto-close instantly on menu selection (md breakpoint)",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

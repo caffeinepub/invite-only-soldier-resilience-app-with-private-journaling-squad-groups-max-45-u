@@ -85,6 +85,8 @@ export default function PersonalReportEditor({ open, onClose, editingReport }: P
           bookAuthor: bookAuthor.trim() || undefined,
         };
 
+    const xpAwarded = calculateReportXP(body.trim());
+
     if (isEditing && editingReport) {
       updateReport(editingReport.id, {
         title: title.trim(),
@@ -98,6 +100,7 @@ export default function PersonalReportEditor({ open, onClose, editingReport }: P
         title: title.trim(),
         body: body.trim(),
         metadata,
+        xpAwarded,
       });
       toast.success('Report created');
     }
@@ -125,6 +128,7 @@ export default function PersonalReportEditor({ open, onClose, editingReport }: P
             bookAuthor: bookAuthor.trim() || undefined,
           };
 
+      const xpAwarded = calculateReportXP(body.trim());
       let reportId: string;
 
       if (isEditing && editingReport) {
@@ -140,12 +144,12 @@ export default function PersonalReportEditor({ open, onClose, editingReport }: P
           title: title.trim(),
           body: body.trim(),
           metadata,
+          xpAwarded,
         });
         reportId = newReport.id;
       }
 
-      const xpAwarded = calculateReportXP(body.trim());
-      submitReport(reportId, xpAwarded);
+      submitReport(reportId);
 
       toast.success(`Report submitted! Earned ${xpAwarded} Dagger points`, {
         icon: <Award className="h-4 w-4" />,
@@ -275,7 +279,7 @@ export default function PersonalReportEditor({ open, onClose, editingReport }: P
                 Save Draft
               </Button>
               <Button onClick={handleSubmit} disabled={isSubmitting}>
-                {isSubmitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                {isSubmitting && <Loader2 className="h-4 w-4 mr-2" />}
                 Submit & Earn XP
               </Button>
             </>

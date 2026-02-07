@@ -2,8 +2,27 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-update-the-global-appshell-layout-to-replace-the-permanent-left-sidebar-with-a-mobile-first-collapsible-drawer-that-is-hidden-by-default-on-all-screen-sizes-and-opened-via-a-hamburger-menu-icon-in-the-top-left-of-a-persistent-header-top-bar",
-      "featureTitle": "Update the global AppShell layout to replace the permanent left sidebar with a mobile-first collapsible drawer that is hidden by default on all screen sizes and opened via a hamburger menu icon in the top-left of a persistent header/top bar.",
+      "featureId": "feature-update-the-mobile-sidebar-drawer-behavior-below-tailwind-md-767px-so-the-drawer-closes-immediately-when-any-sidebar-menu-item-is-clicked-without-waiting-for-route-navigation-to-finish-and-the-main-content-becomes-fully-visible-and-interactive-no-overlap",
+      "featureTitle": "Update the mobile sidebar drawer behavior (below Tailwind `md` / <=767px) so the drawer closes immediately when any sidebar menu item is clicked, without waiting for route navigation to finish, and the main content becomes fully visible and interactive (no overlap).",
+      "files": [
+        "frontend/src/components/layout/AppShell.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-1"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-ensure-the-mobile-drawer-cannot-block-taps-or-scrolling-after-it-has-been-closed-e-g-prevent-the-off-canvas-drawer-element-from-capturing-pointer-events-when-closed-and-or-only-render-the-drawer-backdrop-when-open",
+      "featureTitle": "Ensure the mobile drawer cannot block taps or scrolling after it has been closed (e.g., prevent the off-canvas drawer element from capturing pointer events when closed, and/or only render the drawer/backdrop when open).",
       "files": [
         "frontend/src/components/layout/AppShell.tsx"
       ],
@@ -21,8 +40,8 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-implement-the-drawer-interaction-behaviors-tapping-the-hamburger-opens-a-full-width-left-side-overlay-drawer-the-drawer-includes-a-close-x-control-tapping-outside-the-drawer-on-the-scrim-closes-it-selecting-any-navigation-menu-item-navigates-and-automatically-closes-the-drawer",
-      "featureTitle": "Implement the drawer interaction behaviors: tapping the hamburger opens a full-width left-side overlay drawer; the drawer includes a close (X) control; tapping outside the drawer (on the scrim) closes it; selecting any navigation menu item navigates and automatically closes the drawer.",
+      "featureId": "feature-add-verify-a-semi-transparent-backdrop-for-the-mobile-drawer-below-md-that-appears-only-when-the-drawer-is-open-and-closes-the-drawer-when-the-user-taps-outside-the-sidebar-area",
+      "featureTitle": "Add/verify a semi-transparent backdrop for the mobile drawer (below `md`) that appears only when the drawer is open and closes the drawer when the user taps outside the sidebar area.",
       "files": [
         "frontend/src/components/layout/AppShell.tsx"
       ],
@@ -40,8 +59,8 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-ensure-the-main-content-area-uses-the-full-available-width-when-the-drawer-is-closed-and-ensure-drawer-scrim-layering-z-index-positioning-does-not-cause-overlap-glitches-or-prevent-main-content-scrolling-when-the-drawer-is-closed",
-      "featureTitle": "Ensure the main content area uses the full available width when the drawer is closed, and ensure drawer/scrim layering (z-index/positioning) does not cause overlap glitches or prevent main content scrolling when the drawer is closed.",
+      "featureId": "feature-keep-existing-ui-ux-and-features-unchanged-aside-from-the-mobile-drawer-fix-preserve-dark-theme-styling-icons-existing-navigation-labels-paths-including-the-life-lessons-path-and-existing-page-functionality-video-list-filters-search-etc",
+      "featureTitle": "Keep existing UI/UX and features unchanged aside from the mobile drawer fix: preserve dark theme styling, icons, existing navigation labels/paths (including the Life Lessons path), and existing page functionality (video list, filters, search, etc.).",
       "files": [
         "frontend/src/components/layout/AppShell.tsx"
       ],

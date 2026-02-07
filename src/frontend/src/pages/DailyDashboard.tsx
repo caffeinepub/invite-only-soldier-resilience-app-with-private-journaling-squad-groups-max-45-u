@@ -7,14 +7,17 @@ import DailyLoggingPanel from '../components/dashboard/DailyLoggingPanel';
 import CoachActionsCard from '../components/dashboard/CoachActionsCard';
 import GamificationCard from '../components/dashboard/GamificationCard';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { WifiOff, CheckCircle2, Loader2 } from 'lucide-react';
-import { useEffect } from 'react';
+import { WifiOff, CheckCircle2, Loader2, RefreshCw } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { useDashboardRefresh } from '../contexts/DashboardRefreshContext';
 
 export default function DailyDashboard() {
   const { isFieldMode } = useFieldMode();
   const { isOnline } = useOnlineStatus();
   const { data: dashboardData, isLoading, refetch } = useDashboardData();
   const submitMutation = useSubmitDailyInput();
+  const { refreshToken } = useDashboardRefresh();
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Auto-refetch when coming back online
   useEffect(() => {
@@ -23,10 +26,22 @@ export default function DailyDashboard() {
     }
   }, [isOnline, refetch]);
 
+  // Handle dashboard refresh requests
+  useEffect(() => {
+    if (refreshToken > 0) {
+      setIsRefreshing(true);
+      const timer = setTimeout(() => {
+        setIsRefreshing(false);
+      }, 800);
+      refetch();
+      return () => clearTimeout(timer);
+    }
+  }, [refreshToken, refetch]);
+
   const isSyncing = submitMutation.isPending;
   const hasPendingChanges = !isOnline && submitMutation.variables !== undefined;
 
-  if (isLoading) {
+  if (isLoading && !isRefreshing) {
     return (
       <div className="container py-8">
         <div className="flex items-center justify-center min-h-[400px]">
@@ -41,6 +56,16 @@ export default function DailyDashboard() {
 
   return (
     <div className={`container py-6 ${isFieldMode ? 'field-mode' : ''}`}>
+      {/* Refreshing Indicator */}
+      {isRefreshing && (
+        <Alert className="mb-6 border-blue-500 bg-blue-50 dark:bg-blue-950/20">
+          <RefreshCw className="h-4 w-4 animate-spin text-blue-600 dark:text-blue-500" />
+          <AlertDescription className="text-blue-800 dark:text-blue-200">
+            Refreshing dashboard...
+          </AlertDescription>
+        </Alert>
+      )}
+
       {/* Offline Status Banner */}
       {!isOnline && (
         <Alert className="mb-6 border-yellow-500 bg-yellow-50 dark:bg-yellow-950/20">

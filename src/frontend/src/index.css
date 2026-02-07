@@ -3,177 +3,123 @@
 @tailwind utilities;
 
 @layer base {
-    :root {
-        --radius: 0.5rem;
-        
-        /* DAGGER-inspired theme: red accent with neutral grays */
-        --background: 0.98 0.005 0;
-        --foreground: 0.20 0.015 0;
-        
-        --card: 1 0 0;
-        --card-foreground: 0.20 0.015 0;
-        
-        --popover: 1 0 0;
-        --popover-foreground: 0.20 0.015 0;
-        
-        /* Bold red primary inspired by DAGGER logo */
-        --primary: 0.50 0.22 25;
-        --primary-foreground: 0.98 0.005 0;
-        
-        /* Neutral gray secondary */
-        --secondary: 0.92 0.01 0;
-        --secondary-foreground: 0.20 0.015 0;
-        
-        --muted: 0.95 0.01 0;
-        --muted-foreground: 0.55 0.02 0;
-        
-        --accent: 0.88 0.02 0;
-        --accent-foreground: 0.20 0.015 0;
-        
-        --destructive: 0.55 0.20 25;
-        --destructive-foreground: 0.98 0.005 0;
-        
-        --border: 0.90 0.01 0;
-        --input: 0.90 0.01 0;
-        --ring: 0.50 0.22 25;
-        
-        --chart-1: 0.60 0.20 25;
-        --chart-2: 0.65 0.15 0;
-        --chart-3: 0.50 0.18 15;
-        --chart-4: 0.70 0.10 0;
-        --chart-5: 0.55 0.22 30;
+  :root {
+    /* OKLCH color system - Light mode */
+    --background: oklch(98% 0.01 0);
+    --foreground: oklch(15% 0.01 0);
+    --card: oklch(100% 0 0);
+    --card-foreground: oklch(15% 0.01 0);
+    --popover: oklch(100% 0 0);
+    --popover-foreground: oklch(15% 0.01 0);
+    --primary: oklch(42% 0.15 25);
+    --primary-foreground: oklch(98% 0.01 0);
+    --secondary: oklch(92% 0.01 0);
+    --secondary-foreground: oklch(15% 0.01 0);
+    --muted: oklch(92% 0.01 0);
+    --muted-foreground: oklch(50% 0.01 0);
+    --accent: oklch(92% 0.01 0);
+    --accent-foreground: oklch(15% 0.01 0);
+    --destructive: oklch(55% 0.22 25);
+    --destructive-foreground: oklch(98% 0.01 0);
+    --border: oklch(88% 0.01 0);
+    --input: oklch(88% 0.01 0);
+    --ring: oklch(42% 0.15 25);
+    --radius: 0.5rem;
+    --success: oklch(65% 0.15 145);
+    --success-foreground: oklch(98% 0.01 0);
+    --warning: oklch(75% 0.15 85);
+    --warning-foreground: oklch(15% 0.01 0);
 
-        /* Readiness state colors */
-        --readiness-optimized: 0.65 0.18 145;
-        --readiness-ready: 0.60 0.15 240;
-        --readiness-moderate: 0.70 0.18 85;
-        --readiness-degraded: 0.55 0.20 25;
-    }
+    /* Readiness state colors */
+    --readiness-optimal: oklch(70% 0.15 145);
+    --readiness-good: oklch(75% 0.12 125);
+    --readiness-moderate: oklch(75% 0.15 85);
+    --readiness-low: oklch(65% 0.18 45);
+    --readiness-critical: oklch(55% 0.22 25);
+  }
 
-    .dark {
-        --background: 0.15 0.015 0;
-        --foreground: 0.95 0.005 0;
-        
-        --card: 0.18 0.015 0;
-        --card-foreground: 0.95 0.005 0;
-        
-        --popover: 0.18 0.015 0;
-        --popover-foreground: 0.95 0.005 0;
-        
-        /* Brighter red for dark mode */
-        --primary: 0.60 0.24 25;
-        --primary-foreground: 0.15 0.015 0;
-        
-        --secondary: 0.25 0.02 0;
-        --secondary-foreground: 0.95 0.005 0;
-        
-        --muted: 0.25 0.02 0;
-        --muted-foreground: 0.65 0.03 0;
-        
-        --accent: 0.30 0.03 0;
-        --accent-foreground: 0.95 0.005 0;
-        
-        --destructive: 0.60 0.22 25;
-        --destructive-foreground: 0.15 0.015 0;
-        
-        --border: 0.28 0.02 0;
-        --input: 0.28 0.02 0;
-        --ring: 0.60 0.24 25;
-        
-        --chart-1: 0.55 0.22 25;
-        --chart-2: 0.60 0.18 0;
-        --chart-3: 0.65 0.20 15;
-        --chart-4: 0.50 0.12 0;
-        --chart-5: 0.70 0.24 30;
+  .dark {
+    /* OKLCH color system - Dark mode */
+    --background: oklch(15% 0.01 0);
+    --foreground: oklch(98% 0.01 0);
+    --card: oklch(18% 0.01 0);
+    --card-foreground: oklch(98% 0.01 0);
+    --popover: oklch(18% 0.01 0);
+    --popover-foreground: oklch(98% 0.01 0);
+    --primary: oklch(55% 0.18 25);
+    --primary-foreground: oklch(98% 0.01 0);
+    --secondary: oklch(25% 0.01 0);
+    --secondary-foreground: oklch(98% 0.01 0);
+    --muted: oklch(25% 0.01 0);
+    --muted-foreground: oklch(65% 0.01 0);
+    --accent: oklch(25% 0.01 0);
+    --accent-foreground: oklch(98% 0.01 0);
+    --destructive: oklch(55% 0.22 25);
+    --destructive-foreground: oklch(98% 0.01 0);
+    --border: oklch(25% 0.01 0);
+    --input: oklch(25% 0.01 0);
+    --ring: oklch(55% 0.18 25);
+    --success: oklch(65% 0.15 145);
+    --success-foreground: oklch(98% 0.01 0);
+    --warning: oklch(75% 0.15 85);
+    --warning-foreground: oklch(15% 0.01 0);
 
-        /* Readiness state colors for dark mode */
-        --readiness-optimized: 0.70 0.20 145;
-        --readiness-ready: 0.65 0.18 240;
-        --readiness-moderate: 0.75 0.20 85;
-        --readiness-degraded: 0.60 0.22 25;
-    }
-
-    * {
-        @apply border-border;
-    }
-    
-    body {
-        @apply bg-background text-foreground;
-        font-feature-settings: "rlig" 1, "calt" 1;
-    }
+    /* Readiness state colors - dark mode */
+    --readiness-optimal: oklch(65% 0.15 145);
+    --readiness-good: oklch(70% 0.12 125);
+    --readiness-moderate: oklch(70% 0.15 85);
+    --readiness-low: oklch(60% 0.18 45);
+    --readiness-critical: oklch(55% 0.22 25);
+  }
 }
 
-/* App Background Layer */
-@layer components {
-    .app-background-layer {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: 0;
-        background-image: url('/assets/IMG_2529.jpeg');
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-        background-attachment: fixed;
-    }
-
-    /* Light mode overlay for readability */
-    .app-background-layer::after {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: oklch(0.98 0.005 0 / 0.85);
-        backdrop-filter: blur(2px);
-    }
-
-    /* Dark mode overlay for readability */
-    .dark .app-background-layer::after {
-        background: oklch(0.15 0.015 0 / 0.90);
-        backdrop-filter: blur(3px);
-    }
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html,
+  body,
+  #root {
+    height: 100%;
+    overflow: hidden;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
 }
 
-/* Field Mode Styles */
-@layer components {
-    .field-mode {
-        /* Simplified visual hierarchy */
-        --muted: 0.96 0.005 0;
-        --border: 0.88 0.015 0;
-    }
+/* Field Mode utilities */
+.field-mode {
+  @apply text-base;
+}
 
-    .dark .field-mode {
-        --muted: 0.22 0.02 0;
-        --border: 0.30 0.025 0;
-    }
+.field-mode h1 {
+  @apply text-2xl;
+}
 
-    /* Larger tap targets in field mode */
-    .field-mode button,
-    .field-mode [role="button"] {
-        @apply min-h-[48px];
-    }
+.field-mode h2 {
+  @apply text-xl;
+}
 
-    .field-mode input,
-    .field-mode select,
-    .field-mode textarea {
-        @apply min-h-[48px] text-base;
-    }
+.field-mode .card {
+  @apply shadow-md;
+}
 
-    /* Reduced visual noise */
-    .field-mode .card {
-        @apply shadow-sm;
-    }
+/* Dropdown menu z-index safeguard */
+[data-radix-popper-content-wrapper] {
+  z-index: 1000 !important;
+}
 
-    /* Simplified header in field mode */
-    .field-mode header {
-        @apply py-2;
-    }
+/* Active navigation item styling */
+[aria-current="page"] {
+  @apply bg-secondary text-secondary-foreground font-medium;
+}
 
-    .field-mode footer {
-        @apply py-4 text-xs;
-    }
+/* Ensure touch targets are accessible on mobile */
+@media (max-width: 768px) {
+  button,
+  a {
+    min-height: 44px;
+    min-width: 44px;
+  }
 }

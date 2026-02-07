@@ -1,20 +1,23 @@
 import React, { useState, useMemo } from 'react';
-import { Play, Search, Filter } from 'lucide-react';
+import { Search, Filter, Star } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { motivationalVideos, getCategories } from '../content/mentalPerformance/motivationalLifeLessonsVideos';
 import type { MotivationalVideo, VideoCategoryTag } from '../types/motivationalVideos';
 import MotivationalVideoCard from '../components/mentalPerformance/MotivationalVideoCard';
 import YouTubePlayerDialog from '../components/mentalPerformance/YouTubePlayerDialog';
 import { validateMotivationalVideos } from '../utils/validateMotivationalVideos';
+import { useAllLifeLessonsProgress } from '../hooks/useLifeLessonsProgress';
 
 export default function MotivationalLifeLessons() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<VideoCategoryTag | 'All'>('All');
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [selectedVideo, setSelectedVideo] = useState<MotivationalVideo | null>(null);
   const [isPlayerOpen, setIsPlayerOpen] = useState(false);
+
+  const allProgress = useAllLifeLessonsProgress();
 
   // Run validation in development
   React.useEffect(() => {
@@ -28,9 +31,14 @@ export default function MotivationalLifeLessons() {
   const filteredVideos = useMemo(() => {
     let filtered = motivationalVideos;
 
+    // Filter by favorites
+    if (showFavoritesOnly) {
+      filtered = filtered.filter((video) => allProgress[video.id]?.isFavorited);
+    }
+
     // Filter by category
     if (selectedCategory !== 'All') {
-      filtered = filtered.filter((video) => video.categoryTag === selectedCategory);
+      filtered = filtered.filter((video) => video.category === selectedCategory);
     }
 
     // Filter by search query
@@ -39,31 +47,21 @@ export default function MotivationalLifeLessons() {
       filtered = filtered.filter(
         (video) =>
           video.title.toLowerCase().includes(query) ||
-          video.lessonSummary.toLowerCase().includes(query) ||
-          video.soldierTakeaway.toLowerCase().includes(query) ||
-          video.categoryTag.toLowerCase().includes(query) ||
-          video.badges?.some((badge) => badge.toLowerCase().includes(query))
+          video.description.toLowerCase().includes(query) ||
+          video.category.toLowerCase().includes(query)
       );
     }
 
     return filtered;
-  }, [searchQuery, selectedCategory]);
+  }, [searchQuery, selectedCategory, showFavoritesOnly, allProgress]);
 
   // Group videos by category for display
   const groupedVideos = useMemo(() => {
     const groups = new Map<VideoCategoryTag, MotivationalVideo[]>();
 
     filteredVideos.forEach((video) => {
-      const existing = groups.get(video.categoryTag) || [];
-      groups.set(video.categoryTag, [...existing, video]);
-    });
-
-    // Sort each group by impact score (descending)
-    groups.forEach((videos, category) => {
-      groups.set(
-        category,
-        videos.sort((a, b) => (b.impactScore || 0) - (a.impactScore || 0))
-      );
+      const existing = groups.get(video.category) || [];
+      groups.set(video.category, [...existing, video]);
     });
 
     return groups;
@@ -82,23 +80,27 @@ export default function MotivationalLifeLessons() {
   };
 
   const totalVideos = motivationalVideos.length;
-
-  // When there are zero videos, render nothing (chrome-only page)
-  if (totalVideos === 0) {
-    return <div className="min-h-screen bg-background" />;
-  }
+  const favoritedCount = Object.values(allProgress).filter((p) => p.isFavorited).length;
+  const watchedCount = Object.values(allProgress).filter((p) => p.isWatched).length;
 
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-10">
-        <div className="container mx-auto px-4 py-6">
+        <div className="w-full px-4 py-6">
           <div className="flex flex-col gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-foreground">Motivational Life Lessons</h1>
+              <h1 className="text-3xl font-bold text-foreground">Life Lessons</h1>
               <p className="text-muted-foreground mt-1">
                 Curated videos for resilience, leadership, and mental performance
               </p>
+              <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
+                <span>{totalVideos} videos</span>
+                <span>•</span>
+                <span>{favoritedCount} favorited</span>
+                <span>•</span>
+                <span>{watchedCount} watched</span>
+              </div>
             </div>
 
             {/* Search */}
@@ -117,12 +119,26 @@ export default function MotivationalLifeLessons() {
       </header>
 
       {/* Category Filter */}
-      <div className="border-b bg-card/30 backdrop-blur-sm sticky top-[120px] z-10">
-        <div className="container mx-auto px-4 py-4">
+      <div className="border-b bg-card/30 backdrop-blur-sm sticky top-[140px] z-10">
+        <div className="w-full px-4 py-4">
           <div className="flex items-center gap-2 mb-3">
             <Filter className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm font-medium text-muted-foreground">Filter by category:</span>
+            <span className="text-sm font-medium text-muted-foreground">Filter:</span>
           </div>
+          
+          {/* Favorites Filter */}
+          <div className="mb-3">
+            <Button
+              variant={showFavoritesOnly ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
+            >
+              <Star className={`h-4 w-4 mr-2 ${showFavoritesOnly ? 'fill-current' : ''}`} />
+              Favorites Only
+            </Button>
+          </div>
+
+          {/* Category Filters */}
           <div className="flex flex-wrap gap-2">
             <Button
               variant={selectedCategory === 'All' ? 'default' : 'outline'}
@@ -131,13 +147,14 @@ export default function MotivationalLifeLessons() {
             >
               All ({totalVideos})
             </Button>
-            {categories.map(({ tag, count }) => (
+            {categories.map(({ tag, count, icon }) => (
               <Button
                 key={tag}
                 variant={selectedCategory === tag ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => setSelectedCategory(tag)}
               >
+                <span className="mr-1">{icon}</span>
                 {tag} ({count})
               </Button>
             ))}
@@ -146,31 +163,35 @@ export default function MotivationalLifeLessons() {
       </div>
 
       {/* Video Grid */}
-      <main className="container mx-auto px-4 py-8">
+      <main className="w-full px-4 py-8">
         {filteredVideos.length === 0 ? (
-          // When filters yield zero results, render nothing (no "no results" message)
-          <div />
+          <div className="text-center py-12">
+            <p className="text-muted-foreground">
+              {showFavoritesOnly
+                ? 'No favorited videos yet. Start favoriting videos to see them here!'
+                : 'No videos found matching your filters.'}
+            </p>
+          </div>
         ) : (
           <div className="space-y-12">
-            {Array.from(groupedVideos.entries() as Iterable<[VideoCategoryTag, MotivationalVideo[]]>).map(
-              ([category, videos]) => (
-                <section key={category}>
-                  <div className="flex items-center gap-3 mb-6">
-                    <h2 className="text-2xl font-bold text-foreground">{category}</h2>
-                    <Badge variant="secondary">{videos.length}</Badge>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {videos.map((video) => (
-                      <MotivationalVideoCard
-                        key={video.id}
-                        video={video}
-                        onClick={() => handleVideoClick(video)}
-                      />
-                    ))}
-                  </div>
-                </section>
-              )
-            )}
+            {Array.from(groupedVideos.entries()).map(([category, videos]) => (
+              <section key={category}>
+                <div className="flex items-center gap-3 mb-6">
+                  <span className="text-2xl">{videos[0].icon}</span>
+                  <h2 className="text-2xl font-bold text-foreground">{category}</h2>
+                  <Badge variant="secondary">{videos.length}</Badge>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  {videos.map((video) => (
+                    <MotivationalVideoCard
+                      key={video.id}
+                      video={video}
+                      onClick={() => handleVideoClick(video)}
+                    />
+                  ))}
+                </div>
+              </section>
+            ))}
           </div>
         )}
       </main>

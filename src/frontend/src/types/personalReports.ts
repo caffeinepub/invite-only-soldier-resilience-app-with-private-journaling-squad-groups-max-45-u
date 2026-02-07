@@ -26,6 +26,7 @@ export interface CreateReportInput {
     bookTitle?: string;
     bookAuthor?: string;
   };
+  xpAwarded: number;
 }
 
 export interface UpdateReportInput {

@@ -2,41 +2,35 @@
  * Local Data Store Utility
  * 
  * Centralized storage for all user-generated content scoped by localUuid.
- * All personal data (journals, readiness inputs, streaks, mission progression, assessments, sleep performance, reports, quote reflections) is stored locally
- * and never transmitted to the backend by default.
- * 
- * Storage structure:
- * - dagger-journals-{uuid}: Journal entries array
- * - dagger-daily-inputs-{uuid}: Daily readiness inputs map
- * - dagger-readiness-state-{uuid}: Streak and gamification state
- * - dagger-mission-progression-{uuid}: Mission XP, ranks, unlockables, history
- * - dagger-assessments-{uuid}: Assessment results and history
- * - dagger-sleep-logs-{uuid}: Sleep window logs
- * - dagger-sleep-state-{uuid}: Sleep performance state (debt, mode, streaks, unlocks)
- * - dagger-caffeine-logs-{uuid}: Caffeine intake logs
- * - dagger-reading-progress-{uuid}: Reading status per book
- * - dagger-reading-rewards-{uuid}: Granted reading rewards
- * - dagger-personal-reports-{uuid}: Personal reports on videos/books
- * - dagger-quote-reflections-{uuid}: Per-quote reflections
- * 
- * Future seam: This utility provides a clear adapter interface where
- * optional cloud sync could be added without refactoring consumers.
- * The sync adapter would:
- * 1. Read from local store
- * 2. Optionally sync to remote when online and opted-in
- * 3. Merge remote changes back to local store
- * 4. Maintain local-first behavior as fallback
  */
 
-import type { PersonalReport, CreateReportInput, UpdateReportInput } from '../types/personalReports';
+import type { VideoProgress } from '../types/motivationalVideos';
 
+const STORAGE_KEYS = {
+  journals: 'dagger-journals',
+  dailyInputs: 'dagger-daily-inputs',
+  readinessState: 'dagger-readiness-state',
+  missionProgression: 'dagger-mission-progression',
+  assessments: 'dagger-assessments',
+  sleepLogs: 'dagger-sleep-logs',
+  sleepPerformanceState: 'dagger-sleep-performance-state',
+  caffeineLogs: 'dagger-caffeine-logs',
+  readingProgress: 'dagger-reading-progress',
+  readingRewards: 'dagger-reading-rewards',
+  personalReports: 'dagger-personal-reports',
+  quoteReflections: 'dagger-quote-reflections',
+  izofEntries: 'dagger-izof-entries',
+  izofSettings: 'dagger-izof-settings',
+  lifeLessonsProgress: 'dagger-life-lessons-progress',
+} as const;
+
+// Type Definitions
 export interface LocalJournalEntry {
   id: string;
   title: string;
   content: string;
   timestamp: number;
-  isShared: boolean;
-  sharedGroupId?: string;
+  tags?: string[];
 }
 
 export interface LocalDailyInput {
@@ -60,12 +54,21 @@ export interface SleepLog {
   id: string;
   sleepStart: number;
   sleepEnd: number;
+  startTime: number;
+  endTime: number;
   duration: number;
-  quality?: number;
+  quality: number;
+  timestamp: number;
   painInputs?: {
     neckPain?: number;
     backPain?: number;
     nerveSymptoms?: boolean;
+  };
+  stressDisruption?: {
+    nightmares?: boolean;
+    hypervigilance?: boolean;
+    racingThoughts?: boolean;
+    startleResponse?: boolean;
   };
   stressInputs?: {
     nightmares?: boolean;
@@ -73,174 +76,233 @@ export interface SleepLog {
     racingThoughts?: boolean;
     startleResponse?: boolean;
   };
-  timestamp: number;
 }
 
 export interface SleepPerformanceState {
-  mode: 'field' | 'garrison' | 'shift' | 'high-stress';
+  mode: 'standard' | 'tactical' | 'recovery';
   sleepDebt: number;
-  streakCount: number;
-  totalLogs: number;
-  lastLogTimestamp: number;
-  unlockedTools: string[];
+  consecutiveGoodNights: number;
+  unlockedNapDurations: number[];
 }
 
 export interface CaffeineLog {
   id: string;
-  time: number;
-  source: string;
-  amountMg: number;
+  amount: number;
   timestamp: number;
+  type: string;
+  source?: string;
 }
 
-export interface QuoteReflection {
-  quoteId: string;
-  reflection: string;
-  timestamp: number;
-  lastUpdated: number;
-}
-
-function getStorageKey(localUuid: string, type: 'journals' | 'daily-inputs' | 'readiness-state' | 'sleep-logs' | 'sleep-state' | 'caffeine-logs' | 'personal-reports' | 'quote-reflections'): string {
-  return `dagger-${type}-${localUuid}`;
-}
-
-// Journal operations
-export function getLocalJournals(localUuid: string): LocalJournalEntry[] {
-  if (typeof window === 'undefined') return [];
-  
+// Life Lessons Progress Storage
+export function getLifeLessonsProgress(localUuid: string): Record<string, VideoProgress> {
   try {
-    const key = getStorageKey(localUuid, 'journals');
-    const stored = localStorage.getItem(key);
-    return stored ? JSON.parse(stored) : [];
-  } catch (error) {
-    console.error('Failed to load local journals:', error);
-    return [];
-  }
-}
-
-export function saveLocalJournals(localUuid: string, journals: LocalJournalEntry[]): void {
-  if (typeof window === 'undefined') return;
-  
-  try {
-    const key = getStorageKey(localUuid, 'journals');
-    localStorage.setItem(key, JSON.stringify(journals));
-  } catch (error) {
-    console.error('Failed to save local journals:', error);
-  }
-}
-
-export function addLocalJournal(localUuid: string, entry: Omit<LocalJournalEntry, 'id' | 'timestamp'>): LocalJournalEntry {
-  const journals = getLocalJournals(localUuid);
-  const newEntry: LocalJournalEntry = {
-    ...entry,
-    id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
-    timestamp: Date.now(),
-  };
-  journals.push(newEntry);
-  saveLocalJournals(localUuid, journals);
-  return newEntry;
-}
-
-export function updateLocalJournal(localUuid: string, entryId: string, updates: Partial<Omit<LocalJournalEntry, 'id' | 'timestamp'>>): void {
-  const journals = getLocalJournals(localUuid);
-  const index = journals.findIndex(j => j.id === entryId);
-  if (index !== -1) {
-    journals[index] = { ...journals[index], ...updates };
-    saveLocalJournals(localUuid, journals);
-  }
-}
-
-export function deleteLocalJournal(localUuid: string, entryId: string): void {
-  const journals = getLocalJournals(localUuid);
-  const filtered = journals.filter(j => j.id !== entryId);
-  saveLocalJournals(localUuid, filtered);
-}
-
-// Daily input operations
-export function getLocalDailyInputs(localUuid: string): Record<string, LocalDailyInput> {
-  if (typeof window === 'undefined') return {};
-  
-  try {
-    const key = getStorageKey(localUuid, 'daily-inputs');
+    const key = `${STORAGE_KEYS.lifeLessonsProgress}-${localUuid}`;
     const stored = localStorage.getItem(key);
     return stored ? JSON.parse(stored) : {};
   } catch (error) {
-    console.error('Failed to load daily inputs:', error);
+    console.error('Failed to load life lessons progress:', error);
     return {};
   }
 }
 
-export function saveLocalDailyInputs(localUuid: string, inputs: Record<string, LocalDailyInput>): void {
-  if (typeof window === 'undefined') return;
-  
+export function saveLifeLessonsProgress(localUuid: string, progress: Record<string, VideoProgress>): void {
   try {
-    const key = getStorageKey(localUuid, 'daily-inputs');
+    const key = `${STORAGE_KEYS.lifeLessonsProgress}-${localUuid}`;
+    localStorage.setItem(key, JSON.stringify(progress));
+  } catch (error) {
+    console.error('Failed to save life lessons progress:', error);
+  }
+}
+
+export function getVideoProgress(localUuid: string, videoId: string): VideoProgress {
+  const allProgress = getLifeLessonsProgress(localUuid);
+  return allProgress[videoId] || {
+    isFavorited: false,
+    isWatched: false,
+  };
+}
+
+export function updateVideoProgress(
+  localUuid: string,
+  videoId: string,
+  updates: Partial<VideoProgress>
+): void {
+  const allProgress = getLifeLessonsProgress(localUuid);
+  allProgress[videoId] = {
+    ...allProgress[videoId],
+    ...updates,
+  };
+  saveLifeLessonsProgress(localUuid, allProgress);
+}
+
+// Reset function
+export function resetAllLocalData(localUuid: string): void {
+  Object.values(STORAGE_KEYS).forEach((baseKey) => {
+    const key = `${baseKey}-${localUuid}`;
+    localStorage.removeItem(key);
+  });
+}
+
+// Journal functions
+export function getJournals(localUuid: string): LocalJournalEntry[] {
+  try {
+    const key = `${STORAGE_KEYS.journals}-${localUuid}`;
+    const stored = localStorage.getItem(key);
+    return stored ? JSON.parse(stored) : [];
+  } catch (error) {
+    console.error('Failed to load journals:', error);
+    return [];
+  }
+}
+
+export function saveJournals(localUuid: string, journals: LocalJournalEntry[]): void {
+  try {
+    const key = `${STORAGE_KEYS.journals}-${localUuid}`;
+    localStorage.setItem(key, JSON.stringify(journals));
+  } catch (error) {
+    console.error('Failed to save journals:', error);
+  }
+}
+
+export function addJournal(localUuid: string, entry: Omit<LocalJournalEntry, 'id'>): LocalJournalEntry {
+  const journals = getJournals(localUuid);
+  const newEntry: LocalJournalEntry = {
+    ...entry,
+    id: `journal-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+  };
+  journals.push(newEntry);
+  saveJournals(localUuid, journals);
+  return newEntry;
+}
+
+export function updateJournal(localUuid: string, entryId: string, updates: Partial<Omit<LocalJournalEntry, 'id' | 'timestamp'>>): void {
+  const journals = getJournals(localUuid);
+  const index = journals.findIndex(j => j.id === entryId);
+  if (index !== -1) {
+    journals[index] = { ...journals[index], ...updates };
+    saveJournals(localUuid, journals);
+  }
+}
+
+export function deleteJournal(localUuid: string, entryId: string): void {
+  const journals = getJournals(localUuid);
+  const filtered = journals.filter(j => j.id !== entryId);
+  saveJournals(localUuid, filtered);
+}
+
+// Daily Inputs functions
+export function getDailyInputs(localUuid: string): LocalDailyInput[] {
+  try {
+    const key = `${STORAGE_KEYS.dailyInputs}-${localUuid}`;
+    const stored = localStorage.getItem(key);
+    return stored ? JSON.parse(stored) : [];
+  } catch (error) {
+    console.error('Failed to load daily inputs:', error);
+    return [];
+  }
+}
+
+export function saveDailyInputs(localUuid: string, inputs: LocalDailyInput[]): void {
+  try {
+    const key = `${STORAGE_KEYS.dailyInputs}-${localUuid}`;
     localStorage.setItem(key, JSON.stringify(inputs));
   } catch (error) {
     console.error('Failed to save daily inputs:', error);
   }
 }
 
-export function addLocalDailyInput(localUuid: string, input: Omit<LocalDailyInput, 'timestamp'>): LocalDailyInput {
-  const inputs = getLocalDailyInputs(localUuid);
-  const newInput: LocalDailyInput = {
-    ...input,
-    timestamp: Date.now(),
-  };
-  const dateKey = new Date().toISOString().split('T')[0];
-  inputs[dateKey] = newInput;
-  saveLocalDailyInputs(localUuid, inputs);
-  return newInput;
+export function addDailyInput(localUuid: string, input: LocalDailyInput): void {
+  const inputs = getDailyInputs(localUuid);
+  inputs.push(input);
+  saveDailyInputs(localUuid, inputs);
 }
 
-export function getLatestLocalDailyInput(localUuid: string): LocalDailyInput | null {
-  const inputs = getLocalDailyInputs(localUuid);
-  const entries = Object.entries(inputs);
-  if (entries.length === 0) return null;
-  
-  entries.sort((a, b) => b[1].timestamp - a[1].timestamp);
-  return entries[0][1];
+export function getLatestDailyInput(localUuid: string): LocalDailyInput | null {
+  const inputs = getDailyInputs(localUuid);
+  return inputs.length > 0 ? inputs[inputs.length - 1] : null;
 }
 
-// Readiness state operations
-export function getLocalReadinessState(localUuid: string): LocalReadinessState {
-  if (typeof window === 'undefined') {
-    return { streakCount: 0, highReadinessDays: 0, totalInputs: 0, lastInputTimestamp: 0 };
-  }
-  
+// Readiness State functions
+export function getReadinessState(localUuid: string): LocalReadinessState {
   try {
-    const key = getStorageKey(localUuid, 'readiness-state');
+    const key = `${STORAGE_KEYS.readinessState}-${localUuid}`;
     const stored = localStorage.getItem(key);
-    return stored ? JSON.parse(stored) : { streakCount: 0, highReadinessDays: 0, totalInputs: 0, lastInputTimestamp: 0 };
+    return stored ? JSON.parse(stored) : {
+      streakCount: 0,
+      highReadinessDays: 0,
+      totalInputs: 0,
+      lastInputTimestamp: 0,
+    };
   } catch (error) {
     console.error('Failed to load readiness state:', error);
-    return { streakCount: 0, highReadinessDays: 0, totalInputs: 0, lastInputTimestamp: 0 };
+    return {
+      streakCount: 0,
+      highReadinessDays: 0,
+      totalInputs: 0,
+      lastInputTimestamp: 0,
+    };
   }
 }
 
-export function saveLocalReadinessState(localUuid: string, state: LocalReadinessState): void {
-  if (typeof window === 'undefined') return;
-  
+export function saveReadinessState(localUuid: string, state: LocalReadinessState): void {
   try {
-    const key = getStorageKey(localUuid, 'readiness-state');
+    const key = `${STORAGE_KEYS.readinessState}-${localUuid}`;
     localStorage.setItem(key, JSON.stringify(state));
   } catch (error) {
     console.error('Failed to save readiness state:', error);
   }
 }
 
-export function updateLocalReadinessState(localUuid: string, updates: Partial<LocalReadinessState>): void {
-  const current = getLocalReadinessState(localUuid);
-  const updated = { ...current, ...updates };
-  saveLocalReadinessState(localUuid, updated);
+export function updateReadinessState(localUuid: string, state: LocalReadinessState): void {
+  saveReadinessState(localUuid, state);
 }
 
-// Sleep log operations
-export function getSleepLogs(localUuid: string): SleepLog[] {
-  if (typeof window === 'undefined') return [];
-  
+// Mission Progression functions
+export function getMissionProgression(localUuid: string): any {
   try {
-    const key = getStorageKey(localUuid, 'sleep-logs');
+    const key = `${STORAGE_KEYS.missionProgression}-${localUuid}`;
+    const stored = localStorage.getItem(key);
+    return stored ? JSON.parse(stored) : null;
+  } catch (error) {
+    console.error('Failed to load mission progression:', error);
+    return null;
+  }
+}
+
+export function saveMissionProgression(localUuid: string, progression: any): void {
+  try {
+    const key = `${STORAGE_KEYS.missionProgression}-${localUuid}`;
+    localStorage.setItem(key, JSON.stringify(progression));
+  } catch (error) {
+    console.error('Failed to save mission progression:', error);
+  }
+}
+
+// Assessment functions
+export function getAssessments(localUuid: string): any[] {
+  try {
+    const key = `${STORAGE_KEYS.assessments}-${localUuid}`;
+    const stored = localStorage.getItem(key);
+    return stored ? JSON.parse(stored) : [];
+  } catch (error) {
+    console.error('Failed to load assessments:', error);
+    return [];
+  }
+}
+
+export function saveAssessments(localUuid: string, assessments: any[]): void {
+  try {
+    const key = `${STORAGE_KEYS.assessments}-${localUuid}`;
+    localStorage.setItem(key, JSON.stringify(assessments));
+  } catch (error) {
+    console.error('Failed to save assessments:', error);
+  }
+}
+
+// Sleep Log functions
+export function getSleepLogs(localUuid: string): SleepLog[] {
+  try {
+    const key = `${STORAGE_KEYS.sleepLogs}-${localUuid}`;
     const stored = localStorage.getItem(key);
     return stored ? JSON.parse(stored) : [];
   } catch (error) {
@@ -250,67 +312,64 @@ export function getSleepLogs(localUuid: string): SleepLog[] {
 }
 
 export function saveSleepLogs(localUuid: string, logs: SleepLog[]): void {
-  if (typeof window === 'undefined') return;
-  
   try {
-    const key = getStorageKey(localUuid, 'sleep-logs');
+    const key = `${STORAGE_KEYS.sleepLogs}-${localUuid}`;
     localStorage.setItem(key, JSON.stringify(logs));
   } catch (error) {
     console.error('Failed to save sleep logs:', error);
   }
 }
 
-export function addSleepLog(localUuid: string, log: Omit<SleepLog, 'id' | 'timestamp'>): SleepLog {
+export function addSleepLog(localUuid: string, log: Omit<SleepLog, 'id'>): SleepLog {
   const logs = getSleepLogs(localUuid);
   const newLog: SleepLog = {
     ...log,
-    id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
-    timestamp: Date.now(),
+    id: `sleep-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
   };
   logs.push(newLog);
   saveSleepLogs(localUuid, logs);
   return newLog;
 }
 
-// Sleep performance state operations
+// Sleep Performance State functions
 export function getSleepPerformanceState(localUuid: string): SleepPerformanceState {
-  if (typeof window === 'undefined') {
-    return { mode: 'garrison', sleepDebt: 0, streakCount: 0, totalLogs: 0, lastLogTimestamp: 0, unlockedTools: [] };
-  }
-  
   try {
-    const key = getStorageKey(localUuid, 'sleep-state');
+    const key = `${STORAGE_KEYS.sleepPerformanceState}-${localUuid}`;
     const stored = localStorage.getItem(key);
-    return stored ? JSON.parse(stored) : { mode: 'garrison', sleepDebt: 0, streakCount: 0, totalLogs: 0, lastLogTimestamp: 0, unlockedTools: [] };
+    return stored ? JSON.parse(stored) : {
+      mode: 'standard',
+      sleepDebt: 0,
+      consecutiveGoodNights: 0,
+      unlockedNapDurations: [10],
+    };
   } catch (error) {
     console.error('Failed to load sleep performance state:', error);
-    return { mode: 'garrison', sleepDebt: 0, streakCount: 0, totalLogs: 0, lastLogTimestamp: 0, unlockedTools: [] };
+    return {
+      mode: 'standard',
+      sleepDebt: 0,
+      consecutiveGoodNights: 0,
+      unlockedNapDurations: [10],
+    };
   }
 }
 
 export function saveSleepPerformanceState(localUuid: string, state: SleepPerformanceState): void {
-  if (typeof window === 'undefined') return;
-  
   try {
-    const key = getStorageKey(localUuid, 'sleep-state');
+    const key = `${STORAGE_KEYS.sleepPerformanceState}-${localUuid}`;
     localStorage.setItem(key, JSON.stringify(state));
   } catch (error) {
     console.error('Failed to save sleep performance state:', error);
   }
 }
 
-export function updateSleepPerformanceState(localUuid: string, updates: Partial<SleepPerformanceState>): void {
-  const current = getSleepPerformanceState(localUuid);
-  const updated = { ...current, ...updates };
-  saveSleepPerformanceState(localUuid, updated);
+export function updateSleepPerformanceState(localUuid: string, state: SleepPerformanceState): void {
+  saveSleepPerformanceState(localUuid, state);
 }
 
-// Caffeine log operations
+// Caffeine Log functions
 export function getCaffeineLogs(localUuid: string): CaffeineLog[] {
-  if (typeof window === 'undefined') return [];
-  
   try {
-    const key = getStorageKey(localUuid, 'caffeine-logs');
+    const key = `${STORAGE_KEYS.caffeineLogs}-${localUuid}`;
     const stored = localStorage.getItem(key);
     return stored ? JSON.parse(stored) : [];
   } catch (error) {
@@ -320,34 +379,71 @@ export function getCaffeineLogs(localUuid: string): CaffeineLog[] {
 }
 
 export function saveCaffeineLogs(localUuid: string, logs: CaffeineLog[]): void {
-  if (typeof window === 'undefined') return;
-  
   try {
-    const key = getStorageKey(localUuid, 'caffeine-logs');
+    const key = `${STORAGE_KEYS.caffeineLogs}-${localUuid}`;
     localStorage.setItem(key, JSON.stringify(logs));
   } catch (error) {
     console.error('Failed to save caffeine logs:', error);
   }
 }
 
-export function addCaffeineLog(localUuid: string, log: Omit<CaffeineLog, 'id' | 'timestamp'>): CaffeineLog {
+export function addCaffeineLog(localUuid: string, log: Omit<CaffeineLog, 'id'>): CaffeineLog {
   const logs = getCaffeineLogs(localUuid);
   const newLog: CaffeineLog = {
     ...log,
-    id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
-    timestamp: Date.now(),
+    id: `caffeine-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
   };
   logs.push(newLog);
   saveCaffeineLogs(localUuid, logs);
   return newLog;
 }
 
-// Personal Reports operations
-export function getPersonalReports(localUuid: string): PersonalReport[] {
-  if (typeof window === 'undefined') return [];
-  
+// Reading Progress functions
+export function getReadingProgress(localUuid: string): any {
   try {
-    const key = getStorageKey(localUuid, 'personal-reports');
+    const key = `${STORAGE_KEYS.readingProgress}-${localUuid}`;
+    const stored = localStorage.getItem(key);
+    return stored ? JSON.parse(stored) : {};
+  } catch (error) {
+    console.error('Failed to load reading progress:', error);
+    return {};
+  }
+}
+
+export function saveReadingProgress(localUuid: string, progress: any): void {
+  try {
+    const key = `${STORAGE_KEYS.readingProgress}-${localUuid}`;
+    localStorage.setItem(key, JSON.stringify(progress));
+  } catch (error) {
+    console.error('Failed to save reading progress:', error);
+  }
+}
+
+// Reading Rewards functions
+export function getReadingRewards(localUuid: string): any {
+  try {
+    const key = `${STORAGE_KEYS.readingRewards}-${localUuid}`;
+    const stored = localStorage.getItem(key);
+    return stored ? JSON.parse(stored) : { grantedBadges: [] };
+  } catch (error) {
+    console.error('Failed to load reading rewards:', error);
+    return { grantedBadges: [] };
+  }
+}
+
+export function saveReadingRewards(localUuid: string, rewards: any): void {
+  try {
+    const key = `${STORAGE_KEYS.readingRewards}-${localUuid}`;
+    localStorage.setItem(key, JSON.stringify(rewards));
+  } catch (error) {
+    console.error('Failed to save reading rewards:', error);
+  }
+}
+
+// Personal Reports functions
+export function getPersonalReports(localUuid: string): any[] {
+  try {
+    const key = `${STORAGE_KEYS.personalReports}-${localUuid}`;
     const stored = localStorage.getItem(key);
     return stored ? JSON.parse(stored) : [];
   } catch (error) {
@@ -356,36 +452,30 @@ export function getPersonalReports(localUuid: string): PersonalReport[] {
   }
 }
 
-export function savePersonalReports(localUuid: string, reports: PersonalReport[]): void {
-  if (typeof window === 'undefined') return;
-  
+export function savePersonalReports(localUuid: string, reports: any[]): void {
   try {
-    const key = getStorageKey(localUuid, 'personal-reports');
+    const key = `${STORAGE_KEYS.personalReports}-${localUuid}`;
     localStorage.setItem(key, JSON.stringify(reports));
   } catch (error) {
     console.error('Failed to save personal reports:', error);
   }
 }
 
-export function addPersonalReport(localUuid: string, input: CreateReportInput): PersonalReport {
+export function addPersonalReport(localUuid: string, report: any): any {
   const reports = getPersonalReports(localUuid);
-  const newReport: PersonalReport = {
-    id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
-    type: input.type,
-    title: input.title,
-    body: input.body,
-    metadata: input.metadata,
-    submitted: false,
+  const newReport = {
+    ...report,
+    id: `report-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+    createdAt: Date.now(),
+    isSubmitted: false,
     xpGranted: false,
-    xpAwarded: 0,
-    timestamp: Date.now(),
   };
   reports.push(newReport);
   savePersonalReports(localUuid, reports);
   return newReport;
 }
 
-export function updatePersonalReport(localUuid: string, reportId: string, updates: UpdateReportInput): void {
+export function updatePersonalReport(localUuid: string, reportId: string, updates: any): void {
   const reports = getPersonalReports(localUuid);
   const index = reports.findIndex(r => r.id === reportId);
   if (index !== -1) {
@@ -400,27 +490,29 @@ export function deletePersonalReport(localUuid: string, reportId: string): void 
   savePersonalReports(localUuid, filtered);
 }
 
-export function submitPersonalReport(localUuid: string, reportId: string, xpAwarded: number): void {
+export function submitPersonalReport(localUuid: string, reportId: string): void {
   const reports = getPersonalReports(localUuid);
   const index = reports.findIndex(r => r.id === reportId);
-  if (index !== -1 && !reports[index].xpGranted) {
-    reports[index] = {
-      ...reports[index],
-      submitted: true,
-      xpGranted: true,
-      xpAwarded,
-      submittedAt: Date.now(),
-    };
+  if (index !== -1) {
+    reports[index].isSubmitted = true;
+    reports[index].submittedAt = Date.now();
     savePersonalReports(localUuid, reports);
   }
 }
 
-// Quote Reflections operations
-export function getQuoteReflections(localUuid: string): Record<string, QuoteReflection> {
-  if (typeof window === 'undefined') return {};
-  
+export function markReportXpGranted(localUuid: string, reportId: string): void {
+  const reports = getPersonalReports(localUuid);
+  const index = reports.findIndex(r => r.id === reportId);
+  if (index !== -1) {
+    reports[index].xpGranted = true;
+    savePersonalReports(localUuid, reports);
+  }
+}
+
+// Quote Reflections functions
+export function getQuoteReflections(localUuid: string): Record<string, string> {
   try {
-    const key = getStorageKey(localUuid, 'quote-reflections');
+    const key = `${STORAGE_KEYS.quoteReflections}-${localUuid}`;
     const stored = localStorage.getItem(key);
     return stored ? JSON.parse(stored) : {};
   } catch (error) {
@@ -429,54 +521,96 @@ export function getQuoteReflections(localUuid: string): Record<string, QuoteRefl
   }
 }
 
-export function saveQuoteReflections(localUuid: string, reflections: Record<string, QuoteReflection>): void {
-  if (typeof window === 'undefined') return;
-  
+export function saveQuoteReflections(localUuid: string, reflections: Record<string, string>): void {
   try {
-    const key = getStorageKey(localUuid, 'quote-reflections');
+    const key = `${STORAGE_KEYS.quoteReflections}-${localUuid}`;
     localStorage.setItem(key, JSON.stringify(reflections));
   } catch (error) {
     console.error('Failed to save quote reflections:', error);
   }
 }
 
-export function getQuoteReflection(localUuid: string, quoteId: string): QuoteReflection | null {
+export function getQuoteReflection(localUuid: string, quoteId: string): string | null {
   const reflections = getQuoteReflections(localUuid);
   return reflections[quoteId] || null;
 }
 
 export function saveQuoteReflection(localUuid: string, quoteId: string, reflection: string): void {
   const reflections = getQuoteReflections(localUuid);
-  const now = Date.now();
-  
-  reflections[quoteId] = {
-    quoteId,
-    reflection,
-    timestamp: reflections[quoteId]?.timestamp || now,
-    lastUpdated: now,
-  };
-  
+  reflections[quoteId] = reflection;
   saveQuoteReflections(localUuid, reflections);
 }
 
-// Reset all local data for a user
-export function resetAllLocalData(localUuid: string): void {
-  if (typeof window === 'undefined') return;
-  
+// IZOF Entries functions
+export function getIzofEntries(localUuid: string): any[] {
   try {
-    localStorage.removeItem(getStorageKey(localUuid, 'journals'));
-    localStorage.removeItem(getStorageKey(localUuid, 'daily-inputs'));
-    localStorage.removeItem(getStorageKey(localUuid, 'readiness-state'));
-    localStorage.removeItem(`dagger-mission-progression-${localUuid}`);
-    localStorage.removeItem(`dagger-assessments-${localUuid}`);
-    localStorage.removeItem(getStorageKey(localUuid, 'sleep-logs'));
-    localStorage.removeItem(getStorageKey(localUuid, 'sleep-state'));
-    localStorage.removeItem(getStorageKey(localUuid, 'caffeine-logs'));
-    localStorage.removeItem(`dagger-reading-progress-${localUuid}`);
-    localStorage.removeItem(`dagger-reading-rewards-${localUuid}`);
-    localStorage.removeItem(getStorageKey(localUuid, 'personal-reports'));
-    localStorage.removeItem(getStorageKey(localUuid, 'quote-reflections'));
+    const key = `${STORAGE_KEYS.izofEntries}-${localUuid}`;
+    const stored = localStorage.getItem(key);
+    return stored ? JSON.parse(stored) : [];
   } catch (error) {
-    console.error('Failed to reset local data:', error);
+    console.error('Failed to load IZOF entries:', error);
+    return [];
   }
+}
+
+// Alias for backward compatibility
+export const getIZOFEntries = getIzofEntries;
+
+export function saveIzofEntries(localUuid: string, entries: any[]): void {
+  try {
+    const key = `${STORAGE_KEYS.izofEntries}-${localUuid}`;
+    localStorage.setItem(key, JSON.stringify(entries));
+  } catch (error) {
+    console.error('Failed to save IZOF entries:', error);
+  }
+}
+
+export function addIZOFEntry(localUuid: string, entry: any): any {
+  const entries = getIzofEntries(localUuid);
+  const newEntry = {
+    ...entry,
+    id: `izof-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+  };
+  entries.push(newEntry);
+  saveIzofEntries(localUuid, entries);
+  return newEntry;
+}
+
+export function updateIZOFEntry(localUuid: string, entryId: string, updates: any): void {
+  const entries = getIzofEntries(localUuid);
+  const index = entries.findIndex(e => e.id === entryId);
+  if (index !== -1) {
+    entries[index] = { ...entries[index], ...updates };
+    saveIzofEntries(localUuid, entries);
+  }
+}
+
+// IZOF Settings functions
+export function getIzofSettings(localUuid: string): any {
+  try {
+    const key = `${STORAGE_KEYS.izofSettings}-${localUuid}`;
+    const stored = localStorage.getItem(key);
+    return stored ? JSON.parse(stored) : { coachViewEnabled: false };
+  } catch (error) {
+    console.error('Failed to load IZOF settings:', error);
+    return { coachViewEnabled: false };
+  }
+}
+
+// Alias for backward compatibility
+export const getIZOFSettings = getIzofSettings;
+
+export function saveIzofSettings(localUuid: string, settings: any): void {
+  try {
+    const key = `${STORAGE_KEYS.izofSettings}-${localUuid}`;
+    localStorage.setItem(key, JSON.stringify(settings));
+  } catch (error) {
+    console.error('Failed to save IZOF settings:', error);
+  }
+}
+
+export function updateIZOFSettings(localUuid: string, updates: any): void {
+  const current = getIzofSettings(localUuid);
+  const updated = { ...current, ...updates };
+  saveIzofSettings(localUuid, updated);
 }

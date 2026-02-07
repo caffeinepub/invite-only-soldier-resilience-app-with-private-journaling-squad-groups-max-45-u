@@ -1,77 +1,88 @@
 {
   "kind": "build_request",
-  "title": "Convert permanent sidebar into collapsible full-width drawer with hamburger menu and scrim",
+  "title": "Fix mobile sidebar drawer to auto-close instantly on menu selection (md breakpoint)",
   "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-2",
-      "text": "Update the global AppShell layout to replace the permanent left sidebar with a mobile-first collapsible drawer that is hidden by default on all screen sizes and opened via a hamburger menu icon in the top-left of a persistent header/top bar.",
+      "id": "REQ-1",
+      "text": "Update the mobile sidebar drawer behavior (below Tailwind `md` / <=767px) so the drawer closes immediately when any sidebar menu item is clicked, without waiting for route navigation to finish, and the main content becomes fully visible and interactive (no overlap).",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-4",
-          "msg-6"
+          "msg-user-1"
         ],
         "quotes": [
-          "Change the navigation from a permanent always-visible left sidebar to a mobile-friendly collapsible drawer/sidebar.",
-          "1 collapsible"
+          "Close the sidebar immediately on click of any menu item (e.g., when user taps \"Life Lessons\" or \"Journal\"). Don't wait for navigation to finish—close right away to give instant feedback on mobile."
         ]
       },
       "acceptanceCriteria": [
-        "A header/top bar is rendered on all main screens (i.e., within AppShell) and includes a hamburger menu icon aligned to the top-left.",
-        "The navigation sidebar is not visible by default at any screen width (mobile/tablet/desktop).",
-        "Opening/closing the drawer does not break existing routing or page rendering (Dashboard, Daily Quotes, Journal, Groups, Missions, Assessments, Sleep Performance, Recommended Reading, etc.)."
+        "On screens <768px, opening the hamburger menu and tapping any nav item (e.g., Life Lessons, Journal, Dashboard, etc.) closes the drawer immediately.",
+        "After the drawer closes, the selected page content (videos/filters/search where applicable) is fully visible and clickable with no sidebar overlay blocking interaction.",
+        "Desktop behavior at >=768px remains unchanged (sidebar persistent; no auto-close requirement)."
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "text": "Ensure the mobile drawer cannot block taps or scrolling after it has been closed (e.g., prevent the off-canvas drawer element from capturing pointer events when closed, and/or only render the drawer/backdrop when open).",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-user-1"
+        ],
+        "quotes": [
+          "the sidebar menu ... stays open and overlays the main content ... This blocks the videos, filters, and search bar—users can't see or interact with the page properly."
+        ]
+      },
+      "acceptanceCriteria": [
+        "When the mobile drawer is closed, all main content areas can be scrolled and interacted with normally (no invisible overlay capturing touches/clicks).",
+        "The drawer/backdrop layering does not interfere with the header controls after closing (hamburger is usable again)."
       ]
     },
     {
       "id": "REQ-3",
-      "text": "Implement the drawer interaction behaviors: tapping the hamburger opens a full-width left-side overlay drawer; the drawer includes a close (X) control; tapping outside the drawer (on the scrim) closes it; selecting any navigation menu item navigates and automatically closes the drawer.",
+      "text": "Add/verify a semi-transparent backdrop for the mobile drawer (below `md`) that appears only when the drawer is open and closes the drawer when the user taps outside the sidebar area.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-4",
-          "msg-6"
+          "msg-user-1"
         ],
         "quotes": [
-          "When the user taps the hamburger icon, slide in the full sidebar from the left as an overlay/drawer (with a dark scrim/background fade if possible for better UX).",
-          "2 full",
-          "3 semi transparent"
+          "On mobile, make sure there's a semi-transparent backdrop when sidebar is open (so tapping outside closes it too, as a bonus UX)."
         ]
       },
       "acceptanceCriteria": [
-        "When opened, the drawer slides in from the left and occupies the full viewport width on mobile.",
-        "A semi-transparent scrim appears behind the open drawer; clicking/tapping the scrim closes the drawer.",
-        "A close (X) control is visible in the drawer (top-right) and closes the drawer when clicked/tapped.",
-        "Clicking/tapping any nav item closes the drawer and navigates to the item’s route.",
-        "The Life Lessons nav item and route path remain unchanged (\"/mental-performance/life-lessons\")."
+        "On screens <768px, opening the drawer shows a semi-transparent backdrop behind it.",
+        "Tapping the backdrop closes the drawer immediately.",
+        "On >=768px, no mobile backdrop is shown."
       ]
     },
     {
       "id": "REQ-4",
-      "text": "Ensure the main content area uses the full available width when the drawer is closed, and ensure drawer/scrim layering (z-index/positioning) does not cause overlap glitches or prevent main content scrolling when the drawer is closed.",
+      "text": "Keep existing UI/UX and features unchanged aside from the mobile drawer fix: preserve dark theme styling, icons, existing navigation labels/paths (including the Life Lessons path), and existing page functionality (video list, filters, search, etc.).",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-4"
+          "msg-user-1"
         ],
         "quotes": [
-          "Ensure the main content area expands to full width when the menu is closed."
+          "Keep all existing dark theme, icons, video list, filters, etc., unchanged."
         ]
       },
       "acceptanceCriteria": [
-        "With the drawer closed, main content spans full width (no persistent left offset such as md:ml-64).",
-        "With the drawer closed, main content scroll behavior matches current behavior (page content remains scrollable).",
-        "With the drawer open, background content is visually obscured by a semi-transparent scrim and is not accidentally clickable through the overlay."
+        "No visual/theme regressions are introduced outside of the mobile drawer open/close and backdrop behavior.",
+        "All existing navigation items and route paths remain the same (especially `/mental-performance/life-lessons`)."
       ]
     }
   ],
   "constraints": [
-    "Do not edit files under frontend/src/hooks/useInternetIdentity.ts or frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or any files in frontend/src/components/ui (compose existing UI components instead).",
-    "Respect existing navigation guardrails: the Life Lessons nav item and route path must remain unchanged."
+    "Use Tailwind's default `md` breakpoint (768px) as the cutoff: below md is mobile drawer/overlay behavior; md and above is persistent desktop sidebar behavior.",
+    "Do not edit files under frontend/src/components/ui (compose only).",
+    "Use English for any user-facing text."
   ],
   "nonGoals": [
-    "Do not add or change backend (Motoko) functionality for this navigation update.",
-    "Do not change existing route paths or the set/order of existing nav destinations beyond adapting them to the drawer UI."
+    "Do not add new sections, routes, or content features beyond the sidebar drawer behavior fix.",
+    "Do not change desktop sidebar persistence/toggle behavior beyond what is required to keep it working.",
+    "Do not redesign the app theme, icons, or layout."
   ],
   "imageRequirements": {
     "required": [],

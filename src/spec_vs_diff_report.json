@@ -1,10 +1,36 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-07T07:19:55.030Z",
-  "summary": "The diff modifies `AppShell.tsx` to introduce a persistent header with a hamburger button and a stateful drawer (`isDrawerOpen`). The truncated `AppShell.tsx` plus the provided file summary indicate a full-width slide-in drawer with scrim and close behaviors, while preserving the Life Lessons nav path. No unrequested features are clearly evidenced beyond the requested navigation update.",
-  "missing_requirements": [],
-  "hallucinated_features": [],
+  "generatedAt": "2026-02-07T20:18:08.569Z",
+  "summary": "REQ-1 appears implemented in AppShell by closing the mobile drawer immediately on nav item click before calling navigate(). Evidence for REQ-2 (no tap/scroll blocking when closed) and REQ-3 (backdrop shown only when open and tap-to-close) is not directly visible in the provided AppShell.tsx truncation; only a high-level file summary mentions it, so implementation cannot be verified from the diff excerpt. One potentially unrequested behavior change (dashboard refresh on re-clicking Dashboard) appears to be added.",
+  "missing_requirements": [
+    {
+      "id": "REQ-2",
+      "requirement": "Ensure the mobile drawer cannot block taps or scrolling after it has been closed (prevent off-canvas from capturing pointer events when closed and/or only render drawer/backdrop when open).",
+      "reason": "The diff excerpt for AppShell.tsx does not show any pointer-events management, conditional rendering/unmounting of the drawer/backdrop when closed, or z-index/layering changes that would guarantee the closed drawer/backdrop cannot intercept interactions. The file summary claims this behavior, but the code evidence is truncated before any such logic is visible.",
+      "evidence": [
+        "frontend/src/components/layout/AppShell.tsx (truncated)"
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "requirement": "Add/verify a semi-transparent backdrop for the mobile drawer (<md) that appears only when open and closes the drawer when tapped.",
+      "reason": "The provided AppShell.tsx excerpt does not show a backdrop element, its conditional rendering tied to isMobileDrawerOpen, nor an onClick handler to close the drawer when tapping outside. The file summary mentions a backdrop, but the actual code for it is not present in the visible diff excerpt.",
+      "evidence": [
+        "frontend/src/components/layout/AppShell.tsx (truncated)"
+      ]
+    }
+  ],
+  "hallucinated_features": [
+    {
+      "description": "Special handling to refresh the Dashboard when the Dashboard nav item is clicked while already on '/'.",
+      "reason": "BuildRequest focuses only on mobile drawer/backdrop behavior and explicitly lists non-goals about avoiding new content/features beyond the sidebar behavior fix. The diff introduces logic calling requestDashboardRefresh() when re-clicking the dashboard route, which is a behavioral feature unrelated to drawer auto-close/backdrop requirements.",
+      "evidence": [
+        "frontend/src/components/layout/AppShell.tsx (truncated)",
+        "frontend-file-summaries.txt (entry for frontend/src/components/layout/AppShell.tsx mentions dashboard refresh integration)"
+      ]
+    }
+  ],
   "confidence": 0.62,
   "changed_files": [
     "frontend-file-summaries.txt",

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useRouterState } from '@tanstack/react-router';
+import { Link, useRouterState, useNavigate } from '@tanstack/react-router';
 import {
   Home,
   BookOpen,
@@ -16,6 +16,9 @@ import {
   Video,
   Menu,
   X,
+  Brain,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -32,6 +35,8 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { useInternetIdentity } from '../../hooks/useInternetIdentity';
 import { useLocalProfile } from '../../hooks/useLocalProfile';
 import FieldModeToggle from '../fieldMode/FieldModeToggle';
+import BrandHeaderBanner from '../branding/BrandHeaderBanner';
+import { DashboardRefreshProvider, useDashboardRefresh } from '../../contexts/DashboardRefreshContext';
 
 interface NavItem {
   label: string;
@@ -53,6 +58,7 @@ const navItems: NavItem[] = [
   { label: 'Free Soldier Apps', path: '/mental-performance/apps', icon: Grid3x3, section: 'Mental Performance' },
   { label: 'Military Apps', path: '/tools/military-apps', icon: Shield, section: 'Mental Performance' },
   { label: 'Life Lessons', path: '/mental-performance/life-lessons', icon: Video, section: 'Mental Performance' },
+  { label: 'IZOF', path: '/mental-performance/izof', icon: Brain, section: 'Mental Performance' },
   { label: 'Personal Reports', path: '/reports', icon: FileText, section: 'Tools' },
 ];
 
@@ -60,12 +66,15 @@ interface AppShellProps {
   children: React.ReactNode;
 }
 
-export default function AppShell({ children }: AppShellProps) {
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+function AppShellContent({ children }: AppShellProps) {
+  const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
+  const [isDesktopSidebarOpen, setIsDesktopSidebarOpen] = useState(true);
   const routerState = useRouterState();
+  const navigate = useNavigate();
   const pathname = routerState.location.pathname;
   const { identity, clear } = useInternetIdentity();
   const { profile, reset } = useLocalProfile();
+  const { requestDashboardRefresh } = useDashboardRefresh();
 
   const handleLogout = async () => {
     await clear();
@@ -79,12 +88,21 @@ export default function AppShell({ children }: AppShellProps) {
     return pathname.startsWith(path);
   };
 
-  const closeDrawer = () => {
-    setIsDrawerOpen(false);
+  const closeMobileDrawer = () => {
+    setIsMobileDrawerOpen(false);
   };
 
-  const handleNavClick = () => {
-    closeDrawer();
+  const handleNavClick = (path: string) => {
+    // Close drawer immediately on mobile (below md breakpoint)
+    closeMobileDrawer();
+    
+    // Special handling for Dashboard: refresh if already on dashboard
+    if (path === '/' && pathname === '/') {
+      requestDashboardRefresh();
+    } else {
+      // Normal navigation
+      navigate({ to: path });
+    }
   };
 
   const groupedNavItems = React.useMemo(() => {
@@ -97,51 +115,118 @@ export default function AppShell({ children }: AppShellProps) {
     return groups;
   }, []);
 
+  const SidebarContent = ({ onNavClick }: { onNavClick?: (path: string) => void }) => (
+    <>
+      <ScrollArea className="flex-1 px-3 py-4">
+        <nav className="space-y-6">
+          {Object.entries(groupedNavItems).map(([section, items]) => (
+            <div key={section}>
+              {section !== 'main' && (
+                <>
+                  <Separator className="my-2" />
+                  <h3 className="px-3 mb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                    {section}
+                  </h3>
+                </>
+              )}
+              <div className="space-y-1">
+                {items.map((item) => {
+                  const Icon = item.icon;
+                  const active = isActive(item.path);
+                  return (
+                    <Button
+                      key={item.path}
+                      variant={active ? 'secondary' : 'ghost'}
+                      className="w-full justify-start"
+                      size="sm"
+                      onClick={() => onNavClick?.(item.path)}
+                      aria-current={active ? 'page' : undefined}
+                      asChild={!onNavClick}
+                    >
+                      {onNavClick ? (
+                        <>
+                          <Icon className="mr-2 h-4 w-4" />
+                          {item.label}
+                        </>
+                      ) : (
+                        <Link to={item.path}>
+                          <Icon className="mr-2 h-4 w-4" />
+                          {item.label}
+                        </Link>
+                      )}
+                    </Button>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </nav>
+      </ScrollArea>
+
+      <div className="p-3 border-t relative z-50">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="w-full justify-start px-2">
+              <Avatar className="h-8 w-8 mr-2">
+                <AvatarFallback className="bg-primary text-primary-foreground text-xs">
+                  {profile?.displayName?.charAt(0).toUpperCase() || 'U'}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1 text-left overflow-hidden">
+                <p className="text-sm font-medium truncate">
+                  {profile?.displayName || 'User'}
+                </p>
+                <p className="text-xs text-muted-foreground truncate">
+                  {identity ? 'Authenticated' : 'Local Profile'}
+                </p>
+              </div>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56 z-[1000]">
+            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <Link to="/settings" onClick={() => onNavClick?.('/settings')}>
+                <Settings className="mr-2 h-4 w-4" />
+                Settings
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link to="/guidelines" onClick={() => onNavClick?.('/guidelines')}>
+                <FileText className="mr-2 h-4 w-4" />
+                Guidelines
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem>
+              <FieldModeToggle />
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            {identity && (
+              <DropdownMenuItem onClick={handleLogout}>
+                Logout
+              </DropdownMenuItem>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    </>
+  );
+
   return (
-    <div className="flex h-screen overflow-hidden flex-col">
-      {/* Fixed background layer */}
-      <div className="fixed inset-0 -z-10 bg-gradient-to-br from-background via-background to-muted/20" />
-
-      {/* Header */}
-      <header className="flex-shrink-0 h-16 bg-card/50 backdrop-blur-sm border-b flex items-center px-4 z-30">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setIsDrawerOpen(true)}
-          className="mr-4"
-          aria-label="Open menu"
-        >
-          <Menu className="h-6 w-6" />
-        </Button>
-        <Link to="/" className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-            <Shield className="h-5 w-5 text-primary-foreground" />
-          </div>
-          <div>
-            <h1 className="font-bold text-base leading-tight">Dagger H2F</h1>
-            <p className="text-xs text-muted-foreground hidden sm:block">Mental & Sleep</p>
-          </div>
-        </Link>
-      </header>
-
-      {/* Drawer Overlay (Scrim) */}
-      {isDrawerOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 z-40 transition-opacity"
-          onClick={closeDrawer}
-          aria-hidden="true"
-        />
-      )}
-
-      {/* Drawer */}
+    <div className="flex h-screen overflow-hidden">
+      {/* Desktop Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 w-full bg-card backdrop-blur-sm border-r z-50 flex flex-col transform transition-transform duration-300 ${
-          isDrawerOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}
+        className={`hidden md:flex flex-col bg-card border-r transition-all duration-300 flex-shrink-0 ${
+          isDesktopSidebarOpen ? 'w-64' : 'w-0'
+        } ${isDesktopSidebarOpen ? '' : 'overflow-hidden'}`}
       >
-        {/* Drawer Header */}
-        <div className="p-6 border-b flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-3" onClick={handleNavClick}>
+        <div className="p-6 border-b flex items-center justify-between flex-shrink-0">
+          <Button
+            variant="ghost"
+            className="flex items-center gap-3 hover:bg-transparent p-0"
+            onClick={() => handleNavClick('/')}
+          >
             <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
               <Shield className="h-6 w-6 text-primary-foreground" />
             </div>
@@ -149,107 +234,121 @@ export default function AppShell({ children }: AppShellProps) {
               <h1 className="font-bold text-lg leading-tight">Dagger H2F</h1>
               <p className="text-xs text-muted-foreground">Mental & Sleep</p>
             </div>
-          </Link>
+          </Button>
+        </div>
+        <SidebarContent />
+      </aside>
+
+      {/* Main Content Area */}
+      <div className="flex flex-col flex-1 overflow-hidden">
+        {/* Header */}
+        <header className="flex-shrink-0 h-16 bg-card/50 backdrop-blur-sm border-b flex items-center px-4 z-30">
+          {/* Mobile Menu Button */}
           <Button
             variant="ghost"
             size="icon"
-            onClick={closeDrawer}
+            onClick={() => setIsMobileDrawerOpen(true)}
+            className="mr-4 md:hidden"
+            aria-label="Open menu"
+          >
+            <Menu className="h-6 w-6" />
+          </Button>
+
+          {/* Desktop Sidebar Toggle */}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setIsDesktopSidebarOpen(!isDesktopSidebarOpen)}
+            className="mr-4 hidden md:flex"
+            aria-label={isDesktopSidebarOpen ? 'Hide Sidebar' : 'Show Sidebar'}
+          >
+            {isDesktopSidebarOpen ? (
+              <ChevronLeft className="h-6 w-6" />
+            ) : (
+              <ChevronRight className="h-6 w-6" />
+            )}
+          </Button>
+
+          <Button
+            variant="ghost"
+            className="flex items-center gap-3 hover:bg-transparent p-0"
+            onClick={() => handleNavClick('/')}
+          >
+            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+              <Shield className="h-5 w-5 text-primary-foreground" />
+            </div>
+            <div>
+              <h1 className="font-bold text-base leading-tight">Dagger H2F</h1>
+              <p className="text-xs text-muted-foreground hidden sm:block">Mental & Sleep</p>
+            </div>
+          </Button>
+
+          {/* Desktop Sidebar Toggle Text Button */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setIsDesktopSidebarOpen(!isDesktopSidebarOpen)}
+            className="ml-auto hidden md:flex"
+          >
+            {isDesktopSidebarOpen ? 'Hide Sidebar' : 'Show Sidebar'}
+          </Button>
+        </header>
+
+        {/* Main Content - Scrollable */}
+        <main className="flex-1 overflow-y-auto z-10">
+          <BrandHeaderBanner />
+          {children}
+        </main>
+      </div>
+
+      {/* Mobile Drawer Overlay - only rendered when open, below md breakpoint */}
+      {isMobileDrawerOpen && (
+        <div
+          className="fixed inset-0 bg-black/60 z-40 md:hidden"
+          onClick={closeMobileDrawer}
+          aria-hidden="true"
+        />
+      )}
+
+      {/* Mobile Drawer - only below md breakpoint */}
+      <aside
+        className={`fixed inset-y-0 left-0 w-80 max-w-[85vw] bg-card border-r z-50 flex flex-col transform transition-transform duration-300 md:hidden ${
+          isMobileDrawerOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
+      >
+        <div className="p-6 border-b flex items-center justify-between">
+          <Button
+            variant="ghost"
+            className="flex items-center gap-3 hover:bg-transparent p-0"
+            onClick={() => handleNavClick('/')}
+          >
+            <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
+              <Shield className="h-6 w-6 text-primary-foreground" />
+            </div>
+            <div>
+              <h1 className="font-bold text-lg leading-tight">Dagger H2F</h1>
+              <p className="text-xs text-muted-foreground">Mental & Sleep</p>
+            </div>
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={closeMobileDrawer}
             aria-label="Close menu"
           >
             <X className="h-6 w-6" />
           </Button>
         </div>
-
-        {/* Navigation */}
-        <ScrollArea className="flex-1 px-3 py-4">
-          <nav className="space-y-6">
-            {Object.entries(groupedNavItems).map(([section, items]) => (
-              <div key={section}>
-                {section !== 'main' && (
-                  <>
-                    <Separator className="my-2" />
-                    <h3 className="px-3 mb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                      {section}
-                    </h3>
-                  </>
-                )}
-                <div className="space-y-1">
-                  {items.map((item) => {
-                    const Icon = item.icon;
-                    const active = isActive(item.path);
-                    return (
-                      <Link key={item.path} to={item.path} onClick={handleNavClick}>
-                        <Button
-                          variant={active ? 'secondary' : 'ghost'}
-                          className="w-full justify-start"
-                          size="sm"
-                        >
-                          <Icon className="mr-2 h-4 w-4" />
-                          {item.label}
-                        </Button>
-                      </Link>
-                    );
-                  })}
-                </div>
-              </div>
-            ))}
-          </nav>
-        </ScrollArea>
-
-        {/* User Menu */}
-        <div className="p-3 border-t">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="w-full justify-start px-2">
-                <Avatar className="h-8 w-8 mr-2">
-                  <AvatarFallback className="bg-primary text-primary-foreground text-xs">
-                    {profile?.displayName?.charAt(0).toUpperCase() || 'U'}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex-1 text-left overflow-hidden">
-                  <p className="text-sm font-medium truncate">
-                    {profile?.displayName || 'User'}
-                  </p>
-                  <p className="text-xs text-muted-foreground truncate">
-                    {identity ? 'Authenticated' : 'Local Profile'}
-                  </p>
-                </div>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Link to="/settings" onClick={handleNavClick}>
-                  <Settings className="mr-2 h-4 w-4" />
-                  Settings
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to="/guidelines" onClick={handleNavClick}>
-                  <FileText className="mr-2 h-4 w-4" />
-                  Guidelines
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <FieldModeToggle />
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              {identity && (
-                <DropdownMenuItem onClick={handleLogout}>
-                  Logout
-                </DropdownMenuItem>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+        <SidebarContent onNavClick={handleNavClick} />
       </aside>
-
-      {/* Main Content */}
-      <main className="flex-1 overflow-auto">
-        {children}
-      </main>
     </div>
+  );
+}
+
+export default function AppShell({ children }: AppShellProps) {
+  return (
+    <DashboardRefreshProvider>
+      <AppShellContent>{children}</AppShellContent>
+    </DashboardRefreshProvider>
   );
 }
