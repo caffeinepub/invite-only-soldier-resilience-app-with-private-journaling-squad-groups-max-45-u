@@ -1,22 +1,60 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Replace placeholder Motivational Life Lessons videos with playable YouTube links",
+  "title": "Collapsible full-width drawer navigation with hamburger header and scrim",
   "requirements": [
     {
-      "id": "REQ-1",
-      "summary": "Replace every placeholder YouTube URL in the Motivational Life Lessons dataset with a real, playable YouTube URL and a matching max-res thumbnail URL while preserving all existing ids and category tags.",
+      "id": "REQ-2",
+      "summary": "Replace the permanent left sidebar with an AppShell header + hamburger-triggered overlay drawer that is hidden by default on all screen sizes.",
       "acceptanceCriteria": [
-        "In `frontend/src/content/mentalPerformance/motivationalLifeLessonsVideos.ts`, there are no `youtubeUrl` values containing `placeholder`.",
-        "In the Motivational Life Lessons page, no video cards show the \"Coming Soon\" overlay (which is currently triggered by `video.youtubeUrl.includes('placeholder')`).",
-        "Clicking any video card in the Motivational Life Lessons page opens the player dialog and shows an embedded YouTube video (not the \"Video unavailable\" fallback).",
-        "For each updated video, the thumbnail loads successfully and matches the YouTube video ID used in the `youtubeUrl` (i.e., `thumbnailUrl` uses the same `<VIDEO_ID>`)."
+        "A header/top bar is rendered on all main screens (i.e., within AppShell) and includes a hamburger menu icon aligned to the top-left.",
+        "The navigation sidebar is not visible by default at any screen width (mobile/tablet/desktop).",
+        "Opening/closing the drawer does not break existing routing or page rendering (Dashboard, Daily Quotes, Journal, Groups, Missions, Assessments, Sleep Performance, Recommended Reading, etc.)."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/content/mentalPerformance/motivationalLifeLessonsVideos.ts",
+          "path": "frontend/src/components/layout/AppShell.tsx",
           "operation": "modify",
-          "description": "For every `MotivationalVideo` entry where `youtubeUrl` contains the substring `placeholder`, manually search YouTube for the correct matching video and replace only: (1) `youtubeUrl` with the real `youtube.com/watch?v=...` or `youtu.be/...` URL, and (2) `thumbnailUrl` with `https://img.youtube.com/vi/<VIDEO_ID>/maxresdefault.jpg` where `<VIDEO_ID>` matches the updated `youtubeUrl`. Do not change any existing `id` values, category tags, or non-URL copy."
+          "description": "Refactor AppShell to render a persistent header/top bar with a top-left hamburger control, and move the existing navigation + brand + user menu content into a hidden-by-default overlay drawer (no permanent sidebar on any breakpoint). Keep existing nav item list and route paths unchanged (especially Life Lessons). Use existing shadcn/ui primitives already imported (Button, ScrollArea, DropdownMenu, etc.) to compose the UI; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Verify AppShell remains the root layout wrapper for all existing routes so the new persistent header is present across main screens and routing remains unchanged. No route path changes; Life Lessons path must remain \"/mental-performance/life-lessons\"."
+        }
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "summary": "Implement drawer interactions: full-width slide-in overlay, scrim click-to-close, explicit close (X), and auto-close on nav selection while navigating.",
+      "acceptanceCriteria": [
+        "When opened, the drawer slides in from the left and occupies the full viewport width on mobile.",
+        "A semi-transparent scrim appears behind the open drawer; clicking/tapping the scrim closes the drawer.",
+        "A close (X) control is visible in the drawer (top-right) and closes the drawer when clicked/tapped.",
+        "Clicking/tapping any nav item closes the drawer and navigates to the item’s route.",
+        "The Life Lessons nav item and route path remain unchanged (\"/mental-performance/life-lessons\")."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/layout/AppShell.tsx",
+          "operation": "modify",
+          "description": "Add drawer open/close state and implement interaction behaviors: hamburger opens; X closes; scrim closes on click/tap; selecting any nav Link closes the drawer after triggering navigation. Implement left-side slide-in animation and scrim layering using Tailwind utility classes and existing structure. Ensure Life Lessons item continues to use path \"/mental-performance/life-lessons\". Use existing shadcn/ui components (Button, ScrollArea, Separator, DropdownMenu) for controls; verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "summary": "Ensure full-width main content when the drawer is closed and correct overlay layering/scroll behavior when open/closed.",
+      "acceptanceCriteria": [
+        "With the drawer closed, main content spans full width (no persistent left offset such as md:ml-64).",
+        "With the drawer closed, main content scroll behavior matches current behavior (page content remains scrollable).",
+        "With the drawer open, background content is visually obscured by a semi-transparent scrim and is not accidentally clickable through the overlay."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/layout/AppShell.tsx",
+          "operation": "modify",
+          "description": "Remove any persistent main-content left offset tied to the old sidebar (e.g., md:ml-64) so content uses full width when the drawer is closed. Ensure drawer + scrim use fixed positioning and z-index so overlay sits above header/content when open, and scrim intercepts pointer events. Preserve existing scroll behavior when closed; optionally lock background scroll only while drawer is open to avoid accidental interactions. Compose using existing shadcn/ui building blocks (Button/ScrollArea/etc.); verify the component's usage instructions before implementing."
         }
       ]
     }

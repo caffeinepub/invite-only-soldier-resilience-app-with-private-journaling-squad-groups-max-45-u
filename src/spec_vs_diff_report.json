@@ -1,54 +1,14 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-07T04:02:58.626Z",
-  "summary": "The diff updates the motivational video dataset with real YouTube URLs/thumbnails for at least several entries, but the dataset file is truncated so it’s not possible to verify that *all* placeholder URLs were removed. Several unrelated frontend pages/state summary files were also modified, which were not requested.",
-  "missing_requirements": [
-    {
-      "id": "REQ-1",
-      "requirement": "Ensure every MotivationalVideo entry whose youtubeUrl contains the substring 'placeholder' is updated to a real playable YouTube URL, and its thumbnailUrl is updated to https://img.youtube.com/vi/<VIDEO_ID>/maxresdefault.jpg using the same extracted VIDEO_ID; no youtubeUrl values contain 'placeholder' afterward.",
-      "reason": "The only required change is in frontend/src/content/mentalPerformance/motivationalLifeLessonsVideos.ts, but the diff for this file is truncated; it shows some entries updated to real YouTube URLs, but does not provide enough evidence that *all* placeholder URLs throughout the dataset were replaced and that none remain.",
-      "evidence": [
-        "frontend/src/content/mentalPerformance/motivationalLifeLessonsVideos.ts (truncated)"
-      ]
-    }
-  ],
-  "hallucinated_features": [
-    {
-      "description": "Edits to the Motivational Life Lessons page component (filtering/grouping/UI logic changes) beyond updating the static dataset URLs.",
-      "reason": "REQ-1 only requests replacing placeholder URLs in the dataset file; no page-level changes were requested.",
-      "evidence": [
-        "frontend/src/pages/MotivationalLifeLessons.tsx (truncated)"
-      ]
-    },
-    {
-      "description": "Edits to the Reports page (personal reports UI/logic).",
-      "reason": "The BuildRequest is only about replacing placeholder motivational video URLs; it does not request changes to the reports feature.",
-      "evidence": [
-        "frontend/src/pages/Reports.tsx (truncated)"
-      ]
-    },
-    {
-      "description": "Updates to a repo-wide frontend file summary document.",
-      "reason": "Not requested by REQ-1; appears unrelated to replacing placeholder video links.",
-      "evidence": [
-        "frontend-file-summaries.txt (truncated)"
-      ]
-    },
-    {
-      "description": "Updates to project_state.json (tracking feature request status/metadata).",
-      "reason": "Not requested by REQ-1; unrelated to implementing dataset URL changes in the frontend.",
-      "evidence": [
-        "project_state.json"
-      ]
-    }
-  ],
-  "confidence": 0.64,
+  "generatedAt": "2026-02-07T07:19:55.030Z",
+  "summary": "The diff modifies `AppShell.tsx` to introduce a persistent header with a hamburger button and a stateful drawer (`isDrawerOpen`). The truncated `AppShell.tsx` plus the provided file summary indicate a full-width slide-in drawer with scrim and close behaviors, while preserving the Life Lessons nav path. No unrequested features are clearly evidenced beyond the requested navigation update.",
+  "missing_requirements": [],
+  "hallucinated_features": [],
+  "confidence": 0.62,
   "changed_files": [
     "frontend-file-summaries.txt",
-    "frontend/src/content/mentalPerformance/motivationalLifeLessonsVideos.ts",
-    "frontend/src/pages/MotivationalLifeLessons.tsx",
-    "frontend/src/pages/Reports.tsx",
+    "frontend/src/components/layout/AppShell.tsx",
     "project_state.json"
   ]
 }

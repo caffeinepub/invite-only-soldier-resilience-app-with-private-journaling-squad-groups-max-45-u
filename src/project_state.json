@@ -1,18 +1,34 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "New project",
+  "summary": "Mobile-first navigation update: replace permanent left sidebar with a collapsible full-width drawer opened via a hamburger icon, with semi-transparent scrim and auto-close behaviors; drawer remains collapsible on all screen sizes.",
   "architectural_notes": [
-    "Add a process/integration to resolve missing 'coming soon' videos to playable YouTube URLs (e.g., via YouTube search) and store those links in the app's video metadata."
+    "Navigation drawer behavior decisions: collapsible on all screen sizes; full-width drawer on mobile; semi-transparent scrim behind open drawer; close on outside tap, close icon, or navigation selection."
   ],
   "known_issues": [],
   "isFixRequest": false,
   "existing_features": [
     {
-      "id": "feature-update-the-motivational-life-lessons-video-dataset-so-that-every-video-currently-labeled-coming-soon-has-a-real-playable-youtube-url-and-matching-thumbnail-url-specifically-in-frontend-src-content-mentalperformance-motivationallifelessonsvideos-ts-find-every-motivationalvideo-entry-where-youtubeurl-contains-the-substring-placeholder-these-are-rendered-as-coming-soon-in-frontend-src-components-mentalperformance-motivationalvideocard-tsx-and-for-each-one-search-youtube-for-the-correct-video-and-replace-youtubeurl-with-the-real-youtube-watch-url-or-youtu-be-url-thumbnailurl-with-the-correct-https-img-youtube-com-vi-video-id-maxresdefault-jpg-using-the-actual-video-id-extracted-from-the-new-url-do-not-change-the-existing-id-values-or-category-tags-only-replace-placeholder-urls-with-real-ones-so-the-ui-no-longer-blocks-playback-and-the-dialog-embed-works-for-all-videos",
-      "title": "Update the Motivational Life Lessons video dataset so that every video currently labeled \"Coming Soon\" has a real, playable YouTube URL and matching thumbnail URL. Specifically, in `frontend/src/content/mentalPerformance/motivationalLifeLessonsVideos.ts`, find every `MotivationalVideo` entry where `youtubeUrl` contains the substring `placeholder` (these are rendered as \"Coming Soon\" in `frontend/src/components/mentalPerformance/MotivationalVideoCard.tsx`) and, for each one, search YouTube for the correct video and replace:\n- `youtubeUrl` with the real YouTube watch URL (or youtu.be URL)\n- `thumbnailUrl` with the correct `https://img.youtube.com/vi/<VIDEO_ID>/maxresdefault.jpg` using the actual video ID extracted from the new URL\n\nDo not change the existing `id` values or category tags; only replace placeholder URLs with real ones so the UI no longer blocks playback and the dialog embed works for all videos.",
+      "id": "feature-update-the-global-appshell-layout-to-replace-the-permanent-left-sidebar-with-a-mobile-first-collapsible-drawer-that-is-hidden-by-default-on-all-screen-sizes-and-opened-via-a-hamburger-menu-icon-in-the-top-left-of-a-persistent-header-top-bar",
+      "title": "Update the global AppShell layout to replace the permanent left sidebar with a mobile-first collapsible drawer that is hidden by default on all screen sizes and opened via a hamburger menu icon in the top-left of a persistent header/top bar.",
       "reqIds": [
-        "REQ-1"
+        "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-the-drawer-interaction-behaviors-tapping-the-hamburger-opens-a-full-width-left-side-overlay-drawer-the-drawer-includes-a-close-x-control-tapping-outside-the-drawer-on-the-scrim-closes-it-selecting-any-navigation-menu-item-navigates-and-automatically-closes-the-drawer",
+      "title": "Implement the drawer interaction behaviors: tapping the hamburger opens a full-width left-side overlay drawer; the drawer includes a close (X) control; tapping outside the drawer (on the scrim) closes it; selecting any navigation menu item navigates and automatically closes the drawer.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-ensure-the-main-content-area-uses-the-full-available-width-when-the-drawer-is-closed-and-ensure-drawer-scrim-layering-z-index-positioning-does-not-cause-overlap-glitches-or-prevent-main-content-scrolling-when-the-drawer-is-closed",
+      "title": "Ensure the main content area uses the full available width when the drawer is closed, and ensure drawer/scrim layering (z-index/positioning) does not cause overlap glitches or prevent main content scrolling when the drawer is closed.",
+      "reqIds": [
+        "REQ-4"
       ],
       "version": 1
     }
@@ -20,12 +36,12 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "For each video marked 'coming soon', find the corresponding YouTube link and attach it so all videos are playable",
+      "summary": "Replace permanent left sidebar with a mobile-friendly collapsible drawer: hamburger icon on all main screens; sidebar hidden by default; full-width slide-in overlay from left with semi-transparent scrim; close on outside tap, close icon, or menu selection; main content expands to full width; drawer remains collapsible on all screen sizes.",
       "reqIds": [],
       "status": "pending"
     }
   ],
-  "projectName": "Replace 'Coming Soon' motivational videos with real YouTube links so all videos play",
+  "projectName": "Convert permanent sidebar into collapsible full-width drawer with hamburger menu and scrim",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

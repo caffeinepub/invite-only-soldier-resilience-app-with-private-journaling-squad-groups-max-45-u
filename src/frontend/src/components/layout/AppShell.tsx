@@ -1,209 +1,255 @@
-import { Outlet, useNavigate, useLocation } from '@tanstack/react-router';
-import { useLocalProfile } from '../../hooks/useLocalProfile';
-import { useFieldMode } from '../../hooks/useFieldMode';
+import React, { useState } from 'react';
+import { Link, useRouterState } from '@tanstack/react-router';
+import {
+  Home,
+  BookOpen,
+  Users,
+  Target,
+  ClipboardList,
+  Moon,
+  BookMarked,
+  Grid3x3,
+  Shield,
+  FileText,
+  Settings,
+  Quote,
+  Video,
+  Menu,
+  X,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Separator } from '@/components/ui/separator';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuTrigger
+  DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Home, BookOpen, Users, Target, Settings, AlertCircle, Menu, User, RotateCcw, Brain, Moon, Library, Smartphone, Wrench, Video, FileText, Quote } from 'lucide-react';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { useState } from 'react';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { useInternetIdentity } from '../../hooks/useInternetIdentity';
+import { useLocalProfile } from '../../hooks/useLocalProfile';
 import FieldModeToggle from '../fieldMode/FieldModeToggle';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { resetAllLocalData } from '../../utils/localDataStore';
 
-interface AppShellProps {
-  onShowOnboarding: () => void;
-  needsOnboarding: boolean;
+interface NavItem {
+  label: string;
+  path: string;
+  icon: React.ComponentType<{ className?: string }>;
+  section?: string;
 }
 
-export default function AppShell({ onShowOnboarding, needsOnboarding }: AppShellProps) {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const { displayName, profile, reset } = useLocalProfile();
-  const { isFieldMode } = useFieldMode();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [showResetDialog, setShowResetDialog] = useState(false);
+// GUARDRAIL: Life Lessons nav item and path must remain unchanged
+const navItems: NavItem[] = [
+  { label: 'Dashboard', path: '/', icon: Home },
+  { label: 'Daily Quotes', path: '/quotes', icon: Quote },
+  { label: 'Journal', path: '/journal', icon: BookOpen },
+  { label: 'Groups', path: '/groups', icon: Users },
+  { label: 'Missions', path: '/modules', icon: Target },
+  { label: 'Assessments', path: '/assessments', icon: ClipboardList },
+  { label: 'Sleep Performance', path: '/sleep', icon: Moon, section: 'Performance' },
+  { label: 'Recommended Reading', path: '/mental-performance/reading', icon: BookMarked, section: 'Mental Performance' },
+  { label: 'Free Soldier Apps', path: '/mental-performance/apps', icon: Grid3x3, section: 'Mental Performance' },
+  { label: 'Military Apps', path: '/tools/military-apps', icon: Shield, section: 'Mental Performance' },
+  { label: 'Life Lessons', path: '/mental-performance/life-lessons', icon: Video, section: 'Mental Performance' },
+  { label: 'Personal Reports', path: '/reports', icon: FileText, section: 'Tools' },
+];
 
-  const handleResetData = () => {
-    resetAllLocalData(profile.localUuid);
+interface AppShellProps {
+  children: React.ReactNode;
+}
+
+export default function AppShell({ children }: AppShellProps) {
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const routerState = useRouterState();
+  const pathname = routerState.location.pathname;
+  const { identity, clear } = useInternetIdentity();
+  const { profile, reset } = useLocalProfile();
+
+  const handleLogout = async () => {
+    await clear();
     reset();
-    setShowResetDialog(false);
-    navigate({ to: '/' });
   };
 
-  const navItems = [
-    { path: '/', label: 'Dashboard', icon: Home },
-    { path: '/sleep', label: 'Sleep Performance', icon: Moon },
-    { path: '/journal', label: 'Journal', icon: BookOpen },
-    { path: '/groups', label: 'Groups', icon: Users },
-    { path: '/modules', label: 'Missions', icon: Target },
-    { path: '/assessments', label: 'Assessments', icon: Brain },
-    { path: '/quotes', label: 'Daily Quotes', icon: Quote },
-    { path: '/mental-performance/reading', label: 'Reading', icon: Library },
-    { path: '/mental-performance/apps', label: 'Free Apps', icon: Smartphone },
-    { path: '/mental-performance/life-lessons', label: 'Life Lessons', icon: Video },
-    { path: '/tools/military-apps', label: 'Military Apps', icon: Wrench },
-    { path: '/reports', label: 'Reports', icon: FileText }
-  ];
+  const isActive = (path: string) => {
+    if (path === '/') {
+      return pathname === '/';
+    }
+    return pathname.startsWith(path);
+  };
 
-  const NavLinks = ({ mobile = false }: { mobile?: boolean }) => (
-    <>
-      {navItems.map((item) => {
-        const Icon = item.icon;
-        const isActive = location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path + '/'));
-        return (
-          <Button
-            key={item.path}
-            variant={isActive ? 'secondary' : 'ghost'}
-            className={mobile ? 'w-full justify-start' : ''}
-            onClick={() => {
-              navigate({ to: item.path });
-              if (mobile) setMobileMenuOpen(false);
-            }}
-          >
-            <Icon className="h-4 w-4 mr-2" />
-            {item.label}
-          </Button>
-        );
-      })}
-    </>
-  );
+  const closeDrawer = () => {
+    setIsDrawerOpen(false);
+  };
+
+  const handleNavClick = () => {
+    closeDrawer();
+  };
+
+  const groupedNavItems = React.useMemo(() => {
+    const groups: Record<string, NavItem[]> = { main: [] };
+    navItems.forEach((item) => {
+      const section = item.section || 'main';
+      if (!groups[section]) groups[section] = [];
+      groups[section].push(item);
+    });
+    return groups;
+  }, []);
 
   return (
-    <div className={`flex min-h-screen flex-col ${isFieldMode ? 'field-mode' : ''}`}>
+    <div className="flex h-screen overflow-hidden flex-col">
       {/* Fixed background layer */}
-      <div className="app-background-layer" />
-      
-      {/* Content wrapper with relative positioning */}
-      <div className="relative z-10 flex min-h-screen flex-col">
-        <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-          <div className="container flex h-16 items-center justify-between">
-            <div className="flex items-center gap-6">
-              <button
-                onClick={() => navigate({ to: '/' })}
-                className="flex items-center gap-2 font-semibold text-lg hover:opacity-80 transition-opacity"
-              >
-                <img
-                  src="/assets/generated/dagger-icon-mark.dim_256x256.png"
-                  alt="DAGGER"
-                  className="h-8 w-8 object-contain"
-                />
-                <span className="hidden sm:inline">Dagger H2F Mental and Sleep Performance</span>
-              </button>
+      <div className="fixed inset-0 -z-10 bg-gradient-to-br from-background via-background to-muted/20" />
 
-              <nav className="hidden md:flex items-center gap-2">
-                <NavLinks />
-              </nav>
+      {/* Header */}
+      <header className="flex-shrink-0 h-16 bg-card/50 backdrop-blur-sm border-b flex items-center px-4 z-30">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setIsDrawerOpen(true)}
+          className="mr-4"
+          aria-label="Open menu"
+        >
+          <Menu className="h-6 w-6" />
+        </Button>
+        <Link to="/" className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+            <Shield className="h-5 w-5 text-primary-foreground" />
+          </div>
+          <div>
+            <h1 className="font-bold text-base leading-tight">Dagger H2F</h1>
+            <p className="text-xs text-muted-foreground hidden sm:block">Mental & Sleep</p>
+          </div>
+        </Link>
+      </header>
+
+      {/* Drawer Overlay (Scrim) */}
+      {isDrawerOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 transition-opacity"
+          onClick={closeDrawer}
+          aria-hidden="true"
+        />
+      )}
+
+      {/* Drawer */}
+      <aside
+        className={`fixed inset-y-0 left-0 w-full bg-card backdrop-blur-sm border-r z-50 flex flex-col transform transition-transform duration-300 ${
+          isDrawerOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
+      >
+        {/* Drawer Header */}
+        <div className="p-6 border-b flex items-center justify-between">
+          <Link to="/" className="flex items-center gap-3" onClick={handleNavClick}>
+            <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
+              <Shield className="h-6 w-6 text-primary-foreground" />
             </div>
+            <div>
+              <h1 className="font-bold text-lg leading-tight">Dagger H2F</h1>
+              <p className="text-xs text-muted-foreground">Mental & Sleep</p>
+            </div>
+          </Link>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={closeDrawer}
+            aria-label="Close menu"
+          >
+            <X className="h-6 w-6" />
+          </Button>
+        </div>
 
-            <div className="flex items-center gap-4">
-              <div className="hidden md:block">
-                <FieldModeToggle />
+        {/* Navigation */}
+        <ScrollArea className="flex-1 px-3 py-4">
+          <nav className="space-y-6">
+            {Object.entries(groupedNavItems).map(([section, items]) => (
+              <div key={section}>
+                {section !== 'main' && (
+                  <>
+                    <Separator className="my-2" />
+                    <h3 className="px-3 mb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                      {section}
+                    </h3>
+                  </>
+                )}
+                <div className="space-y-1">
+                  {items.map((item) => {
+                    const Icon = item.icon;
+                    const active = isActive(item.path);
+                    return (
+                      <Link key={item.path} to={item.path} onClick={handleNavClick}>
+                        <Button
+                          variant={active ? 'secondary' : 'ghost'}
+                          className="w-full justify-start"
+                          size="sm"
+                        >
+                          <Icon className="mr-2 h-4 w-4" />
+                          {item.label}
+                        </Button>
+                      </Link>
+                    );
+                  })}
+                </div>
               </div>
+            ))}
+          </nav>
+        </ScrollArea>
 
-              <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-                <SheetTrigger asChild className="md:hidden">
-                  <Button variant="ghost" size="icon">
-                    <Menu className="h-5 w-5" />
-                  </Button>
-                </SheetTrigger>
-                <SheetContent side="left">
-                  <div className="flex flex-col gap-4 mt-8">
-                    <NavLinks mobile />
-                    <div className="pt-4 border-t">
-                      <FieldModeToggle />
-                    </div>
-                  </div>
-                </SheetContent>
-              </Sheet>
+        {/* User Menu */}
+        <div className="p-3 border-t">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="w-full justify-start px-2">
+                <Avatar className="h-8 w-8 mr-2">
+                  <AvatarFallback className="bg-primary text-primary-foreground text-xs">
+                    {profile?.displayName?.charAt(0).toUpperCase() || 'U'}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1 text-left overflow-hidden">
+                  <p className="text-sm font-medium truncate">
+                    {profile?.displayName || 'User'}
+                  </p>
+                  <p className="text-xs text-muted-foreground truncate">
+                    {identity ? 'Authenticated' : 'Local Profile'}
+                  </p>
+                </div>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link to="/settings" onClick={handleNavClick}>
+                  <Settings className="mr-2 h-4 w-4" />
+                  Settings
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/guidelines" onClick={handleNavClick}>
+                  <FileText className="mr-2 h-4 w-4" />
+                  Guidelines
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>
+                <FieldModeToggle />
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              {identity && (
+                <DropdownMenuItem onClick={handleLogout}>
+                  Logout
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </aside>
 
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon">
-                    <User className="h-5 w-5" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <div className="px-2 py-1.5 text-sm font-medium">{displayName}</div>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => navigate({ to: '/guidelines' })}>
-                    <Target className="mr-2 h-4 w-4" />
-                    Guidelines
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate({ to: '/settings' })}>
-                    <Settings className="mr-2 h-4 w-4" />
-                    Settings & About
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => setShowResetDialog(true)} className="text-destructive">
-                    <RotateCcw className="mr-2 h-4 w-4" />
-                    Reset Local Data
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          </div>
-        </header>
-
-        {needsOnboarding && (
-          <div className="container mt-4">
-            <Alert>
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>
-                Please complete the onboarding to acknowledge the disclaimer and guidelines.{' '}
-                <button onClick={onShowOnboarding} className="underline font-medium">
-                  Complete now
-                </button>
-              </AlertDescription>
-            </Alert>
-          </div>
-        )}
-
-        <main className="flex-1">
-          <Outlet />
-        </main>
-
-        <footer className="border-t bg-muted/30 py-6 mt-12">
-          <div className="container text-center text-sm text-muted-foreground">
-            © 2026. Built with ❤️ using{' '}
-            <a href="https://caffeine.ai" target="_blank" rel="noopener noreferrer" className="hover:underline">
-              caffeine.ai
-            </a>
-          </div>
-        </footer>
-
-        <AlertDialog open={showResetDialog} onOpenChange={setShowResetDialog}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Reset All Local Data?</AlertDialogTitle>
-              <AlertDialogDescription>
-                This will permanently delete all your local data including journal entries, readiness history, and profile settings on this device. This action cannot be undone.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={handleResetData} className="bg-destructive text-destructive-foreground">
-                Reset Everything
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      </div>
+      {/* Main Content */}
+      <main className="flex-1 overflow-auto">
+        {children}
+      </main>
     </div>
   );
 }

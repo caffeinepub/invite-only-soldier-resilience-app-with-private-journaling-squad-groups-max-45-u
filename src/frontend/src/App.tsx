@@ -1,7 +1,8 @@
-import { RouterProvider, createRouter, createRootRoute, createRoute } from '@tanstack/react-router';
-import { ThemeProvider } from 'next-themes';
+import React from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Router, Route, RootRoute, RouterProvider, Outlet } from '@tanstack/react-router';
 import { Toaster } from '@/components/ui/sonner';
-import OnboardingFlow from './components/onboarding/OnboardingFlow';
+import { ThemeProvider } from 'next-themes';
 import AppShell from './components/layout/AppShell';
 import DailyDashboard from './pages/DailyDashboard';
 import Journal from './pages/Journal';
@@ -10,13 +11,10 @@ import GroupSharedEntries from './pages/GroupSharedEntries';
 import Modules from './pages/Modules';
 import MissionRun from './pages/MissionRun';
 import Assessments from './pages/Assessments';
+import AssessmentHistory from './pages/AssessmentHistory';
 import AssessmentRun from './pages/AssessmentRun';
 import AssessmentResults from './pages/AssessmentResults';
-import AssessmentHistory from './pages/AssessmentHistory';
 import AssessmentLeaderView from './pages/AssessmentLeaderView';
-import Guidelines from './pages/Guidelines';
-import SettingsAbout from './pages/SettingsAbout';
-import AdminReports from './pages/AdminReports';
 import SleepPerformanceDashboard from './pages/SleepPerformanceDashboard';
 import SleepPerformanceCheckIn from './pages/SleepPerformanceCheckIn';
 import SleepPerformanceAnalysis from './pages/SleepPerformanceAnalysis';
@@ -26,198 +24,209 @@ import FreeSoldierApps from './pages/FreeSoldierApps';
 import MilitaryApps from './pages/MilitaryApps';
 import MotivationalLifeLessons from './pages/MotivationalLifeLessons';
 import Reports from './pages/Reports';
+import Guidelines from './pages/Guidelines';
+import SettingsAbout from './pages/SettingsAbout';
+import AdminReports from './pages/AdminReports';
 import DailyQuotes from './pages/DailyQuotes';
-import { useLocalProfile } from './hooks/useLocalProfile';
-import { useState } from 'react';
 
-function RootComponent() {
-  const { needsOnboarding } = useLocalProfile();
-  const [showOnboarding, setShowOnboarding] = useState(false);
-
-  // Allow users to defer onboarding - it's not blocking
-  if (needsOnboarding && showOnboarding) {
-    return <OnboardingFlow onSkip={() => setShowOnboarding(false)} />;
-  }
-
-  return <AppShell onShowOnboarding={() => setShowOnboarding(true)} needsOnboarding={needsOnboarding} />;
-}
-
-const rootRoute = createRootRoute({
-  component: RootComponent
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5,
+      refetchOnWindowFocus: false,
+      retry: 1,
+    },
+  },
 });
 
-const dashboardRoute = createRoute({
+// Root route with AppShell layout
+const rootRoute = new RootRoute({
+  component: () => (
+    <AppShell>
+      <Outlet />
+    </AppShell>
+  ),
+});
+
+// Define all routes - GUARDRAIL: Life Lessons route path must remain unchanged
+const indexRoute = new Route({
   getParentRoute: () => rootRoute,
   path: '/',
-  component: DailyDashboard
+  component: DailyDashboard,
 });
 
-const journalRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: '/journal',
-  component: Journal
-});
-
-const groupsRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: '/groups',
-  component: Groups
-});
-
-const groupEntriesRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: '/groups/$squadId',
-  component: GroupSharedEntries
-});
-
-const modulesRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: '/modules',
-  component: Modules
-});
-
-const missionRunRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: '/modules/$missionId',
-  component: MissionRun
-});
-
-const assessmentsRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: '/assessments',
-  component: Assessments
-});
-
-const assessmentRunRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: '/assessments/run/$assessmentId',
-  component: AssessmentRun
-});
-
-const assessmentResultsRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: '/assessments/results/$resultId',
-  component: AssessmentResults
-});
-
-const assessmentHistoryRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: '/assessments/history',
-  component: AssessmentHistory
-});
-
-const assessmentLeaderViewRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: '/assessments/leader-view',
-  component: AssessmentLeaderView
-});
-
-const sleepPerformanceRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: '/sleep',
-  component: SleepPerformanceDashboard
-});
-
-const sleepCheckInRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: '/sleep/check-in',
-  component: SleepPerformanceCheckIn
-});
-
-const sleepAnalysisRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: '/sleep/analysis',
-  component: SleepPerformanceAnalysis
-});
-
-const sleepActionRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: '/sleep/action',
-  component: SleepPerformanceAction
-});
-
-const mentalPerformanceReadingRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: '/mental-performance/reading',
-  component: MentalPerformanceReading
-});
-
-const freeSoldierAppsRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: '/mental-performance/apps',
-  component: FreeSoldierApps
-});
-
-const motivationalLifeLessonsRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: '/mental-performance/life-lessons',
-  component: MotivationalLifeLessons
-});
-
-const militaryAppsRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: '/tools/military-apps',
-  component: MilitaryApps
-});
-
-const reportsRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: '/reports',
-  component: Reports
-});
-
-const quotesRoute = createRoute({
+const quotesRoute = new Route({
   getParentRoute: () => rootRoute,
   path: '/quotes',
-  component: DailyQuotes
+  component: DailyQuotes,
 });
 
-const guidelinesRoute = createRoute({
+const journalRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: '/journal',
+  component: Journal,
+});
+
+const groupsRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: '/groups',
+  component: Groups,
+});
+
+const groupDetailRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: '/groups/$groupId',
+  component: GroupSharedEntries,
+});
+
+const modulesRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: '/modules',
+  component: Modules,
+});
+
+const missionRunRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: '/modules/$missionId',
+  component: MissionRun,
+});
+
+const assessmentsRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: '/assessments',
+  component: Assessments,
+});
+
+const assessmentHistoryRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: '/assessments/history',
+  component: AssessmentHistory,
+});
+
+const assessmentRunRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: '/assessments/run/$assessmentId',
+  component: AssessmentRun,
+});
+
+const assessmentResultsRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: '/assessments/results/$resultId',
+  component: AssessmentResults,
+});
+
+const assessmentLeaderViewRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: '/assessments/leader-view',
+  component: AssessmentLeaderView,
+});
+
+const sleepRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: '/sleep',
+  component: SleepPerformanceDashboard,
+});
+
+const sleepCheckInRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: '/sleep/check-in',
+  component: SleepPerformanceCheckIn,
+});
+
+const sleepAnalysisRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: '/sleep/analysis',
+  component: SleepPerformanceAnalysis,
+});
+
+const sleepActionRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: '/sleep/action',
+  component: SleepPerformanceAction,
+});
+
+const readingRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: '/mental-performance/reading',
+  component: MentalPerformanceReading,
+});
+
+const appsRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: '/mental-performance/apps',
+  component: FreeSoldierApps,
+});
+
+const lifeLessonsRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: '/mental-performance/life-lessons',
+  component: MotivationalLifeLessons,
+});
+
+const militaryAppsRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: '/tools/military-apps',
+  component: MilitaryApps,
+});
+
+const reportsRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: '/reports',
+  component: Reports,
+});
+
+const guidelinesRoute = new Route({
   getParentRoute: () => rootRoute,
   path: '/guidelines',
-  component: Guidelines
+  component: Guidelines,
 });
 
-const settingsRoute = createRoute({
+const settingsRoute = new Route({
   getParentRoute: () => rootRoute,
   path: '/settings',
-  component: SettingsAbout
+  component: SettingsAbout,
 });
 
-const adminReportsRoute = createRoute({
+const adminReportsRoute = new Route({
   getParentRoute: () => rootRoute,
   path: '/admin/reports',
-  component: AdminReports
+  component: AdminReports,
 });
 
+// Create route tree
 const routeTree = rootRoute.addChildren([
-  dashboardRoute,
+  indexRoute,
+  quotesRoute,
   journalRoute,
   groupsRoute,
-  groupEntriesRoute,
+  groupDetailRoute,
   modulesRoute,
   missionRunRoute,
   assessmentsRoute,
+  assessmentHistoryRoute,
   assessmentRunRoute,
   assessmentResultsRoute,
-  assessmentHistoryRoute,
   assessmentLeaderViewRoute,
-  sleepPerformanceRoute,
+  sleepRoute,
   sleepCheckInRoute,
   sleepAnalysisRoute,
   sleepActionRoute,
-  mentalPerformanceReadingRoute,
-  freeSoldierAppsRoute,
-  motivationalLifeLessonsRoute,
+  readingRoute,
+  appsRoute,
+  lifeLessonsRoute,
   militaryAppsRoute,
   reportsRoute,
-  quotesRoute,
   guidelinesRoute,
   settingsRoute,
-  adminReportsRoute
+  adminReportsRoute,
 ]);
 
-const router = createRouter({ routeTree });
+// Create router instance
+const router = new Router({
+  routeTree,
+  context: { queryClient },
+  defaultPreload: 'intent',
+});
 
 declare module '@tanstack/react-router' {
   interface Register {
@@ -225,11 +234,15 @@ declare module '@tanstack/react-router' {
   }
 }
 
-export default function App() {
+function App() {
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-      <RouterProvider router={router} />
-      <Toaster />
+      <QueryClientProvider client={queryClient}>
+        <RouterProvider router={router} />
+        <Toaster />
+      </QueryClientProvider>
     </ThemeProvider>
   );
 }
+
+export default App;

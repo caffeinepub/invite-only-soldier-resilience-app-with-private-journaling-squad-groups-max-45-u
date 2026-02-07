@@ -2,10 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-update-the-motivational-life-lessons-video-dataset-so-that-every-video-currently-labeled-coming-soon-has-a-real-playable-youtube-url-and-matching-thumbnail-url-specifically-in-frontend-src-content-mentalperformance-motivationallifelessonsvideos-ts-find-every-motivationalvideo-entry-where-youtubeurl-contains-the-substring-placeholder-these-are-rendered-as-coming-soon-in-frontend-src-components-mentalperformance-motivationalvideocard-tsx-and-for-each-one-search-youtube-for-the-correct-video-and-replace-youtubeurl-with-the-real-youtube-watch-url-or-youtu-be-url-thumbnailurl-with-the-correct-https-img-youtube-com-vi-video-id-maxresdefault-jpg-using-the-actual-video-id-extracted-from-the-new-url-do-not-change-the-existing-id-values-or-category-tags-only-replace-placeholder-urls-with-real-ones-so-the-ui-no-longer-blocks-playback-and-the-dialog-embed-works-for-all-videos",
-      "featureTitle": "Update the Motivational Life Lessons video dataset so that every video currently labeled \"Coming Soon\" has a real, playable YouTube URL and matching thumbnail URL. Specifically, in `frontend/src/content/mentalPerformance/motivationalLifeLessonsVideos.ts`, find every `MotivationalVideo` entry where `youtubeUrl` contains the substring `placeholder` (these are rendered as \"Coming Soon\" in `frontend/src/components/mentalPerformance/MotivationalVideoCard.tsx`) and, for each one, search YouTube for the correct video and replace:\n- `youtubeUrl` with the real YouTube watch URL (or youtu.be URL)\n- `thumbnailUrl` with the correct `https://img.youtube.com/vi/<VIDEO_ID>/maxresdefault.jpg` using the actual video ID extracted from the new URL\n\nDo not change the existing `id` values or category tags; only replace placeholder URLs with real ones so the UI no longer blocks playback and the dialog embed works for all videos.",
+      "featureId": "feature-update-the-global-appshell-layout-to-replace-the-permanent-left-sidebar-with-a-mobile-first-collapsible-drawer-that-is-hidden-by-default-on-all-screen-sizes-and-opened-via-a-hamburger-menu-icon-in-the-top-left-of-a-persistent-header-top-bar",
+      "featureTitle": "Update the global AppShell layout to replace the permanent left sidebar with a mobile-first collapsible drawer that is hidden by default on all screen sizes and opened via a hamburger menu icon in the top-left of a persistent header/top bar.",
       "files": [
-        "frontend/src/content/mentalPerformance/motivationalLifeLessonsVideos.ts"
+        "frontend/src/components/layout/AppShell.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -16,7 +16,45 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-1"
+        "REQ-2"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-implement-the-drawer-interaction-behaviors-tapping-the-hamburger-opens-a-full-width-left-side-overlay-drawer-the-drawer-includes-a-close-x-control-tapping-outside-the-drawer-on-the-scrim-closes-it-selecting-any-navigation-menu-item-navigates-and-automatically-closes-the-drawer",
+      "featureTitle": "Implement the drawer interaction behaviors: tapping the hamburger opens a full-width left-side overlay drawer; the drawer includes a close (X) control; tapping outside the drawer (on the scrim) closes it; selecting any navigation menu item navigates and automatically closes the drawer.",
+      "files": [
+        "frontend/src/components/layout/AppShell.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-3"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-ensure-the-main-content-area-uses-the-full-available-width-when-the-drawer-is-closed-and-ensure-drawer-scrim-layering-z-index-positioning-does-not-cause-overlap-glitches-or-prevent-main-content-scrolling-when-the-drawer-is-closed",
+      "featureTitle": "Ensure the main content area uses the full available width when the drawer is closed, and ensure drawer/scrim layering (z-index/positioning) does not cause overlap glitches or prevent main content scrolling when the drawer is closed.",
+      "files": [
+        "frontend/src/components/layout/AppShell.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-4"
       ],
       "confidence": "high"
     }

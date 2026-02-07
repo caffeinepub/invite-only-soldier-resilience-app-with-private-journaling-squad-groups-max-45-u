@@ -1,35 +1,77 @@
 {
   "kind": "build_request",
-  "title": "Replace 'Coming Soon' motivational videos with real YouTube links so all videos play",
+  "title": "Convert permanent sidebar into collapsible full-width drawer with hamburger menu and scrim",
   "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-1",
-      "text": "Update the Motivational Life Lessons video dataset so that every video currently labeled \"Coming Soon\" has a real, playable YouTube URL and matching thumbnail URL. Specifically, in `frontend/src/content/mentalPerformance/motivationalLifeLessonsVideos.ts`, find every `MotivationalVideo` entry where `youtubeUrl` contains the substring `placeholder` (these are rendered as \"Coming Soon\" in `frontend/src/components/mentalPerformance/MotivationalVideoCard.tsx`) and, for each one, search YouTube for the correct video and replace:\n- `youtubeUrl` with the real YouTube watch URL (or youtu.be URL)\n- `thumbnailUrl` with the correct `https://img.youtube.com/vi/<VIDEO_ID>/maxresdefault.jpg` using the actual video ID extracted from the new URL\n\nDo not change the existing `id` values or category tags; only replace placeholder URLs with real ones so the UI no longer blocks playback and the dialog embed works for all videos.",
+      "id": "REQ-2",
+      "text": "Update the global AppShell layout to replace the permanent left sidebar with a mobile-first collapsible drawer that is hidden by default on all screen sizes and opened via a hamburger menu icon in the top-left of a persistent header/top bar.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-4",
+          "msg-6"
         ],
         "quotes": [
-          "For each video labeled coming soon: search YouTube for the link and add it so all videos are playable"
+          "Change the navigation from a permanent always-visible left sidebar to a mobile-friendly collapsible drawer/sidebar.",
+          "1 collapsible"
         ]
       },
       "acceptanceCriteria": [
-        "In `frontend/src/content/mentalPerformance/motivationalLifeLessonsVideos.ts`, there are no `youtubeUrl` values containing `placeholder`.",
-        "In the Motivational Life Lessons page, no video cards show the \"Coming Soon\" overlay (which is currently triggered by `video.youtubeUrl.includes('placeholder')`).",
-        "Clicking any video card in the Motivational Life Lessons page opens the player dialog and shows an embedded YouTube video (not the \"Video unavailable\" fallback).",
-        "For each updated video, the thumbnail loads successfully and matches the YouTube video ID used in the `youtubeUrl` (i.e., `thumbnailUrl` uses the same `<VIDEO_ID>`)."
+        "A header/top bar is rendered on all main screens (i.e., within AppShell) and includes a hamburger menu icon aligned to the top-left.",
+        "The navigation sidebar is not visible by default at any screen width (mobile/tablet/desktop).",
+        "Opening/closing the drawer does not break existing routing or page rendering (Dashboard, Daily Quotes, Journal, Groups, Missions, Assessments, Sleep Performance, Recommended Reading, etc.)."
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Implement the drawer interaction behaviors: tapping the hamburger opens a full-width left-side overlay drawer; the drawer includes a close (X) control; tapping outside the drawer (on the scrim) closes it; selecting any navigation menu item navigates and automatically closes the drawer.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4",
+          "msg-6"
+        ],
+        "quotes": [
+          "When the user taps the hamburger icon, slide in the full sidebar from the left as an overlay/drawer (with a dark scrim/background fade if possible for better UX).",
+          "2 full",
+          "3 semi transparent"
+        ]
+      },
+      "acceptanceCriteria": [
+        "When opened, the drawer slides in from the left and occupies the full viewport width on mobile.",
+        "A semi-transparent scrim appears behind the open drawer; clicking/tapping the scrim closes the drawer.",
+        "A close (X) control is visible in the drawer (top-right) and closes the drawer when clicked/tapped.",
+        "Clicking/tapping any nav item closes the drawer and navigates to the item’s route.",
+        "The Life Lessons nav item and route path remain unchanged (\"/mental-performance/life-lessons\")."
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "Ensure the main content area uses the full available width when the drawer is closed, and ensure drawer/scrim layering (z-index/positioning) does not cause overlap glitches or prevent main content scrolling when the drawer is closed.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "Ensure the main content area expands to full width when the menu is closed."
+        ]
+      },
+      "acceptanceCriteria": [
+        "With the drawer closed, main content spans full width (no persistent left offset such as md:ml-64).",
+        "With the drawer closed, main content scroll behavior matches current behavior (page content remains scrollable).",
+        "With the drawer open, background content is visually obscured by a semi-transparent scrim and is not accidentally clickable through the overlay."
       ]
     }
   ],
   "constraints": [
-    "Frontend immutable paths must not be edited: `frontend/src/hooks/useInternetIdentity.ts`, `frontend/src/hooks/useInternetIdentity.tsx`, `frontend/src/hooks/useActor.ts`, `frontend/src/main.tsx`, and anything under `frontend/src/components/ui`.",
-    "Keep the backend single-actor architecture unchanged; no backend changes are required for this request."
+    "Do not edit files under frontend/src/hooks/useInternetIdentity.ts or frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or any files in frontend/src/components/ui (compose existing UI components instead).",
+    "Respect existing navigation guardrails: the Life Lessons nav item and route path must remain unchanged."
   ],
   "nonGoals": [
-    "Do not add new video categories, change existing video IDs, or rewrite lesson/takeaway copy beyond what is required to attach the correct playable YouTube links.",
-    "Do not implement automated YouTube search/API integration; links can be updated directly in the static dataset file."
+    "Do not add or change backend (Motoko) functionality for this navigation update.",
+    "Do not change existing route paths or the set/order of existing nav destinations beyond adapting them to the drawer UI."
   ],
   "imageRequirements": {
     "required": [],
