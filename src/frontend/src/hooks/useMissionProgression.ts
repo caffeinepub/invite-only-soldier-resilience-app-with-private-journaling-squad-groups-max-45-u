@@ -9,6 +9,7 @@
  * - Assessment reward grant pathway: applyMissionResult accepts assessment completion results
  * - Assessment-based unlock rule evaluation: evaluateUnlockRules checks assessment outcomes via useAssessments hook
  * - Reward deduplication: Mission results track completion to prevent duplicate XP grants
+ * - Ad-hoc XP grants: grantAdHocXP allows awarding XP from non-mission sources (e.g., Soldier Connect)
  */
 
 import { useState, useEffect } from 'react';
@@ -83,6 +84,21 @@ export function useMissionProgression() {
     saveProgression(profile.localUuid, updated);
   };
 
+  const grantAdHocXP = (xp: number, source: string) => {
+    const updated: OperatorProgression = {
+      ...progression,
+      xp: progression.xp + xp,
+    };
+
+    // Update rank based on new XP
+    const rankInfo = getRankFromXP(updated.xp);
+    updated.rank = rankInfo.name;
+    updated.tier = rankInfo.tier;
+
+    setProgression(updated);
+    saveProgression(profile.localUuid, updated);
+  };
+
   const getMissionResult = (missionId: string): MissionResult | undefined => {
     return progression.missionHistory.find(h => h.missionId === missionId);
   };
@@ -145,6 +161,7 @@ export function useMissionProgression() {
   return {
     progression,
     applyMissionResult,
+    grantAdHocXP,
     getMissionResult,
     getMissionScore,
     evaluateUnlockRules,

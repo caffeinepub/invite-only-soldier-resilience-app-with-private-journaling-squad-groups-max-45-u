@@ -5,12 +5,16 @@
  * All computation happens client-side; no backend dependency.
  * 
  * Readiness calculation:
- * - Input score: average of 4 factors (sleep, training, stress, pain)
+ * - Converts raw slider values to readiness-friendly values (inverts lower-is-better factors)
+ * - Input score: average of 4 readiness-friendly factors
  * - Streak bonus: up to 30 points for maintaining 21+ day streak
  * - Overall score: 70% input + 30% streak bonus
  * 
- * Future seam: Optional backend sync could be added without changing
- * the local-first behavior or UI contract.
+ * Factor polarity:
+ * - Sleep Quality: higher raw value = better readiness (0=worst, 100=best)
+ * - Training Load: lower raw value = better readiness (0=best, 100=worst)
+ * - Stress Level: lower raw value = better readiness (0=best, 100=worst)
+ * - Pain/Injury Status: lower raw value = better readiness (0=best, 100=worst)
  */
 
 import { useLocalDailyInputs, useLocalReadinessState } from './useLocalData';
@@ -18,6 +22,7 @@ import { useLocalProfile } from './useLocalProfile';
 import type { LocalDailyInput } from '../utils/localDataStore';
 import type { DailyInput } from '../backend';
 import { useState } from 'react';
+import { toReadinessValue, selectExplanationByReadiness, FACTOR_CONFIGS } from '../utils/readinessSemantics';
 
 interface DashboardData {
   explanation: string;
@@ -76,9 +81,15 @@ export function useSubmitDailyInput() {
     setVariables(input);
 
     try {
-      // Calculate scores
+      // Convert raw slider values to readiness-friendly values
+      const sleepReadiness = toReadinessValue(input.sleepScore, FACTOR_CONFIGS.sleep.polarity);
+      const trainingReadiness = toReadinessValue(input.trainingLoadScore, FACTOR_CONFIGS.training.polarity);
+      const stressReadiness = toReadinessValue(input.stressScore, FACTOR_CONFIGS.stress.polarity);
+      const painReadiness = toReadinessValue(input.painScore, FACTOR_CONFIGS.pain.polarity);
+
+      // Calculate input score from readiness-friendly values
       const inputScore = Math.round(
-        (input.sleepScore + input.trainingLoadScore + input.stressScore + input.painScore) / 4
+        (sleepReadiness + trainingReadiness + stressReadiness + painReadiness) / 4
       );
 
       // Calculate streak bonus (up to 30 points for 21+ day streak)
@@ -89,7 +100,7 @@ export function useSubmitDailyInput() {
       // Overall score: 70% input + 30% streak bonus
       const overallScore = Math.round(inputScore * 0.7 + streakBonus * 0.3);
 
-      // Generate explanations
+      // Generate explanations using raw values but correct polarity
       const explanations = generateReadinessExplanations(
         input.sleepScore,
         input.trainingLoadScore,
@@ -99,7 +110,7 @@ export function useSubmitDailyInput() {
         streakBonus
       );
 
-      // Save input
+      // Save input with raw slider values
       add({
         ...input,
         overallScore,
@@ -155,46 +166,49 @@ function generateReadinessExplanations(
   overallScore: number,
   streakBonus: number
 ): string {
-  const sleepExplanation = selectExplanation(
+  // Use selectExplanationByReadiness to apply correct polarity
+  const sleepExplanation = selectExplanationByReadiness(
     sleepScore,
+    FACTOR_CONFIGS.sleep.polarity,
     'Stable sleep; steady impacts.',
     'Good NREM but need REM; efficiency is crucial.',
     'Better duration, optimize circadian rhythm.',
     'Prioritize sleep; recovery is non-negotiable.'
   );
 
-  const trainingLoadExplanation = selectExplanation(
+  const trainingLoadExplanation = selectExplanationByReadiness(
     trainingLoadScore,
-    'Maintained load; continue periodization.',
-    'Steady workload - monitor acute spikes.',
-    'Optimize recovery sessions (hydro, mobility, nutrition).',
-    'Periodize strength and conditioning; avoid overload.'
+    FACTOR_CONFIGS.training.polarity,
+    'Minimal load; optimal recovery window.',
+    'Light workload - maintain readiness.',
+    'Moderate load - monitor recovery needs.',
+    'Heavy load - prioritize recovery and periodization.'
   );
 
-  const stressExplanation = selectExplanation(
+  const stressExplanation = selectExplanationByReadiness(
     stressScore,
-    'No critical outliers detected.',
-    'Stable cortisol and HRV.',
-    'Functional - bolster physical resilience.',
-    'PRV and CNS fatigue indicate need for adjustment.'
+    FACTOR_CONFIGS.stress.polarity,
+    'Low stress; optimal cognitive state.',
+    'Manageable stress - maintain resilience practices.',
+    'Elevated stress - implement mitigation strategies.',
+    'High stress - immediate intervention required.'
   );
 
-  const painExplanation = selectExplanation(
+  const painExplanation = selectExplanationByReadiness(
     painScore,
-    'Maintain low risk - proper mobility, prehab.',
-    'Functionally aligned - holistic focus.',
-    'Target deficit areas (strength, mobility).',
-    'Restore muscle and neuromuscular balance.'
+    FACTOR_CONFIGS.pain.polarity,
+    'No pain; full operational capacity.',
+    'Minor discomfort - maintain mobility work.',
+    'Noticeable pain - address deficit areas.',
+    'Significant pain - seek medical attention.'
   );
 
-  const aggregate = Math.round((sleepScore + trainingLoadScore + stressScore + painScore) / 4);
+  // Calculate aggregate from readiness-friendly values
+  const sleepReadiness = toReadinessValue(sleepScore, FACTOR_CONFIGS.sleep.polarity);
+  const trainingReadiness = toReadinessValue(trainingLoadScore, FACTOR_CONFIGS.training.polarity);
+  const stressReadiness = toReadinessValue(stressScore, FACTOR_CONFIGS.stress.polarity);
+  const painReadiness = toReadinessValue(painScore, FACTOR_CONFIGS.pain.polarity);
+  const aggregate = Math.round((sleepReadiness + trainingReadiness + stressReadiness + painReadiness) / 4);
 
   return `Phase factors: Sleep ${sleepExplanation}; Training Load ${trainingLoadExplanation} | Stress ${stressExplanation}; Pain ${painExplanation}. Aggregate score: ${aggregate} | Readiness influences and streak bonus: ${streakBonus}`;
-}
-
-function selectExplanation(score: number, high: string, moderate: string, low: string, critical: string): string {
-  if (score >= 80) return high;
-  if (score >= 60) return moderate;
-  if (score >= 40) return low;
-  return critical;
 }

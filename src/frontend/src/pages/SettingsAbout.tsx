@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useLocalProfile } from '../hooks/useLocalProfile';
-import { Shield, Info, User, Code } from 'lucide-react';
+import { Shield, Info, User } from 'lucide-react';
 import { DISCLAIMER_TEXT } from '../content/disclaimer';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useState } from 'react';
@@ -113,14 +113,14 @@ export default function SettingsAbout() {
         <CardHeader>
           <div className="flex items-center gap-2">
             <Info className="h-5 w-5 text-primary" />
-            <CardTitle>About</CardTitle>
+            <CardTitle>About Dagger H2F Mental and Sleep Performance</CardTitle>
           </div>
         </CardHeader>
         <CardContent className="space-y-3">
           <div>
             <p className="text-sm font-medium text-muted-foreground">Purpose</p>
             <p className="text-sm">
-              This application supports personal growth, mental readiness, resilience, and team cohesion for service
+              Dagger H2F Mental and Sleep Performance supports personal growth, mental readiness, resilience, and team cohesion for service
               members through guided reflection and peer connection.
             </p>
           </div>

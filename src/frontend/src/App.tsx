@@ -21,6 +21,12 @@ import SleepPerformanceDashboard from './pages/SleepPerformanceDashboard';
 import SleepPerformanceCheckIn from './pages/SleepPerformanceCheckIn';
 import SleepPerformanceAnalysis from './pages/SleepPerformanceAnalysis';
 import SleepPerformanceAction from './pages/SleepPerformanceAction';
+import MentalPerformanceReading from './pages/MentalPerformanceReading';
+import FreeSoldierApps from './pages/FreeSoldierApps';
+import MilitaryApps from './pages/MilitaryApps';
+import MotivationalLifeLessons from './pages/MotivationalLifeLessons';
+import Reports from './pages/Reports';
+import DailyQuotes from './pages/DailyQuotes';
 import { useLocalProfile } from './hooks/useLocalProfile';
 import { useState } from 'react';
 
@@ -130,6 +136,42 @@ const sleepActionRoute = createRoute({
   component: SleepPerformanceAction
 });
 
+const mentalPerformanceReadingRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/mental-performance/reading',
+  component: MentalPerformanceReading
+});
+
+const freeSoldierAppsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/mental-performance/apps',
+  component: FreeSoldierApps
+});
+
+const motivationalLifeLessonsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/mental-performance/life-lessons',
+  component: MotivationalLifeLessons
+});
+
+const militaryAppsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/tools/military-apps',
+  component: MilitaryApps
+});
+
+const reportsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/reports',
+  component: Reports
+});
+
+const quotesRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/quotes',
+  component: DailyQuotes
+});
+
 const guidelinesRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/guidelines',
@@ -164,6 +206,12 @@ const routeTree = rootRoute.addChildren([
   sleepCheckInRoute,
   sleepAnalysisRoute,
   sleepActionRoute,
+  mentalPerformanceReadingRoute,
+  freeSoldierAppsRoute,
+  motivationalLifeLessonsRoute,
+  militaryAppsRoute,
+  reportsRoute,
+  quotesRoute,
   guidelinesRoute,
   settingsRoute,
   adminReportsRoute

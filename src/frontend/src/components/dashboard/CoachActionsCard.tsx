@@ -53,7 +53,7 @@ function generateActions(
 ): Action[] {
   const actions: Action[] = [];
 
-  // Sleep-based actions
+  // Sleep-based actions (higher is better: low raw value = bad)
   if (sleep < 40) {
     actions.push({
       priority: 'high',
@@ -66,39 +66,39 @@ function generateActions(
     });
   }
 
-  // Training load actions
-  if (training < 40) {
+  // Training load actions (lower is better: high raw value = bad)
+  if (training > 60) {
     actions.push({
       priority: 'high',
       text: 'Reduce training intensity. Focus on active recovery and mobility.',
     });
-  } else if (training < 60) {
+  } else if (training > 40) {
     actions.push({
       priority: 'medium',
       text: 'Monitor acute load. Consider deload or recovery session.',
     });
   }
 
-  // Stress actions
-  if (stress < 40) {
+  // Stress actions (lower is better: high raw value = bad)
+  if (stress > 60) {
     actions.push({
       priority: 'high',
       text: 'Implement stress mitigation: breathing drills, tactical pause.',
     });
-  } else if (stress < 60) {
+  } else if (stress > 40) {
     actions.push({
       priority: 'medium',
       text: 'Maintain resilience practices: mindfulness, social connection.',
     });
   }
 
-  // Pain/injury actions
-  if (pain < 40) {
+  // Pain/injury actions (lower is better: high raw value = bad)
+  if (pain > 60) {
     actions.push({
       priority: 'high',
       text: 'Address pain immediately. Consult medical if persistent.',
     });
-  } else if (pain < 60) {
+  } else if (pain > 40) {
     actions.push({
       priority: 'medium',
       text: 'Prehab focus: targeted mobility and strength work.',

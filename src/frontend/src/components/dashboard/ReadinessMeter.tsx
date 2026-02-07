@@ -2,6 +2,7 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { TrendingUp, TrendingDown, Minus, Flame } from 'lucide-react';
 import type { DailyInput } from '../../backend';
+import { getFactorColorClass, getFactorProgressColor, FACTOR_CONFIGS } from '@/utils/readinessSemantics';
 
 interface ReadinessMeterProps {
   latestInput: DailyInput | null;
@@ -65,10 +66,10 @@ export default function ReadinessMeter({ latestInput, streak }: ReadinessMeterPr
         <h4 className="text-sm font-semibold text-muted-foreground">Factor Breakdown</h4>
         
         <div className="space-y-2">
-          <FactorRow label="Sleep" score={sleepScore} />
-          <FactorRow label="Training Load" score={trainingScore} />
-          <FactorRow label="Stress" score={stressScore} />
-          <FactorRow label="Pain/Injury" score={painScore} />
+          <FactorRow label="Sleep" score={sleepScore} factorKey="sleep" />
+          <FactorRow label="Training Load" score={trainingScore} factorKey="training" />
+          <FactorRow label="Stress" score={stressScore} factorKey="stress" />
+          <FactorRow label="Pain/Injury" score={painScore} factorKey="pain" />
         </div>
       </div>
 
@@ -85,13 +86,9 @@ export default function ReadinessMeter({ latestInput, streak }: ReadinessMeterPr
   );
 }
 
-function FactorRow({ label, score }: { label: string; score: number }) {
-  const getColor = (s: number): string => {
-    if (s >= 80) return 'bg-green-500';
-    if (s >= 60) return 'bg-blue-500';
-    if (s >= 40) return 'bg-yellow-500';
-    return 'bg-red-500';
-  };
+function FactorRow({ label, score, factorKey }: { label: string; score: number; factorKey: string }) {
+  const config = FACTOR_CONFIGS[factorKey];
+  const colorClass = getFactorColorClass(score, config.polarity);
 
   return (
     <div className="flex items-center gap-3">
@@ -99,7 +96,7 @@ function FactorRow({ label, score }: { label: string; score: number }) {
       <div className="flex-1">
         <Progress value={score} className="h-2" />
       </div>
-      <span className="text-sm font-semibold w-10 text-right">{score}</span>
+      <span className={`text-sm font-semibold w-10 text-right ${colorClass}`}>{score}</span>
     </div>
   );
 }

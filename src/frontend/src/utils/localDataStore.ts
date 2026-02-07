@@ -2,7 +2,7 @@
  * Local Data Store Utility
  * 
  * Centralized storage for all user-generated content scoped by localUuid.
- * All personal data (journals, readiness inputs, streaks, mission progression, assessments, sleep performance) is stored locally
+ * All personal data (journals, readiness inputs, streaks, mission progression, assessments, sleep performance, reports, quote reflections) is stored locally
  * and never transmitted to the backend by default.
  * 
  * Storage structure:
@@ -14,6 +14,10 @@
  * - dagger-sleep-logs-{uuid}: Sleep window logs
  * - dagger-sleep-state-{uuid}: Sleep performance state (debt, mode, streaks, unlocks)
  * - dagger-caffeine-logs-{uuid}: Caffeine intake logs
+ * - dagger-reading-progress-{uuid}: Reading status per book
+ * - dagger-reading-rewards-{uuid}: Granted reading rewards
+ * - dagger-personal-reports-{uuid}: Personal reports on videos/books
+ * - dagger-quote-reflections-{uuid}: Per-quote reflections
  * 
  * Future seam: This utility provides a clear adapter interface where
  * optional cloud sync could be added without refactoring consumers.
@@ -23,6 +27,8 @@
  * 3. Merge remote changes back to local store
  * 4. Maintain local-first behavior as fallback
  */
+
+import type { PersonalReport, CreateReportInput, UpdateReportInput } from '../types/personalReports';
 
 export interface LocalJournalEntry {
   id: string;
@@ -87,7 +93,14 @@ export interface CaffeineLog {
   timestamp: number;
 }
 
-function getStorageKey(localUuid: string, type: 'journals' | 'daily-inputs' | 'readiness-state' | 'sleep-logs' | 'sleep-state' | 'caffeine-logs'): string {
+export interface QuoteReflection {
+  quoteId: string;
+  reflection: string;
+  timestamp: number;
+  lastUpdated: number;
+}
+
+function getStorageKey(localUuid: string, type: 'journals' | 'daily-inputs' | 'readiness-state' | 'sleep-logs' | 'sleep-state' | 'caffeine-logs' | 'personal-reports' | 'quote-reflections'): string {
   return `dagger-${type}-${localUuid}`;
 }
 
@@ -329,6 +342,123 @@ export function addCaffeineLog(localUuid: string, log: Omit<CaffeineLog, 'id' | 
   return newLog;
 }
 
+// Personal Reports operations
+export function getPersonalReports(localUuid: string): PersonalReport[] {
+  if (typeof window === 'undefined') return [];
+  
+  try {
+    const key = getStorageKey(localUuid, 'personal-reports');
+    const stored = localStorage.getItem(key);
+    return stored ? JSON.parse(stored) : [];
+  } catch (error) {
+    console.error('Failed to load personal reports:', error);
+    return [];
+  }
+}
+
+export function savePersonalReports(localUuid: string, reports: PersonalReport[]): void {
+  if (typeof window === 'undefined') return;
+  
+  try {
+    const key = getStorageKey(localUuid, 'personal-reports');
+    localStorage.setItem(key, JSON.stringify(reports));
+  } catch (error) {
+    console.error('Failed to save personal reports:', error);
+  }
+}
+
+export function addPersonalReport(localUuid: string, input: CreateReportInput): PersonalReport {
+  const reports = getPersonalReports(localUuid);
+  const newReport: PersonalReport = {
+    id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+    type: input.type,
+    title: input.title,
+    body: input.body,
+    metadata: input.metadata,
+    submitted: false,
+    xpGranted: false,
+    xpAwarded: 0,
+    timestamp: Date.now(),
+  };
+  reports.push(newReport);
+  savePersonalReports(localUuid, reports);
+  return newReport;
+}
+
+export function updatePersonalReport(localUuid: string, reportId: string, updates: UpdateReportInput): void {
+  const reports = getPersonalReports(localUuid);
+  const index = reports.findIndex(r => r.id === reportId);
+  if (index !== -1) {
+    reports[index] = { ...reports[index], ...updates };
+    savePersonalReports(localUuid, reports);
+  }
+}
+
+export function deletePersonalReport(localUuid: string, reportId: string): void {
+  const reports = getPersonalReports(localUuid);
+  const filtered = reports.filter(r => r.id !== reportId);
+  savePersonalReports(localUuid, filtered);
+}
+
+export function submitPersonalReport(localUuid: string, reportId: string, xpAwarded: number): void {
+  const reports = getPersonalReports(localUuid);
+  const index = reports.findIndex(r => r.id === reportId);
+  if (index !== -1 && !reports[index].xpGranted) {
+    reports[index] = {
+      ...reports[index],
+      submitted: true,
+      xpGranted: true,
+      xpAwarded,
+      submittedAt: Date.now(),
+    };
+    savePersonalReports(localUuid, reports);
+  }
+}
+
+// Quote Reflections operations
+export function getQuoteReflections(localUuid: string): Record<string, QuoteReflection> {
+  if (typeof window === 'undefined') return {};
+  
+  try {
+    const key = getStorageKey(localUuid, 'quote-reflections');
+    const stored = localStorage.getItem(key);
+    return stored ? JSON.parse(stored) : {};
+  } catch (error) {
+    console.error('Failed to load quote reflections:', error);
+    return {};
+  }
+}
+
+export function saveQuoteReflections(localUuid: string, reflections: Record<string, QuoteReflection>): void {
+  if (typeof window === 'undefined') return;
+  
+  try {
+    const key = getStorageKey(localUuid, 'quote-reflections');
+    localStorage.setItem(key, JSON.stringify(reflections));
+  } catch (error) {
+    console.error('Failed to save quote reflections:', error);
+  }
+}
+
+export function getQuoteReflection(localUuid: string, quoteId: string): QuoteReflection | null {
+  const reflections = getQuoteReflections(localUuid);
+  return reflections[quoteId] || null;
+}
+
+export function saveQuoteReflection(localUuid: string, quoteId: string, reflection: string): void {
+  const reflections = getQuoteReflections(localUuid);
+  const now = Date.now();
+  
+  reflections[quoteId] = {
+    quoteId,
+    reflection,
+    timestamp: reflections[quoteId]?.timestamp || now,
+    lastUpdated: now,
+  };
+  
+  saveQuoteReflections(localUuid, reflections);
+}
+
 // Reset all local data for a user
 export function resetAllLocalData(localUuid: string): void {
   if (typeof window === 'undefined') return;
@@ -342,6 +472,10 @@ export function resetAllLocalData(localUuid: string): void {
     localStorage.removeItem(getStorageKey(localUuid, 'sleep-logs'));
     localStorage.removeItem(getStorageKey(localUuid, 'sleep-state'));
     localStorage.removeItem(getStorageKey(localUuid, 'caffeine-logs'));
+    localStorage.removeItem(`dagger-reading-progress-${localUuid}`);
+    localStorage.removeItem(`dagger-reading-rewards-${localUuid}`);
+    localStorage.removeItem(getStorageKey(localUuid, 'personal-reports'));
+    localStorage.removeItem(getStorageKey(localUuid, 'quote-reflections'));
   } catch (error) {
     console.error('Failed to reset local data:', error);
   }

@@ -2,7 +2,10 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
-import { Loader2 } from 'lucide-react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Loader2, ChevronDown, Info } from 'lucide-react';
+import { getFactorColorClass, FACTOR_CONFIGS } from '@/utils/readinessSemantics';
+import { DAILY_FACTOR_GUIDANCE } from '@/content/dailyFactorGuidance';
 
 interface DailyLoggingPanelProps {
   onSubmit: (data: {
@@ -38,6 +41,7 @@ export default function DailyLoggingPanel({ onSubmit, isSubmitting, isOffline }:
           value={sleepScore}
           onChange={setSleepScore}
           description="Duration, efficiency, and recovery"
+          factorKey="sleep"
         />
         
         <FactorSlider
@@ -45,6 +49,7 @@ export default function DailyLoggingPanel({ onSubmit, isSubmitting, isOffline }:
           value={trainingLoadScore}
           onChange={setTrainingLoadScore}
           description="Intensity and volume management"
+          factorKey="training"
         />
         
         <FactorSlider
@@ -52,6 +57,7 @@ export default function DailyLoggingPanel({ onSubmit, isSubmitting, isOffline }:
           value={stressScore}
           onChange={setStressScore}
           description="Mental and operational demands"
+          factorKey="stress"
         />
         
         <FactorSlider
@@ -59,6 +65,7 @@ export default function DailyLoggingPanel({ onSubmit, isSubmitting, isOffline }:
           value={painScore}
           onChange={setPainScore}
           description="Musculoskeletal health"
+          factorKey="pain"
         />
       </div>
 
@@ -86,24 +93,25 @@ function FactorSlider({
   value,
   onChange,
   description,
+  factorKey,
 }: {
   label: string;
   value: number;
   onChange: (value: number) => void;
   description: string;
+  factorKey: string;
 }) {
-  const getColor = (v: number): string => {
-    if (v >= 80) return 'text-green-600 dark:text-green-400';
-    if (v >= 60) return 'text-blue-600 dark:text-blue-400';
-    if (v >= 40) return 'text-yellow-600 dark:text-yellow-400';
-    return 'text-red-600 dark:text-red-400';
-  };
+  const [isGuidanceOpen, setIsGuidanceOpen] = useState(false);
+  const config = FACTOR_CONFIGS[factorKey];
+  const guidance = DAILY_FACTOR_GUIDANCE[factorKey];
+  
+  const colorClass = getFactorColorClass(value, config.polarity);
 
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
         <Label className="text-sm font-medium">{label}</Label>
-        <span className={`text-lg font-bold ${getColor(value)}`}>{value}</span>
+        <span className={`text-lg font-bold ${colorClass}`}>{value}</span>
       </div>
       <Slider
         value={[value]}
@@ -114,6 +122,37 @@ function FactorSlider({
         className="cursor-pointer"
       />
       <p className="text-xs text-muted-foreground">{description}</p>
+      
+      {/* Self-Rating Guidance */}
+      {guidance && (
+        <Collapsible open={isGuidanceOpen} onOpenChange={setIsGuidanceOpen}>
+          <CollapsibleTrigger className="flex items-center gap-1.5 text-xs text-primary hover:underline">
+            <Info className="h-3 w-3" />
+            <span>Self-Rating Guide</span>
+            <ChevronDown className={`h-3 w-3 transition-transform ${isGuidanceOpen ? 'rotate-180' : ''}`} />
+          </CollapsibleTrigger>
+          <CollapsibleContent className="mt-2 space-y-2">
+            <div className="rounded-lg border bg-muted/30 p-3 space-y-3">
+              <p className="text-xs font-medium text-foreground">
+                {guidance.polarityStatement}
+              </p>
+              <div className="space-y-2">
+                {guidance.anchors.map((anchor) => (
+                  <div key={anchor.value} className="text-xs">
+                    <div className="flex items-baseline gap-2">
+                      <span className="font-semibold text-foreground min-w-[3ch]">{anchor.value}</span>
+                      <span className="font-medium text-muted-foreground">({anchor.label}):</span>
+                    </div>
+                    <p className="text-muted-foreground ml-5 mt-0.5 leading-relaxed">
+                      {anchor.description}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+      )}
     </div>
   );
 }
