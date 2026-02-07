@@ -2,8 +2,8 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-update-the-mobile-sidebar-drawer-behavior-below-tailwind-md-767px-so-the-drawer-closes-immediately-when-any-sidebar-menu-item-is-clicked-without-waiting-for-route-navigation-to-finish-and-the-main-content-becomes-fully-visible-and-interactive-no-overlap",
-      "featureTitle": "Update the mobile sidebar drawer behavior (below Tailwind `md` / <=767px) so the drawer closes immediately when any sidebar menu item is clicked, without waiting for route navigation to finish, and the main content becomes fully visible and interactive (no overlap).",
+      "featureId": "feature-audit-and-fix-event-handling-in-the-main-layout-so-clicks-always-reach-intended-targets-after-introducing-flex-grid-wrappers-or-overlays-specifically-ensure-no-transparent-overlay-fixed-element-or-container-with-unintended-pointer-events-none-blocks-interaction-with-main-content-e-g-life-lessons-video-cards-filters-and-dialogs-when-the-mobile-drawer-is-closed",
+      "featureTitle": "Audit and fix event handling in the main layout so clicks always reach intended targets after introducing flex/grid wrappers or overlays. Specifically ensure no transparent overlay, fixed element, or container with unintended `pointer-events: none` blocks interaction with main content (e.g., Life Lessons video cards, filters, and dialogs) when the mobile drawer is closed.",
       "files": [
         "frontend/src/components/layout/AppShell.tsx"
       ],
@@ -21,10 +21,11 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-ensure-the-mobile-drawer-cannot-block-taps-or-scrolling-after-it-has-been-closed-e-g-prevent-the-off-canvas-drawer-element-from-capturing-pointer-events-when-closed-and-or-only-render-the-drawer-backdrop-when-open",
-      "featureTitle": "Ensure the mobile drawer cannot block taps or scrolling after it has been closed (e.g., prevent the off-canvas drawer element from capturing pointer events when closed, and/or only render the drawer/backdrop when open).",
+      "featureId": "feature-update-the-sidebar-main-content-layout-structure-to-follow-a-predictable-container-model-for-overlays-menus-keep-the-sidebar-and-main-content-as-sibling-regions-and-ensure-any-dropdown-menu-surfaces-e-g-account-dropdown-in-the-sidebar-render-above-other-layers-with-an-appropriate-z-index-and-without-being-clipped-by-overflow-rules",
+      "featureTitle": "Update the sidebar + main content layout structure to follow a predictable container model for overlays/menus: keep the sidebar and main content as sibling regions and ensure any dropdown menu surfaces (e.g., account dropdown in the sidebar) render above other layers with an appropriate z-index and without being clipped by overflow rules.",
       "files": [
-        "frontend/src/components/layout/AppShell.tsx"
+        "frontend/src/components/layout/AppShell.tsx",
+        "frontend/src/index.css"
       ],
       "components": [
         "authorization@4.0.0",
@@ -40,8 +41,8 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-add-verify-a-semi-transparent-backdrop-for-the-mobile-drawer-below-md-that-appears-only-when-the-drawer-is-open-and-closes-the-drawer-when-the-user-taps-outside-the-sidebar-area",
-      "featureTitle": "Add/verify a semi-transparent backdrop for the mobile drawer (below `md`) that appears only when the drawer is open and closes the drawer when the user taps outside the sidebar area.",
+      "featureId": "feature-ensure-the-hamburger-triggered-mobile-navigation-and-backdrop-in-frontend-src-components-layout-appshell-tsx-do-not-interfere-with-click-propagation-the-backdrop-must-only-be-present-while-the-drawer-is-open-clicking-the-backdrop-closes-the-drawer-and-clicks-inside-the-drawer-must-not-bubble-to-the-backdrop-close-handler",
+      "featureTitle": "Ensure the hamburger-triggered mobile navigation and backdrop in `frontend/src/components/layout/AppShell.tsx` do not interfere with click propagation: the backdrop must only be present while the drawer is open; clicking the backdrop closes the drawer; and clicks inside the drawer must not bubble to the backdrop close handler.",
       "files": [
         "frontend/src/components/layout/AppShell.tsx"
       ],
@@ -55,25 +56,6 @@
       ],
       "testIds": [
         "REQ-3"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-keep-existing-ui-ux-and-features-unchanged-aside-from-the-mobile-drawer-fix-preserve-dark-theme-styling-icons-existing-navigation-labels-paths-including-the-life-lessons-path-and-existing-page-functionality-video-list-filters-search-etc",
-      "featureTitle": "Keep existing UI/UX and features unchanged aside from the mobile drawer fix: preserve dark theme styling, icons, existing navigation labels/paths (including the Life Lessons path), and existing page functionality (video list, filters, search, etc.).",
-      "files": [
-        "frontend/src/components/layout/AppShell.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-4"
       ],
       "confidence": "high"
     }

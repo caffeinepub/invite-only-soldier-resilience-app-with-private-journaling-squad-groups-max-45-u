@@ -1,45 +1,37 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Implement mobile (<=767px) sidebar drawer behavior: starts closed, opens via hamburger, auto-closes immediately on menu selection and on outside-tap via backdrop; keep desktop (>=768px) persistent sidebar behavior unchanged.",
+  "summary": "Web app UI with sidebar + main content layout, including a hamburger-triggered dropdown menu; focus on correct click/event handling.",
   "architectural_notes": [
-    "Use Tailwind 'md' (768px) breakpoint: <md treat sidebar as temporary drawer/overlay (default closed), >=md keep persistent sidebar.",
-    "On mobile, close sidebar immediately on menu link click by resetting existing open/closed state; also close on backdrop/outside click."
+    "When adding wrapper flex/grid containers, verify they do not break event propagation or intercept clicks.",
+    "Avoid placing clickable elements under transparent overlays or within containers using pointer-events: none.",
+    "Sidebar/main-content structure: .app-container containing .sidebar (hamburger + dropdown) and .main-content.",
+    "Dropdown menu should be positioned absolutely with high z-index; toggle visibility via an .active class on hamburger click."
   ],
-  "known_issues": [
-    "On mobile, sidebar remains open after navigation and overlays main content (videos/filters/search), blocking interaction."
-  ],
+  "known_issues": [],
   "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-update-the-mobile-sidebar-drawer-behavior-below-tailwind-md-767px-so-the-drawer-closes-immediately-when-any-sidebar-menu-item-is-clicked-without-waiting-for-route-navigation-to-finish-and-the-main-content-becomes-fully-visible-and-interactive-no-overlap",
-      "title": "Update the mobile sidebar drawer behavior (below Tailwind `md` / <=767px) so the drawer closes immediately when any sidebar menu item is clicked, without waiting for route navigation to finish, and the main content becomes fully visible and interactive (no overlap).",
+      "id": "feature-audit-and-fix-event-handling-in-the-main-layout-so-clicks-always-reach-intended-targets-after-introducing-flex-grid-wrappers-or-overlays-specifically-ensure-no-transparent-overlay-fixed-element-or-container-with-unintended-pointer-events-none-blocks-interaction-with-main-content-e-g-life-lessons-video-cards-filters-and-dialogs-when-the-mobile-drawer-is-closed",
+      "title": "Audit and fix event handling in the main layout so clicks always reach intended targets after introducing flex/grid wrappers or overlays. Specifically ensure no transparent overlay, fixed element, or container with unintended `pointer-events: none` blocks interaction with main content (e.g., Life Lessons video cards, filters, and dialogs) when the mobile drawer is closed.",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     },
     {
-      "id": "feature-ensure-the-mobile-drawer-cannot-block-taps-or-scrolling-after-it-has-been-closed-e-g-prevent-the-off-canvas-drawer-element-from-capturing-pointer-events-when-closed-and-or-only-render-the-drawer-backdrop-when-open",
-      "title": "Ensure the mobile drawer cannot block taps or scrolling after it has been closed (e.g., prevent the off-canvas drawer element from capturing pointer events when closed, and/or only render the drawer/backdrop when open).",
+      "id": "feature-update-the-sidebar-main-content-layout-structure-to-follow-a-predictable-container-model-for-overlays-menus-keep-the-sidebar-and-main-content-as-sibling-regions-and-ensure-any-dropdown-menu-surfaces-e-g-account-dropdown-in-the-sidebar-render-above-other-layers-with-an-appropriate-z-index-and-without-being-clipped-by-overflow-rules",
+      "title": "Update the sidebar + main content layout structure to follow a predictable container model for overlays/menus: keep the sidebar and main content as sibling regions and ensure any dropdown menu surfaces (e.g., account dropdown in the sidebar) render above other layers with an appropriate z-index and without being clipped by overflow rules.",
       "reqIds": [
         "REQ-2"
       ],
       "version": 1
     },
     {
-      "id": "feature-add-verify-a-semi-transparent-backdrop-for-the-mobile-drawer-below-md-that-appears-only-when-the-drawer-is-open-and-closes-the-drawer-when-the-user-taps-outside-the-sidebar-area",
-      "title": "Add/verify a semi-transparent backdrop for the mobile drawer (below `md`) that appears only when the drawer is open and closes the drawer when the user taps outside the sidebar area.",
+      "id": "feature-ensure-the-hamburger-triggered-mobile-navigation-and-backdrop-in-frontend-src-components-layout-appshell-tsx-do-not-interfere-with-click-propagation-the-backdrop-must-only-be-present-while-the-drawer-is-open-clicking-the-backdrop-closes-the-drawer-and-clicks-inside-the-drawer-must-not-bubble-to-the-backdrop-close-handler",
+      "title": "Ensure the hamburger-triggered mobile navigation and backdrop in `frontend/src/components/layout/AppShell.tsx` do not interfere with click propagation: the backdrop must only be present while the drawer is open; clicking the backdrop closes the drawer; and clicks inside the drawer must not bubble to the backdrop close handler.",
       "reqIds": [
         "REQ-3"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-keep-existing-ui-ux-and-features-unchanged-aside-from-the-mobile-drawer-fix-preserve-dark-theme-styling-icons-existing-navigation-labels-paths-including-the-life-lessons-path-and-existing-page-functionality-video-list-filters-search-etc",
-      "title": "Keep existing UI/UX and features unchanged aside from the mobile drawer fix: preserve dark theme styling, icons, existing navigation labels/paths (including the Life Lessons path), and existing page functionality (video list, filters, search, etc.).",
-      "reqIds": [
-        "REQ-4"
       ],
       "version": 1
     }
@@ -47,12 +39,18 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Fix mobile sidebar overlay: auto-close drawer on any menu item click (immediate), show hamburger again, add backdrop tap-to-close; keep desktop persistent sidebar unchanged (Tailwind md breakpoint).",
+      "summary": "Implement sidebar layout with hamburger button that toggles a dropdown menu (Life Lessons, Mental Performance, Sleep Performance).",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Ensure proper click/event handling for UI elements (avoid overlays/pointer-events issues; preserve event propagation through wrapper containers).",
       "reqIds": [],
       "status": "pending"
     }
   ],
-  "projectName": "Fix mobile sidebar drawer to auto-close instantly on menu selection (md breakpoint)",
+  "projectName": "Fix sidebar/drawer event handling and ensure dropdown menus remain clickable",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

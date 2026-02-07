@@ -1,18 +1,18 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-07T20:18:08.572Z",
+  "generatedAt": "2026-02-07T22:06:11.009Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 4,
-    "implemented": 4,
+    "total": 3,
+    "implemented": 3,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Update the mobile sidebar drawer behavior (below Tailwind `md` / <=767px) so the drawer closes immediately when any sidebar menu item is clicked, without waiting for route navigation to finish, and the main content becomes fully visible and interactive (no overlap).",
+        "summary": "Audit and fix event handling in the main layout so clicks always reach intended targets after introducing flex/grid wrappers or overlays. Specifically ensure no transparent overlay, fixed element, or container with unintended `pointer-events: none` blocks interaction with main content (e.g., Life Lessons video cards, filters, and dialogs) when the mobile drawer is closed.",
         "status": "implemented",
         "plannedFiles": [
           "frontend/src/components/layout/AppShell.tsx"
@@ -23,29 +23,20 @@
       },
       {
         "id": "REQ-2",
-        "summary": "Ensure the mobile drawer cannot block taps or scrolling after it has been closed (e.g., prevent the off-canvas drawer element from capturing pointer events when closed, and/or only render the drawer/backdrop when open).",
+        "summary": "Update the sidebar + main content layout structure to follow a predictable container model for overlays/menus: keep the sidebar and main content as sibling regions and ensure any dropdown menu surfaces (e.g., account dropdown in the sidebar) render above other layers with an appropriate z-index and without being clipped by overflow rules.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/components/layout/AppShell.tsx"
+          "frontend/src/components/layout/AppShell.tsx",
+          "frontend/src/index.css"
         ],
         "matchedFiles": [
-          "frontend/src/components/layout/AppShell.tsx"
+          "frontend/src/components/layout/AppShell.tsx",
+          "frontend/src/index.css"
         ]
       },
       {
         "id": "REQ-3",
-        "summary": "Add/verify a semi-transparent backdrop for the mobile drawer (below `md`) that appears only when the drawer is open and closes the drawer when the user taps outside the sidebar area.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/components/layout/AppShell.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/components/layout/AppShell.tsx"
-        ]
-      },
-      {
-        "id": "REQ-4",
-        "summary": "Keep existing UI/UX and features unchanged aside from the mobile drawer fix: preserve dark theme styling, icons, existing navigation labels/paths (including the Life Lessons path), and existing page functionality (video list, filters, search, etc.).",
+        "summary": "Ensure the hamburger-triggered mobile navigation and backdrop in `frontend/src/components/layout/AppShell.tsx` do not interfere with click propagation: the backdrop must only be present while the drawer is open; clicking the backdrop closes the drawer; and clicks inside the drawer must not bubble to the backdrop close handler.",
         "status": "implemented",
         "plannedFiles": [
           "frontend/src/components/layout/AppShell.tsx"
@@ -62,6 +53,7 @@
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
     "frontend/src/components/layout/AppShell.tsx",
+    "frontend/src/index.css",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

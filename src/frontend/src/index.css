@@ -105,9 +105,9 @@
   @apply shadow-md;
 }
 
-/* Dropdown menu z-index safeguard */
+/* Dropdown menu z-index safeguard - ensure dropdowns appear above drawer */
 [data-radix-popper-content-wrapper] {
-  z-index: 1000 !important;
+  z-index: 1100 !important;
 }
 
 /* Active navigation item styling */

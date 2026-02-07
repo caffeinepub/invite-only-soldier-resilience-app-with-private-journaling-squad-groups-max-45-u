@@ -1,12 +1,11 @@
 # Specification
 
 ## Summary
-**Goal:** Make the mobile sidebar drawer (below Tailwind `md`, <768px) close immediately on menu selection and never block interaction with the main content after closing.
+**Goal:** Fix sidebar/drawer and overlay event handling so main content and sidebar dropdowns remain reliably clickable on mobile and desktop.
 
 **Planned changes:**
-- Update mobile-only sidebar nav item click handling to close the drawer instantly (before/independent of route navigation completion).
-- Ensure the drawer/backdrop do not capture pointer events or block scrolling/taps when the drawer is closed (e.g., conditional render and/or pointer-events handling while closed).
-- Add/verify a semi-transparent mobile-only backdrop that appears only when the drawer is open and closes the drawer when tapped outside.
-- Keep desktop (>=768px) persistent sidebar behavior and all existing UI/theme, labels, and routes unchanged (including `/mental-performance/life-lessons`).
+- Audit `AppShell` layout wrappers/overlays to ensure no hidden/persistent backdrop or transparent layer intercepts pointer events when the mobile drawer is closed.
+- Adjust sidebar + main content structure to keep them as sibling regions and ensure dropdown menu surfaces (e.g., account dropdown) render above other layers (z-index) without being clipped by parent overflow.
+- Update mobile drawer/backdrop interactions so the backdrop only exists while open, backdrop clicks close the drawer, and clicks inside the drawer do not bubble to the backdrop close handler.
 
-**User-visible outcome:** On phones, tapping any sidebar menu item closes the drawer immediately and the selected page is fully visible and interactive; tapping outside the open drawer closes it via a semi-transparent backdrop, while desktop behavior remains the same.
+**User-visible outcome:** When the mobile drawer is closed, all main content interactions (including Life Lessons cards, filters, and dialogs) work normally; when open, the backdrop closes the drawer reliably without interfering with drawer interactions; sidebar dropdown menus appear above other UI and remain clickable.

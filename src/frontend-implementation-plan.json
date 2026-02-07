@@ -1,67 +1,58 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Mobile drawer: instant close on nav selection + non-blocking overlay (md breakpoint)",
+  "title": "Fix AppShell layering and pointer-event handling for drawer/backdrop and dropdown menus",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "On <md, close the mobile sidebar drawer immediately on any menu item click (before route navigation completes) so main content is instantly visible and interactive.",
+      "summary": "Remove any closed-drawer/backdrop hitboxes and ensure layout wrappers do not block pointer events for main content interactions.",
       "acceptanceCriteria": [
-        "On screens <768px, opening the hamburger menu and tapping any nav item (e.g., Life Lessons, Journal, Dashboard, etc.) closes the drawer immediately.",
-        "After the drawer closes, the selected page content (videos/filters/search where applicable) is fully visible and clickable with no sidebar overlay blocking interaction.",
-        "Desktop behavior at >=768px remains unchanged (sidebar persistent; no auto-close requirement)."
+        "When the mobile drawer is closed, all interactive elements in main content pages (including /mental-performance/life-lessons) are clickable and receive pointer events normally.",
+        "There is no persistent full-screen overlay/backdrop element remaining mounted or intercepting clicks after the drawer closes.",
+        "No parent wrappers added for layout purposes prevent click handlers from firing on nested interactive elements (buttons, links, cards, filter controls)."
       ],
       "file_operations": [
         {
           "path": "frontend/src/components/layout/AppShell.tsx",
           "operation": "modify",
-          "description": "Adjust mobile nav click handling so the drawer state closes synchronously/immediately before triggering navigation (e.g., force state flush prior to navigate) for <md only, keeping >=md behavior unchanged. Ensure this applies to all sidebar items, including Dashboard refresh behavior when already on '/'. Verify the component's usage instructions before implementing."
+          "description": "Audit the AppShell layout tree for any fixed/absolute layers that can intercept clicks when the drawer is closed; refactor the mobile drawer/backdrop so that when closed they are fully unmounted (or otherwise guaranteed to have zero hitbox and pointer-event interception), while keeping the existing desktop sidebar behavior unchanged."
         }
       ]
     },
     {
       "id": "REQ-2",
-      "summary": "Prevent the closed mobile drawer/backdrop from capturing pointer events or blocking scroll/taps after closing.",
+      "summary": "Make sidebar/main-content sibling layout predictable and ensure dropdown surfaces render above other layers without overflow clipping.",
       "acceptanceCriteria": [
-        "When the mobile drawer is closed, all main content areas can be scrolled and interacted with normally (no invisible overlay capturing touches/clicks).",
-        "The drawer/backdrop layering does not interfere with the header controls after closing (hamburger is usable again)."
+        "Sidebar dropdown menus (including the existing account dropdown) appear above the sidebar/drawer and main content (effective z-index), and remain clickable on both mobile and desktop.",
+        "Dropdown/overlay surfaces are not clipped by parent containers (e.g., due to `overflow-hidden`) in normal sidebar-open scenarios.",
+        "The layout remains: sidebar/drawer and main content are sibling regions; overlays/backdrops are layered predictably (backdrop below drawer, drawer below dropdown content where applicable)."
       ],
       "file_operations": [
         {
           "path": "frontend/src/components/layout/AppShell.tsx",
           "operation": "modify",
-          "description": "Ensure the off-canvas drawer cannot intercept interactions when closed by removing it from hit-testing (e.g., pointer-events-none when closed) and/or conditionally rendering/unmounting the drawer/backdrop when not open. Confirm z-index/layering so header and main content regain full interactivity immediately after closing. Verify the component's usage instructions before implementing."
+          "description": "Adjust AppShell stacking contexts (z-indexes and positioning) so the sidebar and main content remain sibling regions and any overlay/menu layers (drawer, backdrop, dropdowns) stack predictably; ensure dropdown menu triggers/containers are not placed inside overflow-clipping wrappers in a way that prevents interaction."
+        },
+        {
+          "path": "frontend/src/index.css",
+          "operation": "modify",
+          "description": "Strengthen global layering safeguards for Radix/shadcn dropdown/popover surfaces so they reliably appear above drawer/backdrop layers (e.g., enforce a high z-index on the Radix popper wrapper) while avoiding changes to files under frontend/src/components/ui."
         }
       ]
     },
     {
       "id": "REQ-3",
-      "summary": "On <md, show a semi-transparent backdrop only while the drawer is open; tapping outside closes the drawer immediately.",
+      "summary": "Ensure mobile drawer backdrop only exists while open, closes on backdrop click, and drawer interactions never trigger backdrop dismissal.",
       "acceptanceCriteria": [
-        "On screens <768px, opening the drawer shows a semi-transparent backdrop behind it.",
-        "Tapping the backdrop closes the drawer immediately.",
-        "On >=768px, no mobile backdrop is shown."
+        "When the mobile drawer is open, tapping/clicking the backdrop closes it reliably.",
+        "When the mobile drawer is open, interacting with items inside the drawer (nav buttons, account dropdown trigger, Settings/Guidelines links, Field Mode toggle) does not accidentally trigger backdrop dismissal unless the user actually taps the backdrop.",
+        "When the mobile drawer is closed, it has no hitbox (no click interception) and does not block interaction with main content."
       ],
       "file_operations": [
         {
           "path": "frontend/src/components/layout/AppShell.tsx",
           "operation": "modify",
-          "description": "Add/verify the mobile-only backdrop behavior: render backdrop only when the drawer is open, ensure it sits behind the drawer, and closes the drawer immediately on tap/click. Keep backdrop hidden at >=md. Verify the component's usage instructions before implementing."
-        }
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "summary": "Preserve existing UI/UX (dark theme, icons, labels, and route paths) while implementing only the mobile drawer behavior fixes.",
-      "acceptanceCriteria": [
-        "No visual/theme regressions are introduced outside of the mobile drawer open/close and backdrop behavior.",
-        "All existing navigation items and route paths remain the same (especially `/mental-performance/life-lessons`)."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/components/layout/AppShell.tsx",
-          "operation": "modify",
-          "description": "Implement the drawer fixes without changing nav labels/paths (especially the Life Lessons path), icons, theme styling, or desktop sidebar behavior at >=md. Keep the existing layout structure and only adjust mobile drawer/backdrop interaction and layering. Verify the component's usage instructions before implementing."
+          "description": "Refine mobile drawer/backdrop event handling: keep the backdrop mounted only while open and bind dismissal to backdrop interaction; add explicit event-stopping on the drawer container (e.g., onPointerDown/onClick stopPropagation) to prevent any dismissal logic from being triggered by drawer interactions; keep the existing desktop sidebar persistent behavior at md and above."
         }
       ]
     }

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useRouterState, useNavigate } from '@tanstack/react-router';
 import {
   Home,
@@ -75,6 +75,13 @@ function AppShellContent({ children }: AppShellProps) {
   const { identity, clear } = useInternetIdentity();
   const { profile, reset } = useLocalProfile();
   const { requestDashboardRefresh } = useDashboardRefresh();
+
+  // Auto-close mobile drawer on route change
+  useEffect(() => {
+    if (isMobileDrawerOpen) {
+      setIsMobileDrawerOpen(false);
+    }
+  }, [pathname]);
 
   const handleLogout = async () => {
     await clear();
@@ -163,7 +170,7 @@ function AppShellContent({ children }: AppShellProps) {
         </nav>
       </ScrollArea>
 
-      <div className="p-3 border-t relative z-50">
+      <div className="p-3 border-t">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="w-full justify-start px-2">
@@ -182,7 +189,7 @@ function AppShellContent({ children }: AppShellProps) {
               </div>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56 z-[1000]">
+          <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuLabel>My Account</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
@@ -295,52 +302,62 @@ function AppShellContent({ children }: AppShellProps) {
         </header>
 
         {/* Main Content - Scrollable */}
-        <main className="flex-1 overflow-y-auto z-10">
+        <main className="flex-1 overflow-y-auto">
           <BrandHeaderBanner />
           {children}
         </main>
       </div>
 
-      {/* Mobile Drawer Overlay - only rendered when open, below md breakpoint */}
+      {/* Mobile Drawer - only rendered when open, only below md breakpoint */}
       {isMobileDrawerOpen && (
-        <div
-          className="fixed inset-0 bg-black/60 z-40 md:hidden"
-          onClick={closeMobileDrawer}
-          aria-hidden="true"
-        />
-      )}
-
-      {/* Mobile Drawer - only below md breakpoint */}
-      <aside
-        className={`fixed inset-y-0 left-0 w-80 max-w-[85vw] bg-card border-r z-50 flex flex-col transform transition-transform duration-300 md:hidden ${
-          isMobileDrawerOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}
-      >
-        <div className="p-6 border-b flex items-center justify-between">
-          <Button
-            variant="ghost"
-            className="flex items-center gap-3 hover:bg-transparent p-0"
-            onClick={() => handleNavClick('/')}
-          >
-            <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
-              <Shield className="h-6 w-6 text-primary-foreground" />
-            </div>
-            <div>
-              <h1 className="font-bold text-lg leading-tight">Dagger H2F</h1>
-              <p className="text-xs text-muted-foreground">Mental & Sleep</p>
-            </div>
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
+        <>
+          {/* Backdrop - positioned absolutely, below drawer */}
+          <div
+            className="fixed inset-0 bg-black/60 z-40 md:hidden"
             onClick={closeMobileDrawer}
-            aria-label="Close menu"
+            aria-hidden="true"
+          />
+
+          {/* Drawer - positioned absolutely, above backdrop */}
+          <aside
+            className="fixed inset-y-0 left-0 w-80 max-w-[85vw] bg-card border-r flex flex-col z-50 md:hidden"
+            onClick={(e) => {
+              // Stop propagation to prevent backdrop click from closing drawer
+              e.stopPropagation();
+            }}
+            onPointerDown={(e) => {
+              // Stop propagation for pointer events as well
+              e.stopPropagation();
+            }}
+            aria-hidden={false}
           >
-            <X className="h-6 w-6" />
-          </Button>
-        </div>
-        <SidebarContent onNavClick={handleNavClick} />
-      </aside>
+            <div className="p-6 border-b flex items-center justify-between">
+              <Button
+                variant="ghost"
+                className="flex items-center gap-3 hover:bg-transparent p-0"
+                onClick={() => handleNavClick('/')}
+              >
+                <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
+                  <Shield className="h-6 w-6 text-primary-foreground" />
+                </div>
+                <div>
+                  <h1 className="font-bold text-lg leading-tight">Dagger H2F</h1>
+                  <p className="text-xs text-muted-foreground">Mental & Sleep</p>
+                </div>
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={closeMobileDrawer}
+                aria-label="Close menu"
+              >
+                <X className="h-6 w-6" />
+              </Button>
+            </div>
+            <SidebarContent onNavClick={handleNavClick} />
+          </aside>
+        </>
+      )}
     </div>
   );
 }
