@@ -13,7 +13,6 @@ import {
   FileText,
   Settings,
   Quote,
-  Video,
   Menu,
   Brain,
   ChevronDown,
@@ -38,7 +37,6 @@ import { useIsMobile } from '../../hooks/useIsMobile';
 import FieldModeToggle from '../fieldMode/FieldModeToggle';
 import BrandHeaderBanner from '../branding/BrandHeaderBanner';
 import { DashboardRefreshProvider, useDashboardRefresh } from '../../contexts/DashboardRefreshContext';
-import { LIFE_LESSONS_DISPLAY_NAME } from '../../content/mentalPerformance/lifeLessonsDisplayName';
 
 interface NavItem {
   label: string;
@@ -58,7 +56,6 @@ const navItems: NavItem[] = [
   { label: 'Recommended Reading', path: '/mental-performance/reading', icon: BookMarked, section: 'Mental Performance' },
   { label: 'Free Soldier Apps', path: '/mental-performance/apps', icon: Grid3x3, section: 'Mental Performance' },
   { label: 'Military Apps', path: '/tools/military-apps', icon: Shield, section: 'Mental Performance' },
-  { label: LIFE_LESSONS_DISPLAY_NAME, path: '/mental-performance/life-lessons', icon: Video, section: 'Mental Performance' },
   { label: 'IZOF', path: '/mental-performance/izof', icon: Brain, section: 'Mental Performance' },
   { label: 'Personal Reports', path: '/reports', icon: FileText, section: 'Tools' },
   { label: 'Guidelines', path: '/guidelines', icon: FileText, section: 'Settings' },

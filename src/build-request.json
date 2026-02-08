@@ -1,107 +1,75 @@
 {
   "kind": "build_request",
-  "title": "Mobile optimization, fully-collapsible sidebar, and fix Life Lessons category menu overlay + rename",
+  "title": "Remove Motivational Videos (Life Lessons) section",
   "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-1",
-      "text": "Optimize the app UI for mobile usage by improving responsive layout, spacing, and touch interactions across the AppShell layout (sidebar + main content) so primary navigation and page content are comfortable to use on small screens.",
+      "id": "REQ-5",
+      "text": "Remove the Motivational Videos / Life Lessons section from the app UI so it is no longer discoverable from primary navigation (sidebar) and no longer presents a videos library experience.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-4"
+          "msg-3"
         ],
         "quotes": [
-          "Optimize the app for mobile usage"
+          "Delete the motivational videos section entirely"
         ]
       },
       "acceptanceCriteria": [
-        "On screens <= 768px wide, no horizontal scrolling is required on core pages due to layout overflow.",
-        "Tap targets for navigation controls (menu button, nav icons/links) meet a minimum 44x44px interactive area (consistent with existing mobile touch-target intent in CSS).",
-        "The main content area remains scrollable and usable on mobile; header + navigation do not block access to page content."
+        "The sidebar navigation in AppShell no longer shows a nav item for the Motivational Videos / Life Lessons section.",
+        "No page in the app renders the motivational videos grid, search, filters, favorites-only toggle, or YouTube player dialog UI.",
+        "The app builds without TypeScript errors after removing the section and any now-unused imports."
       ]
     },
     {
-      "id": "REQ-2",
-      "text": "Make the sidebar totally collapsible on mobile: provide a mode where the sidebar can be fully hidden (not occupying screen width) and can be opened/closed via a visible menu button; ensure the sidebar does not permanently cover or squeeze the content on small screens.",
+      "id": "REQ-6",
+      "text": "Keep the existing route path '/mental-performance/life-lessons' stable, but ensure it no longer exposes the motivational videos section (e.g., redirect to a remaining Mental Performance page, or show a simple removed-section message with navigation back).",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-4"
+          "msg-3"
         ],
         "quotes": [
-          "Make side bar totally collapsible"
+          "Delete the motivational videos section entirely"
         ]
       },
       "acceptanceCriteria": [
-        "On screens <= 768px wide, the sidebar can be fully hidden (0 width or off-canvas) such that the main content uses the full viewport width.",
-        "A menu button is available to open the sidebar when it is hidden, and a clear action exists to close it again.",
-        "Opening the sidebar on mobile does not cause content to be permanently obscured without an obvious close/dismiss interaction.",
-        "On larger screens, current behavior (expanded vs icon-collapsed sidebar) remains functional."
+        "Navigating directly to '/mental-performance/life-lessons' does not show the motivational videos experience.",
+        "The route path string '/mental-performance/life-lessons' remains unchanged in the app routing configuration.",
+        "User-facing text shown on this route (if any) is in English and clearly indicates the section is no longer available, with an obvious way to navigate elsewhere."
       ]
     },
     {
-      "id": "REQ-3",
-      "text": "Fix the Life Lessons page so the category/menu options do not overlay and block the videos list; move the categories menu to the top of the screen (as a top filter area) while ensuring the videos are visible and scroll beneath it without being covered (match the problem shown in IMG_2564.png and IMG_2564-1.png).",
+      "id": "REQ-7",
+      "text": "Delete or fully decommission motivational-video-specific frontend modules so there is no remaining dead code or unused assets for this section (page, components, hooks, and content) unless they are still referenced by other active features.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-4"
+          "msg-3"
         ],
         "quotes": [
-          "The menu options still stay in front of the videos in the life lessons tab.",
-          "Make the menu available at the top of the screen for categories so the videos can be seen.",
-          "Reference the image attached to see what is wrong now."
+          "Delete the motivational videos section entirely"
         ]
       },
       "acceptanceCriteria": [
-        "In the Life Lessons page, the filter controls (favorites + category buttons) are positioned at the top and do not obscure the video grid/list while scrolling.",
-        "The first row of videos is fully visible and not hidden behind any sticky filter/header elements.",
-        "No filter/menu element overlaps the video cards on mobile (verified at typical iPhone viewport widths)."
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "text": "Rename the user-facing 'Life Lessons' label to the new name requested by the user across the UI where it appears (page title and sidebar label), while keeping the existing route path '/mental-performance/life-lessons' unchanged.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-4"
-        ],
-        "quotes": [
-          "Rename life lessons."
-        ]
-      },
-      "acceptanceCriteria": [
-        "The Life Lessons page header no longer displays the old label text.",
-        "The sidebar navigation label for the Life Lessons route reflects the new name.",
-        "The URL path for the page remains '/mental-performance/life-lessons' and navigation to that route continues to work."
+        "The project has no unused imports referencing motivational-video-specific files (e.g., MotivationalLifeLessons page, MotivationalVideoCard, YouTubePlayerDialog, motivationalLifeLessonsVideos content, life lessons progress hook) after the change.",
+        "Any localStorage keys / progress logic used only by the removed section is no longer written to by the app.",
+        "The app runtime has no console errors related to removed motivational-video modules during normal navigation."
       ]
     }
   ],
   "constraints": [
-    "Do not modify any files under frontend/src/components/ui (compose existing components only).",
-    "Do not edit frontend/src/hooks/useInternetIdentity.ts/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, or frontend/src/main.tsx (immutable paths).",
-    "Backend remains single-actor; no backend changes are required for these UI/layout fixes.",
-    "Keep the existing Life Lessons route path '/mental-performance/life-lessons' unchanged."
+    "Do not edit files under frontend/src/components/ui (read-only components must be composed, not modified).",
+    "Do not modify frontend/src/hooks/useInternetIdentity.ts(x), frontend/src/hooks/useActor.ts, or frontend/src/main.tsx (immutable paths).",
+    "Backend remains single-actor; no backend changes are required for removing a purely frontend section."
   ],
   "nonGoals": [
-    "Adding new video content or changing the motivational video dataset.",
-    "Implementing third-party auth providers or any non-Internet Identity authentication.",
-    "Backend schema changes or migrations for this request."
+    "Do not redesign or change other Mental Performance sections (Recommended Reading, Free Soldier Apps, Military Apps, IZOF).",
+    "Do not add new content sections to replace the removed motivational videos section.",
+    "Do not introduce new authentication providers beyond Internet Identity."
   ],
   "imageRequirements": {
     "required": [],
     "edits": []
-  },
-  "userProfileUpdate": {
-    "goalsToAdd": [],
-    "goalsToRemove": [],
-    "preferencesToAdd": [],
-    "preferencesToRemove": [],
-    "miscToAdd": [],
-    "miscToRemove": [],
-    "fieldsToSet": {},
-    "fieldsToDelete": []
   }
 }

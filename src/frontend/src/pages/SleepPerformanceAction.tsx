@@ -25,8 +25,8 @@ export default function SleepPerformanceAction() {
   const [selectedNapDuration, setSelectedNapDuration] = useState<10 | 20 | 30 | 90>(20);
 
   const modeGuidance = sleepPerformanceCopy.modes[state.mode] || sleepPerformanceCopy.modes.standard;
-  const painGuidance = lastLog ? getPainGuidance(lastLog.painInputs) : null;
-  const stressTools = lastLog ? getStressDisruptionTools(lastLog.stressInputs) : null;
+  const painGuidance = lastLog?.painInputs ? getPainGuidance(lastLog.painInputs) : null;
+  const stressTools = lastLog?.stressInputs ? getStressDisruptionTools(lastLog.stressInputs) : null;
 
   const handleLogCaffeine = () => {
     if (!caffeineTime) {
@@ -35,7 +35,6 @@ export default function SleepPerformanceAction() {
     }
 
     logCaffeine({
-      type: caffeineSource,
       source: caffeineSource,
       amount: parseInt(caffeineAmount)
     });

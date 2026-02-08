@@ -1,12 +1,12 @@
 # Specification
 
 ## Summary
-**Goal:** Improve the mobile experience by optimizing the AppShell layout, adding a fully hideable sidebar on small screens, fixing the Life Lessons filter/menu overlay issue, and renaming the Life Lessons label in the UI without changing its route.
+**Goal:** Remove the Motivational Videos / Life Lessons section from the UI while keeping the existing route path stable and non-exposing.
 
 **Planned changes:**
-- Improve responsive layout, spacing, and touch-target sizing across the AppShell (sidebar + main content) for screens <= 768px to avoid overflow and improve usability.
-- Add a mobile mode where the sidebar can be fully hidden (off-canvas/0-width) and toggled via a visible menu button, with an obvious way to close/dismiss it; preserve current desktop/tablet behavior.
-- On the Life Lessons page, move the filter controls (favorites + category buttons) to the top so they do not overlap/cover the videos list while scrolling (as shown in IMG_2564.png / IMG_2564-1.png).
-- Rename the user-facing “Life Lessons” label everywhere it appears in the UI (page title and sidebar label) while keeping the existing route path `/mental-performance/life-lessons` unchanged.
+- Remove the Motivational Videos / Life Lessons item from the primary navigation (sidebar/AppShell).
+- Remove/decommission the motivational-videos pages, components, hooks, and content so the videos library UI is no longer present anywhere (grid, search, filters, favorites-only toggle, YouTube player dialog).
+- Keep the route path `/mental-performance/life-lessons` in the routing configuration, but change its behavior to no longer show the removed section (redirect to an existing Mental Performance page or show a simple English “section removed” message with a clear way to navigate elsewhere).
+- Clean up any section-specific persistence/progress logic (e.g., localStorage keys) so it is no longer written, and ensure the app builds without TypeScript errors or runtime console errors due to removed modules.
 
-**User-visible outcome:** On mobile, navigation and content are easier to use with no horizontal scrolling, the sidebar can be fully hidden and opened/closed via a menu button, Life Lessons filters no longer cover video cards, and the “Life Lessons” section displays the new name while the URL stays the same.
+**User-visible outcome:** The Motivational Videos / Life Lessons section is no longer discoverable or usable in the app; visiting `/mental-performance/life-lessons` no longer shows the videos experience and instead guides the user to an available Mental Performance area.

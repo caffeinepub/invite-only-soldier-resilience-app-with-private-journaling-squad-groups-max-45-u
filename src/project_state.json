@@ -1,42 +1,32 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "App UI updates focused on mobile optimization, collapsible sidebar navigation, and fixing Life Lessons tab category menu overlay while renaming the tab.",
+  "summary": "Project to update/refine the app/site layout, including removing the 'motivational videos' section and optionally refining mobile spacing.",
   "architectural_notes": [],
-  "known_issues": [
-    "In the Life Lessons tab, menu options/categories are staying in front of (overlaying) the videos, blocking visibility."
-  ],
-  "isFixRequest": true,
+  "known_issues": [],
+  "isFixRequest": false,
   "existing_features": [
     {
-      "id": "feature-optimize-the-app-ui-for-mobile-usage-by-improving-responsive-layout-spacing-and-touch-interactions-across-the-appshell-layout-sidebar-main-content-so-primary-navigation-and-page-content-are-comfortable-to-use-on-small-screens",
-      "title": "Optimize the app UI for mobile usage by improving responsive layout, spacing, and touch interactions across the AppShell layout (sidebar + main content) so primary navigation and page content are comfortable to use on small screens.",
+      "id": "feature-remove-the-motivational-videos-life-lessons-section-from-the-app-ui-so-it-is-no-longer-discoverable-from-primary-navigation-sidebar-and-no-longer-presents-a-videos-library-experience",
+      "title": "Remove the Motivational Videos / Life Lessons section from the app UI so it is no longer discoverable from primary navigation (sidebar) and no longer presents a videos library experience.",
       "reqIds": [
-        "REQ-1"
+        "REQ-5"
       ],
       "version": 1
     },
     {
-      "id": "feature-make-the-sidebar-totally-collapsible-on-mobile-provide-a-mode-where-the-sidebar-can-be-fully-hidden-not-occupying-screen-width-and-can-be-opened-closed-via-a-visible-menu-button-ensure-the-sidebar-does-not-permanently-cover-or-squeeze-the-content-on-small-screens",
-      "title": "Make the sidebar totally collapsible on mobile: provide a mode where the sidebar can be fully hidden (not occupying screen width) and can be opened/closed via a visible menu button; ensure the sidebar does not permanently cover or squeeze the content on small screens.",
+      "id": "feature-keep-the-existing-route-path-mental-performance-life-lessons-stable-but-ensure-it-no-longer-exposes-the-motivational-videos-section-e-g-redirect-to-a-remaining-mental-performance-page-or-show-a-simple-removed-section-message-with-navigation-back",
+      "title": "Keep the existing route path '/mental-performance/life-lessons' stable, but ensure it no longer exposes the motivational videos section (e.g., redirect to a remaining Mental Performance page, or show a simple removed-section message with navigation back).",
       "reqIds": [
-        "REQ-2"
+        "REQ-6"
       ],
       "version": 1
     },
     {
-      "id": "feature-fix-the-life-lessons-page-so-the-category-menu-options-do-not-overlay-and-block-the-videos-list-move-the-categories-menu-to-the-top-of-the-screen-as-a-top-filter-area-while-ensuring-the-videos-are-visible-and-scroll-beneath-it-without-being-covered-match-the-problem-shown-in-img-2564-png-and-img-2564-1-png",
-      "title": "Fix the Life Lessons page so the category/menu options do not overlay and block the videos list; move the categories menu to the top of the screen (as a top filter area) while ensuring the videos are visible and scroll beneath it without being covered (match the problem shown in IMG_2564.png and IMG_2564-1.png).",
+      "id": "feature-delete-or-fully-decommission-motivational-video-specific-frontend-modules-so-there-is-no-remaining-dead-code-or-unused-assets-for-this-section-page-components-hooks-and-content-unless-they-are-still-referenced-by-other-active-features",
+      "title": "Delete or fully decommission motivational-video-specific frontend modules so there is no remaining dead code or unused assets for this section (page, components, hooks, and content) unless they are still referenced by other active features.",
       "reqIds": [
-        "REQ-3"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-rename-the-user-facing-life-lessons-label-to-the-new-name-requested-by-the-user-across-the-ui-where-it-appears-page-title-and-sidebar-label-while-keeping-the-existing-route-path-mental-performance-life-lessons-unchanged",
-      "title": "Rename the user-facing 'Life Lessons' label to the new name requested by the user across the UI where it appears (page title and sidebar label), while keeping the existing route path '/mental-performance/life-lessons' unchanged.",
-      "reqIds": [
-        "REQ-4"
+        "REQ-7"
       ],
       "version": 1
     }
@@ -44,24 +34,12 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Optimize the app for mobile usage (responsive layout and mobile-friendly interactions).",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-2",
-      "summary": "Make the sidebar fully/totally collapsible.",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-3",
-      "summary": "Fix Life Lessons tab: category/menu options overlaying videos; move categories menu to top so videos are visible; rename 'Life Lessons'.",
+      "summary": "Delete the motivational videos section entirely",
       "reqIds": [],
       "status": "pending"
     }
   ],
-  "projectName": "Mobile optimization, fully-collapsible sidebar, and fix Life Lessons category menu overlay + rename",
+  "projectName": "Remove Motivational Videos (Life Lessons) section",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

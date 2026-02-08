@@ -1,18 +1,89 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-08T00:07:10.309Z",
-  "summary": "Diff implements mobile-focused layout safeguards (no horizontal overflow + 44px touch targets), adds a mobile viewport hook, updates AppShell to support a mobile-collapsible/off-canvas sidebar with menu controls (per file summary), fixes Life Lessons page filter/menu to a top sticky header, and renames the Life Lessons label to a centralized display name while keeping the route path unchanged.",
-  "missing_requirements": [],
-  "hallucinated_features": [],
+  "generatedAt": "2026-02-08T01:29:11.369Z",
+  "summary": "The diff removes the Life Lessons nav item from the sidebar and introduces a new removal/placeholder page intended to replace the old experience at the same route. However, motivational-video-specific modules/content/hooks appear to remain in the codebase (and even a new motivational-video validation utility was added), so full decommissioning/cleanup (REQ-7) is not evidenced by the diff summary. The diff also includes substantial unrelated feature work beyond the requested removal.",
+  "missing_requirements": [
+    {
+      "id": "REQ-7",
+      "requirement": "Delete or fully decommission motivational-video-specific frontend modules so there is no remaining dead code or unused assets for this section (page, components, hooks, and content) unless they are still referenced by other active features.",
+      "reason": "Motivational-video-specific files are still present (modified, not removed), and at least one new motivational-videos-related utility file was added, which contradicts decommissioning/removal and suggests leftover code/assets may remain.",
+      "evidence": [
+        "frontend/src/pages/MotivationalLifeLessons.tsx",
+        "frontend/src/components/mentalPerformance/MotivationalVideoCard.tsx",
+        "frontend/src/components/mentalPerformance/YouTubePlayerDialog.tsx",
+        "frontend/src/content/mentalPerformance/motivationalLifeLessonsVideos.ts",
+        "frontend/src/hooks/useLifeLessonsProgress.ts",
+        "frontend/src/types/motivationalVideos.ts",
+        "frontend/src/utils/validateMotivationalVideos.ts"
+      ]
+    }
+  ],
+  "hallucinated_features": [
+    {
+      "description": "Large refactor/additions around local-only data storage and legacy type scaffolding (journal entries, daily inputs, readiness state, caffeine logs, IZOF entries/settings, personal reports) unrelated to removing the Motivational Videos section.",
+      "reason": "BuildRequest focuses only on removing the Motivational Videos/Life Lessons section; it explicitly states no backend changes are required and has non-goals to avoid changing other sections. The diff shows broad unrelated changes.",
+      "evidence": [
+        "frontend/src/utils/localDataStore.ts",
+        "frontend/src/hooks/useLocalData.ts",
+        "frontend/src/types/legacy.ts"
+      ]
+    },
+    {
+      "description": "Changes/additions to onboarding flow and public landing page content.",
+      "reason": "Not requested by REQ-5/6/7 and outside the scope of removing a single Mental Performance section.",
+      "evidence": [
+        "frontend/src/components/onboarding/OnboardingFlow.tsx",
+        "frontend/src/pages/PublicLanding.tsx",
+        "frontend/src/content/disclaimer.ts"
+      ]
+    },
+    {
+      "description": "Mission/content updates and new unlock rules in modules content.",
+      "reason": "Not part of removing the Motivational Videos/Life Lessons UI section.",
+      "evidence": [
+        "frontend/src/content/modules.ts"
+      ]
+    },
+    {
+      "description": "Substantial updates to other existing pages/areas (e.g., Journal, Groups/Squads, Admin Reports) not requested and potentially violating the non-goal to not redesign/change other sections.",
+      "reason": "BuildRequest non-goals specify not redesigning/changing other Mental Performance sections and no additional new sections; the diff summary indicates broad page work beyond the removal.",
+      "evidence": [
+        "frontend/src/pages/Journal.tsx",
+        "frontend/src/pages/Squads.tsx",
+        "frontend/src/pages/SquadSharedEntries.tsx",
+        "frontend/src/pages/AdminReports.tsx",
+        "frontend/src/pages/Guidelines.tsx",
+        "frontend/src/pages/SettingsAbout.tsx"
+      ]
+    },
+    {
+      "description": "New/expanded motivational-video-related utility for validation despite the section being removed.",
+      "reason": "REQ-5/6/7 aim to remove/decommission the motivational videos experience; adding new utilities for motivational videos was not requested.",
+      "evidence": [
+        "frontend/src/utils/validateMotivationalVideos.ts"
+      ]
+    }
+  ],
   "confidence": 0.74,
   "changed_files": [
     "frontend-file-summaries.txt",
+    "frontend/src/App.tsx",
     "frontend/src/components/layout/AppShell.tsx",
+    "frontend/src/components/mentalPerformance/MotivationalVideoCard.tsx",
+    "frontend/src/components/mentalPerformance/YouTubePlayerDialog.tsx",
     "frontend/src/content/mentalPerformance/lifeLessonsDisplayName.ts",
-    "frontend/src/hooks/useIsMobile.ts",
-    "frontend/src/index.css",
+    "frontend/src/content/mentalPerformance/motivationalLifeLessonsVideos.ts",
+    "frontend/src/hooks/useLifeLessonsProgress.ts",
+    "frontend/src/hooks/useLocalData.ts",
+    "frontend/src/pages/IZOF.tsx",
+    "frontend/src/pages/LifeLessonsRemoved.tsx",
     "frontend/src/pages/MotivationalLifeLessons.tsx",
+    "frontend/src/pages/SleepPerformanceAction.tsx",
+    "frontend/src/types/legacy.ts",
+    "frontend/src/types/motivationalVideos.ts",
+    "frontend/src/utils/localDataStore.ts",
+    "frontend/src/utils/validateMotivationalVideos.ts",
     "project_state.json"
   ]
 }

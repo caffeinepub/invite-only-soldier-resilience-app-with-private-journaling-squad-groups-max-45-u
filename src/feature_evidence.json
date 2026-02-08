@@ -2,11 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-optimize-the-app-ui-for-mobile-usage-by-improving-responsive-layout-spacing-and-touch-interactions-across-the-appshell-layout-sidebar-main-content-so-primary-navigation-and-page-content-are-comfortable-to-use-on-small-screens",
-      "featureTitle": "Optimize the app UI for mobile usage by improving responsive layout, spacing, and touch interactions across the AppShell layout (sidebar + main content) so primary navigation and page content are comfortable to use on small screens.",
+      "featureId": "feature-remove-the-motivational-videos-life-lessons-section-from-the-app-ui-so-it-is-no-longer-discoverable-from-primary-navigation-sidebar-and-no-longer-presents-a-videos-library-experience",
+      "featureTitle": "Remove the Motivational Videos / Life Lessons section from the app UI so it is no longer discoverable from primary navigation (sidebar) and no longer presents a videos library experience.",
       "files": [
-        "frontend/src/components/layout/AppShell.tsx",
-        "frontend/src/index.css"
+        "frontend/src/components/layout/AppShell.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -17,16 +16,16 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-1"
+        "REQ-5"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-make-the-sidebar-totally-collapsible-on-mobile-provide-a-mode-where-the-sidebar-can-be-fully-hidden-not-occupying-screen-width-and-can-be-opened-closed-via-a-visible-menu-button-ensure-the-sidebar-does-not-permanently-cover-or-squeeze-the-content-on-small-screens",
-      "featureTitle": "Make the sidebar totally collapsible on mobile: provide a mode where the sidebar can be fully hidden (not occupying screen width) and can be opened/closed via a visible menu button; ensure the sidebar does not permanently cover or squeeze the content on small screens.",
+      "featureId": "feature-keep-the-existing-route-path-mental-performance-life-lessons-stable-but-ensure-it-no-longer-exposes-the-motivational-videos-section-e-g-redirect-to-a-remaining-mental-performance-page-or-show-a-simple-removed-section-message-with-navigation-back",
+      "featureTitle": "Keep the existing route path '/mental-performance/life-lessons' stable, but ensure it no longer exposes the motivational videos section (e.g., redirect to a remaining Mental Performance page, or show a simple removed-section message with navigation back).",
       "files": [
-        "frontend/src/components/layout/AppShell.tsx",
-        "frontend/src/hooks/useIsMobile.ts"
+        "frontend/src/App.tsx",
+        "frontend/src/pages/LifeLessonsRemoved.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -37,37 +36,23 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-2"
+        "REQ-6"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-fix-the-life-lessons-page-so-the-category-menu-options-do-not-overlay-and-block-the-videos-list-move-the-categories-menu-to-the-top-of-the-screen-as-a-top-filter-area-while-ensuring-the-videos-are-visible-and-scroll-beneath-it-without-being-covered-match-the-problem-shown-in-img-2564-png-and-img-2564-1-png",
-      "featureTitle": "Fix the Life Lessons page so the category/menu options do not overlay and block the videos list; move the categories menu to the top of the screen (as a top filter area) while ensuring the videos are visible and scroll beneath it without being covered (match the problem shown in IMG_2564.png and IMG_2564-1.png).",
+      "featureId": "feature-delete-or-fully-decommission-motivational-video-specific-frontend-modules-so-there-is-no-remaining-dead-code-or-unused-assets-for-this-section-page-components-hooks-and-content-unless-they-are-still-referenced-by-other-active-features",
+      "featureTitle": "Delete or fully decommission motivational-video-specific frontend modules so there is no remaining dead code or unused assets for this section (page, components, hooks, and content) unless they are still referenced by other active features.",
       "files": [
-        "frontend/src/index.css",
-        "frontend/src/pages/MotivationalLifeLessons.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-3"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-rename-the-user-facing-life-lessons-label-to-the-new-name-requested-by-the-user-across-the-ui-where-it-appears-page-title-and-sidebar-label-while-keeping-the-existing-route-path-mental-performance-life-lessons-unchanged",
-      "featureTitle": "Rename the user-facing 'Life Lessons' label to the new name requested by the user across the UI where it appears (page title and sidebar label), while keeping the existing route path '/mental-performance/life-lessons' unchanged.",
-      "files": [
-        "frontend/src/components/layout/AppShell.tsx",
+        "frontend/src/components/mentalPerformance/MotivationalVideoCard.tsx",
+        "frontend/src/components/mentalPerformance/YouTubePlayerDialog.tsx",
         "frontend/src/content/mentalPerformance/lifeLessonsDisplayName.ts",
-        "frontend/src/pages/MotivationalLifeLessons.tsx"
+        "frontend/src/content/mentalPerformance/motivationalLifeLessonsVideos.ts",
+        "frontend/src/hooks/useLifeLessonsProgress.ts",
+        "frontend/src/pages/MotivationalLifeLessons.tsx",
+        "frontend/src/types/motivationalVideos.ts",
+        "frontend/src/utils/localDataStore.ts",
+        "frontend/src/utils/validateMotivationalVideos.ts"
       ],
       "components": [
         "authorization@4.0.0",
@@ -78,7 +63,7 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-4"
+        "REQ-7"
       ],
       "confidence": "high"
     }

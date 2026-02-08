@@ -1,95 +1,98 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Mobile responsive AppShell, fully hidden mobile sidebar, and Life Lessons filter/header overlay fix + rename",
+  "title": "Remove Motivational Videos (Life Lessons) section from frontend",
   "requirements": [
     {
-      "id": "REQ-1",
-      "summary": "Improve mobile responsiveness across the AppShell layout (sidebar + main content) to prevent overflow, improve spacing, and ensure comfortable touch interactions.",
+      "id": "REQ-5",
+      "summary": "Remove the Motivational Videos / Life Lessons section from primary navigation and eliminate the videos library UI from the app.",
       "acceptanceCriteria": [
-        "On screens <= 768px wide, no horizontal scrolling is required on core pages due to layout overflow.",
-        "Tap targets for navigation controls (menu button, nav icons/links) meet a minimum 44x44px interactive area (consistent with existing mobile touch-target intent in CSS).",
-        "The main content area remains scrollable and usable on mobile; header + navigation do not block access to page content."
+        "The sidebar navigation in AppShell no longer shows a nav item for the Motivational Videos / Life Lessons section.",
+        "No page in the app renders the motivational videos grid, search, filters, favorites-only toggle, or YouTube player dialog UI.",
+        "The app builds without TypeScript errors after removing the section and any now-unused imports."
       ],
       "file_operations": [
         {
           "path": "frontend/src/components/layout/AppShell.tsx",
           "operation": "modify",
-          "description": "Refine AppShell responsive layout so the sidebar/mobile overlay behavior cannot cause horizontal overflow and the main content always uses the full viewport width on small screens; ensure the main scroll container remains usable. Use existing shadcn-ui Button/ScrollArea composition only; verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/index.css",
-          "operation": "modify",
-          "description": "Add/adjust global mobile-safe layout safeguards (e.g., preventing unintended horizontal overflow at the root/layout level) while keeping the existing 44x44 mobile touch-target intent intact."
+          "description": "Remove the Life Lessons (Motivational Videos) nav item from the sidebar navItems list and delete any now-unused imports/icons associated with it."
         }
       ]
     },
     {
-      "id": "REQ-2",
-      "summary": "Implement a fully hideable (off-canvas) sidebar mode on mobile with open/close controls and non-obscuring behavior, while preserving the current desktop expanded vs icon-collapsed behavior.",
+      "id": "REQ-6",
+      "summary": "Keep the '/mental-performance/life-lessons' route path stable, but ensure it no longer exposes the motivational videos experience.",
       "acceptanceCriteria": [
-        "On screens <= 768px wide, the sidebar can be fully hidden (0 width or off-canvas) such that the main content uses the full viewport width.",
-        "A menu button is available to open the sidebar when it is hidden, and a clear action exists to close it again.",
-        "Opening the sidebar on mobile does not cause content to be permanently obscured without an obvious close/dismiss interaction.",
-        "On larger screens, current behavior (expanded vs icon-collapsed sidebar) remains functional."
+        "Navigating directly to '/mental-performance/life-lessons' does not show the motivational videos experience.",
+        "The route path string '/mental-performance/life-lessons' remains unchanged in the app routing configuration.",
+        "User-facing text shown on this route (if any) is in English and clearly indicates the section is no longer available, with an obvious way to navigate elsewhere."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/hooks/useIsMobile.ts",
+          "path": "frontend/src/pages/LifeLessonsRemoved.tsx",
           "operation": "create",
-          "description": "Add a small hook that tracks whether the viewport is currently mobile-sized (<=768px) to drive AppShell behavior without duplicating media-query logic in multiple places."
+          "description": "Add a simple removed-section page for '/mental-performance/life-lessons' that explains the section is no longer available and provides clear navigation back to an existing Mental Performance page (e.g., Recommended Reading or IZOF)."
         },
         {
-          "path": "frontend/src/components/layout/AppShell.tsx",
+          "path": "frontend/src/App.tsx",
           "operation": "modify",
-          "description": "Update sidebar state logic and layout to support a true off-canvas mobile sidebar (fully hidden when closed), including: a visible menu button when hidden, an overlay/backdrop and click-to-dismiss behavior when open, and preservation of existing desktop expanded vs icon-collapsed behavior. Use existing shadcn-ui Button/ScrollArea/DropdownMenu composition only; verify the component's usage instructions before implementing."
+          "description": "Keep the existing route path '/mental-performance/life-lessons' unchanged, but wire it to render the new LifeLessonsRemoved page instead of the motivational videos page; remove the old page import from the router module."
         }
       ]
     },
     {
-      "id": "REQ-3",
-      "summary": "Rework the Life Lessons page header/filter layout so category and favorites filters live at the top without overlaying or blocking the video list while scrolling.",
+      "id": "REQ-7",
+      "summary": "Delete or fully decommission motivational-video-specific frontend modules, dead code, and progress/localStorage logic that is only used by the removed section.",
       "acceptanceCriteria": [
-        "In the Life Lessons page, the filter controls (favorites + category buttons) are positioned at the top and do not obscure the video grid/list while scrolling.",
-        "The first row of videos is fully visible and not hidden behind any sticky filter/header elements.",
-        "No filter/menu element overlaps the video cards on mobile (verified at typical iPhone viewport widths)."
+        "The project has no unused imports referencing motivational-video-specific files (e.g., MotivationalLifeLessons page, MotivationalVideoCard, YouTubePlayerDialog, motivationalLifeLessonsVideos content, life lessons progress hook) after the change.",
+        "Any localStorage keys / progress logic used only by the removed section is no longer written to by the app.",
+        "The app runtime has no console errors related to removed motivational-video modules during normal navigation."
       ],
       "file_operations": [
         {
           "path": "frontend/src/pages/MotivationalLifeLessons.tsx",
-          "operation": "modify",
-          "description": "Replace the current multi-sticky header/filter arrangement with a top-of-screen filter area that does not overlap the video grid on mobile (e.g., consolidate into a single sticky header region or make filters non-sticky), ensuring the video list scrolls beneath without being covered. Use existing shadcn-ui Input/Button/Badge composition only; verify the component's usage instructions before implementing."
+          "operation": "delete",
+          "description": "Delete the motivational videos library page implementation so it cannot be rendered anywhere in the app."
         },
         {
-          "path": "frontend/src/index.css",
-          "operation": "modify",
-          "description": "If needed, add a small, page-safe styling safeguard to ensure sticky elements used by the Life Lessons page do not overlap subsequent content on mobile (avoid changes that impact unrelated pages)."
-        }
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "summary": "Rename the user-facing 'Life Lessons' label across the UI (page title and sidebar label) while keeping the route path '/mental-performance/life-lessons' unchanged.",
-      "acceptanceCriteria": [
-        "The Life Lessons page header no longer displays the old label text.",
-        "The sidebar navigation label for the Life Lessons route reflects the new name.",
-        "The URL path for the page remains '/mental-performance/life-lessons' and navigation to that route continues to work."
-      ],
-      "file_operations": [
+          "path": "frontend/src/components/mentalPerformance/MotivationalVideoCard.tsx",
+          "operation": "delete",
+          "description": "Delete the motivational-video-specific card component (no longer used after section removal)."
+        },
+        {
+          "path": "frontend/src/components/mentalPerformance/YouTubePlayerDialog.tsx",
+          "operation": "delete",
+          "description": "Delete the motivational-video-specific YouTube player dialog component (no longer used after section removal)."
+        },
+        {
+          "path": "frontend/src/hooks/useLifeLessonsProgress.ts",
+          "operation": "delete",
+          "description": "Delete the Life Lessons progress hook so the app no longer reads/writes life-lessons-specific localStorage progress."
+        },
+        {
+          "path": "frontend/src/content/mentalPerformance/motivationalLifeLessonsVideos.ts",
+          "operation": "delete",
+          "description": "Delete the motivational videos dataset/content module since the videos library experience is removed."
+        },
+        {
+          "path": "frontend/src/utils/validateMotivationalVideos.ts",
+          "operation": "delete",
+          "description": "Delete the development-time validator tied to the removed motivational videos dataset."
+        },
         {
           "path": "frontend/src/content/mentalPerformance/lifeLessonsDisplayName.ts",
-          "operation": "create",
-          "description": "Create a single exported constant for the Life Lessons display name (set to the user-requested new name) so the label is consistent across the UI while keeping the route path unchanged."
+          "operation": "delete",
+          "description": "Delete the Life Lessons display-name module after removing all references from navigation/routing."
         },
         {
-          "path": "frontend/src/components/layout/AppShell.tsx",
-          "operation": "modify",
-          "description": "Update the sidebar navigation item label for '/mental-performance/life-lessons' to use the centralized display-name constant (do not change the route path). Use existing shadcn-ui Button composition only; verify the component's usage instructions before implementing."
+          "path": "frontend/src/types/motivationalVideos.ts",
+          "operation": "delete",
+          "description": "Delete motivational-video-specific type definitions if no longer referenced by any remaining active feature."
         },
         {
-          "path": "frontend/src/pages/MotivationalLifeLessons.tsx",
+          "path": "frontend/src/utils/localDataStore.ts",
           "operation": "modify",
-          "description": "Update the page header title text to use the centralized display-name constant (do not change the route path). Use existing shadcn-ui composition only; verify the component's usage instructions before implementing."
+          "description": "Remove life-lessons-specific storage key/constants and the Life Lessons progress read/write helpers so the app no longer writes section-specific progress data to localStorage; ensure no remaining imports reference the removed motivational video types."
         }
       ]
     }

@@ -1,67 +1,64 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-08T00:07:10.313Z",
+  "generatedAt": "2026-02-08T01:29:11.373Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 4,
-    "implemented": 4,
+    "total": 3,
+    "implemented": 3,
     "items": [
       {
-        "id": "REQ-1",
-        "summary": "Optimize the app UI for mobile usage by improving responsive layout, spacing, and touch interactions across the AppShell layout (sidebar + main content) so primary navigation and page content are comfortable to use on small screens.",
+        "id": "REQ-5",
+        "summary": "Remove the Motivational Videos / Life Lessons section from the app UI so it is no longer discoverable from primary navigation (sidebar) and no longer presents a videos library experience.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/components/layout/AppShell.tsx",
-          "frontend/src/index.css"
-        ],
-        "matchedFiles": [
-          "frontend/src/components/layout/AppShell.tsx",
-          "frontend/src/index.css"
-        ]
-      },
-      {
-        "id": "REQ-2",
-        "summary": "Make the sidebar totally collapsible on mobile: provide a mode where the sidebar can be fully hidden (not occupying screen width) and can be opened/closed via a visible menu button; ensure the sidebar does not permanently cover or squeeze the content on small screens.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/hooks/useIsMobile.ts",
           "frontend/src/components/layout/AppShell.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/hooks/useIsMobile.ts",
           "frontend/src/components/layout/AppShell.tsx"
         ]
       },
       {
-        "id": "REQ-3",
-        "summary": "Fix the Life Lessons page so the category/menu options do not overlay and block the videos list; move the categories menu to the top of the screen (as a top filter area) while ensuring the videos are visible and scroll beneath it without being covered (match the problem shown in IMG_2564.png and IMG_2564-1.png).",
+        "id": "REQ-6",
+        "summary": "Keep the existing route path '/mental-performance/life-lessons' stable, but ensure it no longer exposes the motivational videos section (e.g., redirect to a remaining Mental Performance page, or show a simple removed-section message with navigation back).",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/pages/MotivationalLifeLessons.tsx",
-          "frontend/src/index.css"
+          "frontend/src/pages/LifeLessonsRemoved.tsx",
+          "frontend/src/App.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/pages/MotivationalLifeLessons.tsx",
-          "frontend/src/index.css"
+          "frontend/src/pages/LifeLessonsRemoved.tsx",
+          "frontend/src/App.tsx"
         ]
       },
       {
-        "id": "REQ-4",
-        "summary": "Rename the user-facing 'Life Lessons' label to the new name requested by the user across the UI where it appears (page title and sidebar label), while keeping the existing route path '/mental-performance/life-lessons' unchanged.",
+        "id": "REQ-7",
+        "summary": "Delete or fully decommission motivational-video-specific frontend modules so there is no remaining dead code or unused assets for this section (page, components, hooks, and content) unless they are still referenced by other active features.",
         "status": "implemented",
         "plannedFiles": [
+          "frontend/src/pages/MotivationalLifeLessons.tsx",
+          "frontend/src/components/mentalPerformance/MotivationalVideoCard.tsx",
+          "frontend/src/components/mentalPerformance/YouTubePlayerDialog.tsx",
+          "frontend/src/hooks/useLifeLessonsProgress.ts",
+          "frontend/src/content/mentalPerformance/motivationalLifeLessonsVideos.ts",
+          "frontend/src/utils/validateMotivationalVideos.ts",
           "frontend/src/content/mentalPerformance/lifeLessonsDisplayName.ts",
-          "frontend/src/components/layout/AppShell.tsx",
-          "frontend/src/pages/MotivationalLifeLessons.tsx"
+          "frontend/src/types/motivationalVideos.ts",
+          "frontend/src/utils/localDataStore.ts"
         ],
         "matchedFiles": [
+          "frontend/src/pages/MotivationalLifeLessons.tsx",
+          "frontend/src/components/mentalPerformance/MotivationalVideoCard.tsx",
+          "frontend/src/components/mentalPerformance/YouTubePlayerDialog.tsx",
+          "frontend/src/hooks/useLifeLessonsProgress.ts",
+          "frontend/src/content/mentalPerformance/motivationalLifeLessonsVideos.ts",
+          "frontend/src/utils/validateMotivationalVideos.ts",
           "frontend/src/content/mentalPerformance/lifeLessonsDisplayName.ts",
-          "frontend/src/components/layout/AppShell.tsx",
-          "frontend/src/pages/MotivationalLifeLessons.tsx"
+          "frontend/src/types/motivationalVideos.ts",
+          "frontend/src/utils/localDataStore.ts"
         ]
       }
     ]
@@ -71,11 +68,22 @@
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
+    "frontend/src/App.tsx",
     "frontend/src/components/layout/AppShell.tsx",
+    "frontend/src/components/mentalPerformance/MotivationalVideoCard.tsx",
+    "frontend/src/components/mentalPerformance/YouTubePlayerDialog.tsx",
     "frontend/src/content/mentalPerformance/lifeLessonsDisplayName.ts",
-    "frontend/src/hooks/useIsMobile.ts",
-    "frontend/src/index.css",
+    "frontend/src/content/mentalPerformance/motivationalLifeLessonsVideos.ts",
+    "frontend/src/hooks/useLifeLessonsProgress.ts",
+    "frontend/src/hooks/useLocalData.ts",
+    "frontend/src/pages/IZOF.tsx",
+    "frontend/src/pages/LifeLessonsRemoved.tsx",
     "frontend/src/pages/MotivationalLifeLessons.tsx",
+    "frontend/src/pages/SleepPerformanceAction.tsx",
+    "frontend/src/types/legacy.ts",
+    "frontend/src/types/motivationalVideos.ts",
+    "frontend/src/utils/localDataStore.ts",
+    "frontend/src/utils/validateMotivationalVideos.ts",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",
