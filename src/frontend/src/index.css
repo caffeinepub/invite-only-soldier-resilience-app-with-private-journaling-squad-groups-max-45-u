@@ -4,72 +4,91 @@
 
 @layer base {
   :root {
-    /* OKLCH color system - Light mode */
-    --background: oklch(98% 0.01 0);
-    --foreground: oklch(15% 0.01 0);
-    --card: oklch(100% 0 0);
-    --card-foreground: oklch(15% 0.01 0);
-    --popover: oklch(100% 0 0);
-    --popover-foreground: oklch(15% 0.01 0);
-    --primary: oklch(42% 0.15 25);
-    --primary-foreground: oklch(98% 0.01 0);
-    --secondary: oklch(92% 0.01 0);
-    --secondary-foreground: oklch(15% 0.01 0);
-    --muted: oklch(92% 0.01 0);
-    --muted-foreground: oklch(50% 0.01 0);
-    --accent: oklch(92% 0.01 0);
-    --accent-foreground: oklch(15% 0.01 0);
-    --destructive: oklch(55% 0.22 25);
-    --destructive-foreground: oklch(98% 0.01 0);
-    --border: oklch(88% 0.01 0);
-    --input: oklch(88% 0.01 0);
-    --ring: oklch(42% 0.15 25);
-    --radius: 0.5rem;
-    --success: oklch(65% 0.15 145);
-    --success-foreground: oklch(98% 0.01 0);
-    --warning: oklch(75% 0.15 85);
-    --warning-foreground: oklch(15% 0.01 0);
+    /* OKLCH Color System - Light Mode */
+    --background: 0% 0 0; /* Pure white */
+    --foreground: 20% 0.01 0; /* Near black */
 
-    /* Readiness state colors */
-    --readiness-optimal: oklch(70% 0.15 145);
-    --readiness-good: oklch(75% 0.12 125);
-    --readiness-moderate: oklch(75% 0.15 85);
-    --readiness-low: oklch(65% 0.18 45);
-    --readiness-critical: oklch(55% 0.22 25);
+    --card: 98% 0 0; /* Off-white */
+    --card-foreground: 20% 0.01 0;
+
+    --popover: 98% 0 0;
+    --popover-foreground: 20% 0.01 0;
+
+    /* Primary: Deep Red (Dagger Brigade) */
+    --primary: 45% 0.18 25; /* Deep red */
+    --primary-foreground: 98% 0 0;
+
+    /* Secondary: Neutral Gray */
+    --secondary: 85% 0.01 0;
+    --secondary-foreground: 20% 0.01 0;
+
+    /* Muted: Light Gray */
+    --muted: 92% 0.01 0;
+    --muted-foreground: 50% 0.01 0;
+
+    /* Accent: Tactical Olive */
+    --accent: 60% 0.08 120;
+    --accent-foreground: 20% 0.01 0;
+
+    /* Destructive: Bright Red */
+    --destructive: 55% 0.22 25;
+    --destructive-foreground: 98% 0 0;
+
+    --border: 88% 0.01 0;
+    --input: 88% 0.01 0;
+    --ring: 45% 0.18 25;
+
+    --radius: 0.5rem;
+
+    /* Chart colors */
+    --chart-1: 60% 0.15 25;
+    --chart-2: 65% 0.12 120;
+    --chart-3: 70% 0.10 200;
+    --chart-4: 75% 0.08 280;
+    --chart-5: 55% 0.18 340;
   }
 
   .dark {
-    /* OKLCH color system - Dark mode */
-    --background: oklch(15% 0.01 0);
-    --foreground: oklch(98% 0.01 0);
-    --card: oklch(18% 0.01 0);
-    --card-foreground: oklch(98% 0.01 0);
-    --popover: oklch(18% 0.01 0);
-    --popover-foreground: oklch(98% 0.01 0);
-    --primary: oklch(55% 0.18 25);
-    --primary-foreground: oklch(98% 0.01 0);
-    --secondary: oklch(25% 0.01 0);
-    --secondary-foreground: oklch(98% 0.01 0);
-    --muted: oklch(25% 0.01 0);
-    --muted-foreground: oklch(65% 0.01 0);
-    --accent: oklch(25% 0.01 0);
-    --accent-foreground: oklch(98% 0.01 0);
-    --destructive: oklch(55% 0.22 25);
-    --destructive-foreground: oklch(98% 0.01 0);
-    --border: oklch(25% 0.01 0);
-    --input: oklch(25% 0.01 0);
-    --ring: oklch(55% 0.18 25);
-    --success: oklch(65% 0.15 145);
-    --success-foreground: oklch(98% 0.01 0);
-    --warning: oklch(75% 0.15 85);
-    --warning-foreground: oklch(15% 0.01 0);
+    /* OKLCH Color System - Dark Mode */
+    --background: 18% 0.01 0; /* Dark gray-black */
+    --foreground: 95% 0 0; /* Off-white */
 
-    /* Readiness state colors - dark mode */
-    --readiness-optimal: oklch(65% 0.15 145);
-    --readiness-good: oklch(70% 0.12 125);
-    --readiness-moderate: oklch(70% 0.15 85);
-    --readiness-low: oklch(60% 0.18 45);
-    --readiness-critical: oklch(55% 0.22 25);
+    --card: 22% 0.01 0;
+    --card-foreground: 95% 0 0;
+
+    --popover: 22% 0.01 0;
+    --popover-foreground: 95% 0 0;
+
+    /* Primary: Bright Red (more vibrant in dark) */
+    --primary: 58% 0.20 25;
+    --primary-foreground: 18% 0.01 0;
+
+    /* Secondary: Medium Gray */
+    --secondary: 30% 0.01 0;
+    --secondary-foreground: 95% 0 0;
+
+    /* Muted: Dark Gray */
+    --muted: 28% 0.01 0;
+    --muted-foreground: 65% 0.01 0;
+
+    /* Accent: Tactical Olive (adjusted for dark) */
+    --accent: 55% 0.10 120;
+    --accent-foreground: 95% 0 0;
+
+    /* Destructive: Bright Red */
+    --destructive: 58% 0.22 25;
+    --destructive-foreground: 95% 0 0;
+
+    --border: 28% 0.01 0;
+    --input: 28% 0.01 0;
+    --ring: 58% 0.20 25;
+
+    /* Chart colors (adjusted for dark) */
+    --chart-1: 65% 0.18 25;
+    --chart-2: 70% 0.15 120;
+    --chart-3: 75% 0.12 200;
+    --chart-4: 80% 0.10 280;
+    --chart-5: 60% 0.20 340;
   }
 }
 
@@ -77,49 +96,86 @@
   * {
     @apply border-border;
   }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+/* Mobile-safe layout safeguards */
+@layer base {
   html,
   body,
   #root {
-    height: 100%;
-    overflow: hidden;
+    @apply h-full w-full overflow-hidden;
   }
+
+  /* Prevent horizontal overflow on mobile */
   body {
-    @apply bg-background text-foreground;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Ensure touch targets meet minimum size on mobile */
+  @media (max-width: 768px) {
+    button,
+    a,
+    [role="button"],
+    input[type="checkbox"],
+    input[type="radio"] {
+      min-height: 44px;
+      min-width: 44px;
+    }
   }
 }
 
-/* Field Mode utilities */
-.field-mode {
-  @apply text-base;
+/* Readiness State Colors */
+@layer utilities {
+  .readiness-optimal {
+    @apply bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400;
+  }
+  .readiness-good {
+    @apply bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400;
+  }
+  .readiness-moderate {
+    @apply bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400;
+  }
+  .readiness-low {
+    @apply bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400;
+  }
+  .readiness-critical {
+    @apply bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400;
+  }
 }
 
-.field-mode h1 {
-  @apply text-2xl;
+/* Field Mode Utilities */
+@layer utilities {
+  .field-mode-active {
+    @apply bg-muted/50;
+  }
+  .field-mode-hidden {
+    @apply hidden;
+  }
 }
 
-.field-mode h2 {
-  @apply text-xl;
-}
+/* Critical Layout Rules */
+@layer base {
+  /* Ensure main content is always interactive */
+  main {
+    pointer-events: auto;
+    position: relative;
+    z-index: 1;
+  }
 
-.field-mode .card {
-  @apply shadow-md;
-}
+  /* Sidebar should not block main content */
+  aside {
+    position: relative;
+    z-index: 10;
+  }
 
-/* Dropdown menu z-index safeguard - ensure dropdowns appear above drawer */
-[data-radix-popper-content-wrapper] {
-  z-index: 1100 !important;
-}
-
-/* Active navigation item styling */
-[aria-current="page"] {
-  @apply bg-secondary text-secondary-foreground font-medium;
-}
-
-/* Ensure touch targets are accessible on mobile */
-@media (max-width: 768px) {
-  button,
-  a {
-    min-height: 44px;
-    min-width: 44px;
+  /* Overlays and modals should be on top */
+  [role="dialog"],
+  [role="alertdialog"] {
+    z-index: 50;
   }
 }

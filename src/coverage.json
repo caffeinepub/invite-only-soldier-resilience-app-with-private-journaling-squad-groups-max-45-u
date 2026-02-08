@@ -1,48 +1,67 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-07T22:06:11.009Z",
+  "generatedAt": "2026-02-08T00:07:10.313Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 3,
-    "implemented": 3,
+    "total": 4,
+    "implemented": 4,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Audit and fix event handling in the main layout so clicks always reach intended targets after introducing flex/grid wrappers or overlays. Specifically ensure no transparent overlay, fixed element, or container with unintended `pointer-events: none` blocks interaction with main content (e.g., Life Lessons video cards, filters, and dialogs) when the mobile drawer is closed.",
+        "summary": "Optimize the app UI for mobile usage by improving responsive layout, spacing, and touch interactions across the AppShell layout (sidebar + main content) so primary navigation and page content are comfortable to use on small screens.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/components/layout/AppShell.tsx"
+          "frontend/src/components/layout/AppShell.tsx",
+          "frontend/src/index.css"
         ],
         "matchedFiles": [
-          "frontend/src/components/layout/AppShell.tsx"
+          "frontend/src/components/layout/AppShell.tsx",
+          "frontend/src/index.css"
         ]
       },
       {
         "id": "REQ-2",
-        "summary": "Update the sidebar + main content layout structure to follow a predictable container model for overlays/menus: keep the sidebar and main content as sibling regions and ensure any dropdown menu surfaces (e.g., account dropdown in the sidebar) render above other layers with an appropriate z-index and without being clipped by overflow rules.",
+        "summary": "Make the sidebar totally collapsible on mobile: provide a mode where the sidebar can be fully hidden (not occupying screen width) and can be opened/closed via a visible menu button; ensure the sidebar does not permanently cover or squeeze the content on small screens.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/components/layout/AppShell.tsx",
-          "frontend/src/index.css"
+          "frontend/src/hooks/useIsMobile.ts",
+          "frontend/src/components/layout/AppShell.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/components/layout/AppShell.tsx",
-          "frontend/src/index.css"
+          "frontend/src/hooks/useIsMobile.ts",
+          "frontend/src/components/layout/AppShell.tsx"
         ]
       },
       {
         "id": "REQ-3",
-        "summary": "Ensure the hamburger-triggered mobile navigation and backdrop in `frontend/src/components/layout/AppShell.tsx` do not interfere with click propagation: the backdrop must only be present while the drawer is open; clicking the backdrop closes the drawer; and clicks inside the drawer must not bubble to the backdrop close handler.",
+        "summary": "Fix the Life Lessons page so the category/menu options do not overlay and block the videos list; move the categories menu to the top of the screen (as a top filter area) while ensuring the videos are visible and scroll beneath it without being covered (match the problem shown in IMG_2564.png and IMG_2564-1.png).",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/components/layout/AppShell.tsx"
+          "frontend/src/pages/MotivationalLifeLessons.tsx",
+          "frontend/src/index.css"
         ],
         "matchedFiles": [
-          "frontend/src/components/layout/AppShell.tsx"
+          "frontend/src/pages/MotivationalLifeLessons.tsx",
+          "frontend/src/index.css"
+        ]
+      },
+      {
+        "id": "REQ-4",
+        "summary": "Rename the user-facing 'Life Lessons' label to the new name requested by the user across the UI where it appears (page title and sidebar label), while keeping the existing route path '/mental-performance/life-lessons' unchanged.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/content/mentalPerformance/lifeLessonsDisplayName.ts",
+          "frontend/src/components/layout/AppShell.tsx",
+          "frontend/src/pages/MotivationalLifeLessons.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/content/mentalPerformance/lifeLessonsDisplayName.ts",
+          "frontend/src/components/layout/AppShell.tsx",
+          "frontend/src/pages/MotivationalLifeLessons.tsx"
         ]
       }
     ]
@@ -53,7 +72,10 @@
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
     "frontend/src/components/layout/AppShell.tsx",
+    "frontend/src/content/mentalPerformance/lifeLessonsDisplayName.ts",
+    "frontend/src/hooks/useIsMobile.ts",
     "frontend/src/index.css",
+    "frontend/src/pages/MotivationalLifeLessons.tsx",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

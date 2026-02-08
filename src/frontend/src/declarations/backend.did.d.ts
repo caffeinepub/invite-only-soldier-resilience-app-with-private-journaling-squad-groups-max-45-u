@@ -10,15 +10,6 @@ import type { ActorMethod } from '@icp-sdk/core/agent';
 import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
-export interface DailyInput {
-  'painScore' : bigint,
-  'overallScore' : bigint,
-  'sleepScore' : bigint,
-  'trainingLoadScore' : bigint,
-  'stressScore' : bigint,
-  'timestamp' : Time,
-  'explanations' : string,
-}
 export interface DisclaimerStatus { 'timestamp' : Time, 'accepted' : boolean }
 export type Time = bigint;
 export interface UserProfile {
@@ -33,13 +24,8 @@ export type UserRole = { 'admin' : null } |
 export interface _SERVICE {
   '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
-  'calculateReadinessAndStoreToday' : ActorMethod<
-    [bigint, bigint, bigint, bigint],
-    bigint
-  >,
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
-  'getDashboardData' : ActorMethod<[], [string, [] | [DailyInput], bigint]>,
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,

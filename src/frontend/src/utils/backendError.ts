@@ -58,9 +58,18 @@ export function parseBackendError(error: any, context?: string): ErrorInfo {
     };
   }
 
-  // Generic fallback
+  // Network/connection errors
+  if (lowerMessage.includes('network') || lowerMessage.includes('connection') || lowerMessage.includes('timeout')) {
+    return {
+      message: 'Connection error. Please check your network.',
+      action: 'Try again when you have a stable connection.'
+    };
+  }
+
+  // Generic fallback with context
+  const contextMessage = context ? ` while trying to ${context}` : '';
   return {
-    message: errorMessage || 'An unexpected error occurred.',
-    action: 'Please try again.'
+    message: `An error occurred${contextMessage}.`,
+    action: 'Please try again or contact support if the problem persists.'
   };
 }

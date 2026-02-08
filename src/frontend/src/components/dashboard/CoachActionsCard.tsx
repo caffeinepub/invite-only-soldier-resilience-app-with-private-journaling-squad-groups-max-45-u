@@ -1,140 +1,153 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle2, AlertCircle, TrendingUp } from 'lucide-react';
-import type { DailyInput } from '../../backend';
+import type { LocalDailyInput } from '@/utils/localDataStore';
+import { toReadinessValue, FACTOR_CONFIGS } from '@/utils/readinessSemantics';
 
 interface CoachActionsCardProps {
-  latestInput: DailyInput | null;
-  streak: number;
+  latestInput: LocalDailyInput | null;
 }
 
-export default function CoachActionsCard({ latestInput, streak }: CoachActionsCardProps) {
-  const sleepScore = latestInput ? Number(latestInput.sleepScore) : 0;
-  const trainingScore = latestInput ? Number(latestInput.trainingLoadScore) : 0;
-  const stressScore = latestInput ? Number(latestInput.stressScore) : 0;
-  const painScore = latestInput ? Number(latestInput.painScore) : 0;
+export default function CoachActionsCard({ latestInput }: CoachActionsCardProps) {
+  if (!latestInput) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Coaching Actions</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground">
+            Log your daily factors to receive personalized coaching actions.
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
 
-  const actions = generateActions(sleepScore, trainingScore, stressScore, painScore, streak);
+  const actions = generateCoachingActions(latestInput);
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <TrendingUp className="h-5 w-5 text-primary" />
-          Today's Focus
-        </CardTitle>
+        <CardTitle className="text-lg">Coaching Actions</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-3">
-          {actions.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Log your daily factors to receive personalized guidance.</p>
-          ) : (
-            actions.map((action, idx) => (
-              <ActionItem key={idx} action={action} />
-            ))
-          )}
+          {actions.map((action, index) => (
+            <div key={index} className="flex items-start gap-3 p-3 rounded-lg border bg-card">
+              <div className="flex-shrink-0 mt-0.5">
+                {action.priority === 'high' ? (
+                  <AlertCircle className="h-5 w-5 text-red-500" />
+                ) : action.priority === 'medium' ? (
+                  <TrendingUp className="h-5 w-5 text-yellow-500" />
+                ) : (
+                  <CheckCircle2 className="h-5 w-5 text-green-500" />
+                )}
+              </div>
+              <div className="flex-1 space-y-1">
+                <div className="flex items-center gap-2">
+                  <p className="text-sm font-medium">{action.title}</p>
+                  <Badge variant={action.priority === 'high' ? 'destructive' : 'secondary'} className="text-xs">
+                    {action.priority}
+                  </Badge>
+                </div>
+                <p className="text-sm text-muted-foreground">{action.description}</p>
+              </div>
+            </div>
+          ))}
         </div>
       </CardContent>
     </Card>
   );
 }
 
-interface Action {
+interface CoachingAction {
+  title: string;
+  description: string;
   priority: 'high' | 'medium' | 'low';
-  text: string;
 }
 
-function generateActions(
-  sleep: number,
-  training: number,
-  stress: number,
-  pain: number,
-  streak: number
-): Action[] {
-  const actions: Action[] = [];
+function generateCoachingActions(input: LocalDailyInput): CoachingAction[] {
+  const actions: CoachingAction[] = [];
 
-  // Sleep-based actions (higher is better: low raw value = bad)
-  if (sleep < 40) {
+  // Convert raw values to readiness values for threshold checks
+  const sleepReadiness = toReadinessValue(input.sleepScore, FACTOR_CONFIGS.sleep.polarity);
+  const trainingReadiness = toReadinessValue(input.trainingLoadScore, FACTOR_CONFIGS.training.polarity);
+  const stressReadiness = toReadinessValue(input.stressScore, FACTOR_CONFIGS.stress.polarity);
+  const painReadiness = toReadinessValue(input.painScore, FACTOR_CONFIGS.pain.polarity);
+
+  // Sleep actions (higher raw = better)
+  if (sleepReadiness < 40) {
     actions.push({
+      title: 'Prioritize Sleep Recovery',
+      description: 'Sleep quality is critically low. Aim for 7-9 hours tonight and optimize your sleep environment.',
       priority: 'high',
-      text: 'Prioritize 8+ hours sleep tonight. Recovery is mission-critical.',
     });
-  } else if (sleep < 60) {
+  } else if (sleepReadiness < 60) {
     actions.push({
+      title: 'Improve Sleep Quality',
+      description: 'Consider adjusting your sleep schedule or environment to improve recovery.',
       priority: 'medium',
-      text: 'Optimize sleep hygiene: dark room, cool temp, consistent schedule.',
     });
   }
 
-  // Training load actions (lower is better: high raw value = bad)
-  if (training > 60) {
+  // Training load actions (lower raw = better, so higher readiness means lower load)
+  if (trainingReadiness < 40) {
     actions.push({
+      title: 'Reduce Training Volume',
+      description: 'Training load is very high. Consider active recovery or lighter sessions to prevent overtraining.',
       priority: 'high',
-      text: 'Reduce training intensity. Focus on active recovery and mobility.',
     });
-  } else if (training > 40) {
+  } else if (trainingReadiness < 60) {
     actions.push({
+      title: 'Monitor Training Load',
+      description: 'Training load is elevated. Ensure adequate recovery between sessions.',
       priority: 'medium',
-      text: 'Monitor acute load. Consider deload or recovery session.',
     });
   }
 
-  // Stress actions (lower is better: high raw value = bad)
-  if (stress > 60) {
+  // Stress actions (lower raw = better)
+  if (stressReadiness < 40) {
     actions.push({
+      title: 'Implement Stress Management',
+      description: 'Stress levels are high. Practice breathing exercises, take breaks, or seek support.',
       priority: 'high',
-      text: 'Implement stress mitigation: breathing drills, tactical pause.',
     });
-  } else if (stress > 40) {
+  } else if (stressReadiness < 60) {
     actions.push({
+      title: 'Maintain Stress Resilience',
+      description: 'Stress is elevated. Continue resilience practices and monitor your workload.',
       priority: 'medium',
-      text: 'Maintain resilience practices: mindfulness, social connection.',
     });
   }
 
-  // Pain/injury actions (lower is better: high raw value = bad)
-  if (pain > 60) {
+  // Pain actions (lower raw = better)
+  if (painReadiness < 40) {
     actions.push({
+      title: 'Address Pain/Injury',
+      description: 'Significant pain detected. Seek medical attention and avoid aggravating activities.',
       priority: 'high',
-      text: 'Address pain immediately. Consult medical if persistent.',
     });
-  } else if (pain > 40) {
+  } else if (painReadiness < 60) {
     actions.push({
+      title: 'Monitor Pain Levels',
+      description: 'Some discomfort present. Focus on mobility work and proper movement patterns.',
       priority: 'medium',
-      text: 'Prehab focus: targeted mobility and strength work.',
     });
   }
 
-  // Streak-based encouragement
-  if (streak >= 7 && actions.length < 3) {
+  // If all factors are good
+  if (actions.length === 0) {
     actions.push({
+      title: 'Maintain Current Practices',
+      description: 'All factors are in good range. Keep up your current recovery and training practices.',
       priority: 'low',
-      text: `${streak}-day streak! Consistency builds resilience.`,
     });
   }
 
-  // Limit to top 5 actions
-  return actions.slice(0, 5);
-}
-
-function ActionItem({ action }: { action: Action }) {
-  const Icon = action.priority === 'high' ? AlertCircle : CheckCircle2;
-  const colorClass =
-    action.priority === 'high'
-      ? 'text-red-600 dark:text-red-400'
-      : action.priority === 'medium'
-      ? 'text-yellow-600 dark:text-yellow-400'
-      : 'text-green-600 dark:text-green-400';
-
-  return (
-    <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
-      <Icon className={`h-5 w-5 mt-0.5 shrink-0 ${colorClass}`} />
-      <div className="flex-1">
-        <p className="text-sm leading-relaxed">{action.text}</p>
-      </div>
-      <Badge variant="outline" className="text-xs">
-        {action.priority}
-      </Badge>
-    </div>
-  );
+  // Sort by priority and limit to top 5
+  const priorityOrder = { high: 0, medium: 1, low: 2 };
+  return actions
+    .sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority])
+    .slice(0, 5);
 }

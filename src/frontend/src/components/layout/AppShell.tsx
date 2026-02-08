@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useRouterState, useNavigate } from '@tanstack/react-router';
+import React, { useReducer, useCallback, useEffect } from 'react';
+import { Link, useRouterState } from '@tanstack/react-router';
 import {
   Home,
   BookOpen,
@@ -15,10 +15,10 @@ import {
   Quote,
   Video,
   Menu,
-  X,
   Brain,
-  ChevronLeft,
+  ChevronDown,
   ChevronRight,
+  X,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -34,9 +34,11 @@ import {
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { useInternetIdentity } from '../../hooks/useInternetIdentity';
 import { useLocalProfile } from '../../hooks/useLocalProfile';
+import { useIsMobile } from '../../hooks/useIsMobile';
 import FieldModeToggle from '../fieldMode/FieldModeToggle';
 import BrandHeaderBanner from '../branding/BrandHeaderBanner';
 import { DashboardRefreshProvider, useDashboardRefresh } from '../../contexts/DashboardRefreshContext';
+import { LIFE_LESSONS_DISPLAY_NAME } from '../../content/mentalPerformance/lifeLessonsDisplayName';
 
 interface NavItem {
   label: string;
@@ -45,7 +47,6 @@ interface NavItem {
   section?: string;
 }
 
-// GUARDRAIL: Life Lessons nav item and path must remain unchanged
 const navItems: NavItem[] = [
   { label: 'Dashboard', path: '/', icon: Home },
   { label: 'Daily Quotes', path: '/quotes', icon: Quote },
@@ -57,60 +58,106 @@ const navItems: NavItem[] = [
   { label: 'Recommended Reading', path: '/mental-performance/reading', icon: BookMarked, section: 'Mental Performance' },
   { label: 'Free Soldier Apps', path: '/mental-performance/apps', icon: Grid3x3, section: 'Mental Performance' },
   { label: 'Military Apps', path: '/tools/military-apps', icon: Shield, section: 'Mental Performance' },
-  { label: 'Life Lessons', path: '/mental-performance/life-lessons', icon: Video, section: 'Mental Performance' },
+  { label: LIFE_LESSONS_DISPLAY_NAME, path: '/mental-performance/life-lessons', icon: Video, section: 'Mental Performance' },
   { label: 'IZOF', path: '/mental-performance/izof', icon: Brain, section: 'Mental Performance' },
   { label: 'Personal Reports', path: '/reports', icon: FileText, section: 'Tools' },
+  { label: 'Guidelines', path: '/guidelines', icon: FileText, section: 'Settings' },
+  { label: 'Settings', path: '/settings', icon: Settings, section: 'Settings' },
+  { label: 'Admin Reports', path: '/admin/reports', icon: Shield, section: 'Admin' },
 ];
 
 interface AppShellProps {
   children: React.ReactNode;
 }
 
+// Navigation state management
+type NavState = {
+  sidebarOpen: boolean;
+  expandedCategories: Set<string>;
+};
+
+type NavAction =
+  | { type: 'TOGGLE_SIDEBAR' }
+  | { type: 'SET_SIDEBAR'; open: boolean }
+  | { type: 'TOGGLE_CATEGORY'; category: string };
+
+function navReducer(state: NavState, action: NavAction): NavState {
+  switch (action.type) {
+    case 'TOGGLE_SIDEBAR':
+      return { ...state, sidebarOpen: !state.sidebarOpen };
+    case 'SET_SIDEBAR':
+      return { ...state, sidebarOpen: action.open };
+    case 'TOGGLE_CATEGORY': {
+      const newExpanded = new Set(state.expandedCategories);
+      if (newExpanded.has(action.category)) {
+        newExpanded.delete(action.category);
+      } else {
+        newExpanded.add(action.category);
+      }
+      return { ...state, expandedCategories: newExpanded };
+    }
+    default:
+      return state;
+  }
+}
+
 function AppShellContent({ children }: AppShellProps) {
-  const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
-  const [isDesktopSidebarOpen, setIsDesktopSidebarOpen] = useState(true);
+  const isMobile = useIsMobile();
+  const [navState, dispatch] = useReducer(navReducer, {
+    sidebarOpen: !isMobile,
+    expandedCategories: new Set(['main', 'Performance', 'Mental Performance', 'Tools', 'Settings', 'Admin']),
+  });
+
   const routerState = useRouterState();
-  const navigate = useNavigate();
   const pathname = routerState.location.pathname;
   const { identity, clear } = useInternetIdentity();
   const { profile, reset } = useLocalProfile();
   const { requestDashboardRefresh } = useDashboardRefresh();
 
-  // Auto-close mobile drawer on route change
+  // Close sidebar on mobile when route changes
   useEffect(() => {
-    if (isMobileDrawerOpen) {
-      setIsMobileDrawerOpen(false);
+    if (isMobile) {
+      dispatch({ type: 'SET_SIDEBAR', open: false });
     }
-  }, [pathname]);
+  }, [pathname, isMobile]);
 
-  const handleLogout = async () => {
+  // Update sidebar state when switching between mobile/desktop
+  useEffect(() => {
+    if (!isMobile && !navState.sidebarOpen) {
+      dispatch({ type: 'SET_SIDEBAR', open: true });
+    }
+  }, [isMobile, navState.sidebarOpen]);
+
+  const handleLogout = useCallback(async () => {
     await clear();
     reset();
-  };
+  }, [clear, reset]);
 
-  const isActive = (path: string) => {
+  const isActive = useCallback((path: string) => {
     if (path === '/') {
       return pathname === '/';
     }
     return pathname.startsWith(path);
-  };
+  }, [pathname]);
 
-  const closeMobileDrawer = () => {
-    setIsMobileDrawerOpen(false);
-  };
-
-  const handleNavClick = (path: string) => {
-    // Close drawer immediately on mobile (below md breakpoint)
-    closeMobileDrawer();
-    
-    // Special handling for Dashboard: refresh if already on dashboard
-    if (path === '/' && pathname === '/') {
+  const handleDashboardClick = useCallback((e: React.MouseEvent) => {
+    if (pathname === '/') {
+      e.preventDefault();
       requestDashboardRefresh();
-    } else {
-      // Normal navigation
-      navigate({ to: path });
     }
-  };
+  }, [pathname, requestDashboardRefresh]);
+
+  const toggleSidebar = useCallback(() => {
+    dispatch({ type: 'TOGGLE_SIDEBAR' });
+  }, []);
+
+  const closeSidebar = useCallback(() => {
+    dispatch({ type: 'SET_SIDEBAR', open: false });
+  }, []);
+
+  const toggleCategory = useCallback((category: string) => {
+    dispatch({ type: 'TOGGLE_CATEGORY', category });
+  }, []);
 
   const groupedNavItems = React.useMemo(() => {
     const groups: Record<string, NavItem[]> = { main: [] };
@@ -122,242 +169,203 @@ function AppShellContent({ children }: AppShellProps) {
     return groups;
   }, []);
 
-  const SidebarContent = ({ onNavClick }: { onNavClick?: (path: string) => void }) => (
+  const SidebarContent = ({ collapsed }: { collapsed: boolean }) => (
     <>
-      <ScrollArea className="flex-1 px-3 py-4">
-        <nav className="space-y-6">
-          {Object.entries(groupedNavItems).map(([section, items]) => (
-            <div key={section}>
-              {section !== 'main' && (
-                <>
-                  <Separator className="my-2" />
-                  <h3 className="px-3 mb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                    {section}
-                  </h3>
-                </>
-              )}
-              <div className="space-y-1">
-                {items.map((item) => {
-                  const Icon = item.icon;
-                  const active = isActive(item.path);
-                  return (
-                    <Button
-                      key={item.path}
-                      variant={active ? 'secondary' : 'ghost'}
-                      className="w-full justify-start"
-                      size="sm"
-                      onClick={() => onNavClick?.(item.path)}
-                      aria-current={active ? 'page' : undefined}
-                      asChild={!onNavClick}
+      <ScrollArea className="flex-1">
+        <nav className={`space-y-2 ${collapsed ? 'px-2 py-4' : 'px-3 py-4'}`}>
+          {Object.entries(groupedNavItems).map(([section, items]) => {
+            const isExpanded = navState.expandedCategories.has(section);
+            const isMainSection = section === 'main';
+
+            return (
+              <div key={section}>
+                {!isMainSection && !collapsed && (
+                  <>
+                    <Separator className="my-2" />
+                    <button
+                      onClick={() => toggleCategory(section)}
+                      className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider hover:text-foreground transition-colors"
                     >
-                      {onNavClick ? (
-                        <>
-                          <Icon className="mr-2 h-4 w-4" />
-                          {item.label}
-                        </>
+                      <span>{section}</span>
+                      {isExpanded ? (
+                        <ChevronDown className="h-3 w-3" />
                       ) : (
-                        <Link to={item.path}>
-                          <Icon className="mr-2 h-4 w-4" />
-                          {item.label}
-                        </Link>
+                        <ChevronRight className="h-3 w-3" />
                       )}
-                    </Button>
-                  );
-                })}
+                    </button>
+                  </>
+                )}
+                <div
+                  className={`space-y-1 transition-all duration-200 ${
+                    !isMainSection && !collapsed && !isExpanded
+                      ? 'max-h-0 overflow-hidden opacity-0'
+                      : 'max-h-[2000px] opacity-100'
+                  }`}
+                >
+                  {items.map((item) => {
+                    const Icon = item.icon;
+                    const active = isActive(item.path);
+                    return (
+                      <Link
+                        key={item.path}
+                        to={item.path}
+                        onClick={item.path === '/' ? handleDashboardClick : undefined}
+                        className="block"
+                      >
+                        <Button
+                          variant={active ? 'secondary' : 'ghost'}
+                          className={collapsed ? 'w-full p-0' : 'w-full justify-start'}
+                          size={collapsed ? 'icon' : 'sm'}
+                          aria-current={active ? 'page' : undefined}
+                          aria-label={collapsed ? item.label : undefined}
+                        >
+                          <Icon className={collapsed ? 'h-5 w-5' : 'mr-2 h-4 w-4'} />
+                          {!collapsed && <span className="truncate">{item.label}</span>}
+                        </Button>
+                      </Link>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </nav>
       </ScrollArea>
 
-      <div className="p-3 border-t">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="w-full justify-start px-2">
-              <Avatar className="h-8 w-8 mr-2">
-                <AvatarFallback className="bg-primary text-primary-foreground text-xs">
-                  {profile?.displayName?.charAt(0).toUpperCase() || 'U'}
-                </AvatarFallback>
-              </Avatar>
-              <div className="flex-1 text-left overflow-hidden">
-                <p className="text-sm font-medium truncate">
-                  {profile?.displayName || 'User'}
-                </p>
-                <p className="text-xs text-muted-foreground truncate">
-                  {identity ? 'Authenticated' : 'Local Profile'}
-                </p>
-              </div>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56">
-            <DropdownMenuLabel>My Account</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-              <Link to="/settings" onClick={() => onNavClick?.('/settings')}>
-                <Settings className="mr-2 h-4 w-4" />
-                Settings
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link to="/guidelines" onClick={() => onNavClick?.('/guidelines')}>
-                <FileText className="mr-2 h-4 w-4" />
-                Guidelines
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <FieldModeToggle />
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            {identity && (
-              <DropdownMenuItem onClick={handleLogout}>
-                Logout
+      {!collapsed && (
+        <div className="p-3 border-t flex-shrink-0">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="w-full justify-start px-2">
+                <Avatar className="h-8 w-8 mr-2">
+                  <AvatarFallback className="bg-primary text-primary-foreground text-xs">
+                    {profile?.displayName?.charAt(0).toUpperCase() || 'U'}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1 text-left overflow-hidden">
+                  <p className="text-sm font-medium truncate">
+                    {profile?.displayName || 'User'}
+                  </p>
+                  <p className="text-xs text-muted-foreground truncate">
+                    {identity ? 'Authenticated' : 'Local Profile'}
+                  </p>
+                </div>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link to="/settings" className="cursor-pointer">
+                  <Settings className="mr-2 h-4 w-4" />
+                  Settings
+                </Link>
               </DropdownMenuItem>
-            )}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
+              <DropdownMenuItem asChild>
+                <Link to="/guidelines" className="cursor-pointer">
+                  <FileText className="mr-2 h-4 w-4" />
+                  Guidelines
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>
+                <FieldModeToggle />
+              </DropdownMenuItem>
+              {identity && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
+                </>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      )}
     </>
   );
 
+  const sidebarCollapsed = !navState.sidebarOpen || (isMobile && !navState.sidebarOpen);
+  const showDesktopCollapsed = !isMobile && !navState.sidebarOpen;
+
   return (
-    <div className="flex h-screen overflow-hidden">
-      {/* Desktop Sidebar */}
+    <div className="flex h-screen w-full overflow-hidden bg-background">
+      {/* Mobile overlay backdrop */}
+      {isMobile && navState.sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40"
+          onClick={closeSidebar}
+          aria-hidden="true"
+        />
+      )}
+
+      {/* Mobile menu button - only show when sidebar is closed */}
+      {isMobile && !navState.sidebarOpen && (
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={toggleSidebar}
+          className="fixed top-4 left-4 z-50 bg-card border shadow-lg"
+          aria-label="Open menu"
+        >
+          <Menu className="h-5 w-5" />
+        </Button>
+      )}
+
+      {/* Sidebar */}
       <aside
-        className={`hidden md:flex flex-col bg-card border-r transition-all duration-300 flex-shrink-0 ${
-          isDesktopSidebarOpen ? 'w-64' : 'w-0'
-        } ${isDesktopSidebarOpen ? '' : 'overflow-hidden'}`}
+        className={`flex flex-col bg-card border-r flex-shrink-0 transition-all duration-300 ${
+          isMobile
+            ? navState.sidebarOpen
+              ? 'fixed inset-y-0 left-0 w-64 z-50'
+              : 'hidden'
+            : navState.sidebarOpen
+            ? 'w-64'
+            : 'w-16'
+        }`}
       >
-        <div className="p-6 border-b flex items-center justify-between flex-shrink-0">
-          <Button
-            variant="ghost"
-            className="flex items-center gap-3 hover:bg-transparent p-0"
-            onClick={() => handleNavClick('/')}
-          >
-            <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
-              <Shield className="h-6 w-6 text-primary-foreground" />
-            </div>
-            <div>
-              <h1 className="font-bold text-lg leading-tight">Dagger H2F</h1>
-              <p className="text-xs text-muted-foreground">Mental & Sleep</p>
-            </div>
-          </Button>
-        </div>
-        <SidebarContent />
-      </aside>
-
-      {/* Main Content Area */}
-      <div className="flex flex-col flex-1 overflow-hidden">
-        {/* Header */}
-        <header className="flex-shrink-0 h-16 bg-card/50 backdrop-blur-sm border-b flex items-center px-4 z-30">
-          {/* Mobile Menu Button */}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setIsMobileDrawerOpen(true)}
-            className="mr-4 md:hidden"
-            aria-label="Open menu"
-          >
-            <Menu className="h-6 w-6" />
-          </Button>
-
-          {/* Desktop Sidebar Toggle */}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setIsDesktopSidebarOpen(!isDesktopSidebarOpen)}
-            className="mr-4 hidden md:flex"
-            aria-label={isDesktopSidebarOpen ? 'Hide Sidebar' : 'Show Sidebar'}
-          >
-            {isDesktopSidebarOpen ? (
-              <ChevronLeft className="h-6 w-6" />
-            ) : (
-              <ChevronRight className="h-6 w-6" />
-            )}
-          </Button>
-
-          <Button
-            variant="ghost"
-            className="flex items-center gap-3 hover:bg-transparent p-0"
-            onClick={() => handleNavClick('/')}
-          >
-            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-              <Shield className="h-5 w-5 text-primary-foreground" />
-            </div>
-            <div>
-              <h1 className="font-bold text-base leading-tight">Dagger H2F</h1>
-              <p className="text-xs text-muted-foreground hidden sm:block">Mental & Sleep</p>
-            </div>
-          </Button>
-
-          {/* Desktop Sidebar Toggle Text Button */}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setIsDesktopSidebarOpen(!isDesktopSidebarOpen)}
-            className="ml-auto hidden md:flex"
-          >
-            {isDesktopSidebarOpen ? 'Hide Sidebar' : 'Show Sidebar'}
-          </Button>
-        </header>
-
-        {/* Main Content - Scrollable */}
-        <main className="flex-1 overflow-y-auto">
-          <BrandHeaderBanner />
-          {children}
-        </main>
-      </div>
-
-      {/* Mobile Drawer - only rendered when open, only below md breakpoint */}
-      {isMobileDrawerOpen && (
-        <>
-          {/* Backdrop - positioned absolutely, below drawer */}
-          <div
-            className="fixed inset-0 bg-black/60 z-40 md:hidden"
-            onClick={closeMobileDrawer}
-            aria-hidden="true"
-          />
-
-          {/* Drawer - positioned absolutely, above backdrop */}
-          <aside
-            className="fixed inset-y-0 left-0 w-80 max-w-[85vw] bg-card border-r flex flex-col z-50 md:hidden"
-            onClick={(e) => {
-              // Stop propagation to prevent backdrop click from closing drawer
-              e.stopPropagation();
-            }}
-            onPointerDown={(e) => {
-              // Stop propagation for pointer events as well
-              e.stopPropagation();
-            }}
-            aria-hidden={false}
-          >
-            <div className="p-6 border-b flex items-center justify-between">
-              <Button
-                variant="ghost"
-                className="flex items-center gap-3 hover:bg-transparent p-0"
-                onClick={() => handleNavClick('/')}
-              >
-                <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
-                  <Shield className="h-6 w-6 text-primary-foreground" />
-                </div>
-                <div>
-                  <h1 className="font-bold text-lg leading-tight">Dagger H2F</h1>
-                  <p className="text-xs text-muted-foreground">Mental & Sleep</p>
-                </div>
-              </Button>
+        {/* Sidebar Header */}
+        <div
+          className={`border-b flex items-center flex-shrink-0 ${
+            navState.sidebarOpen ? 'p-4 justify-between' : 'p-3 justify-center'
+          }`}
+        >
+          {navState.sidebarOpen ? (
+            <>
+              <Link to="/" onClick={handleDashboardClick} className="flex-1 min-w-0">
+                <h2 className="text-lg font-bold truncate">Dagger H2F</h2>
+              </Link>
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={closeMobileDrawer}
-                aria-label="Close menu"
+                onClick={isMobile ? closeSidebar : toggleSidebar}
+                aria-label={isMobile ? 'Close menu' : 'Collapse sidebar'}
+                className="flex-shrink-0"
               >
-                <X className="h-6 w-6" />
+                {isMobile ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
               </Button>
-            </div>
-            <SidebarContent onNavClick={handleNavClick} />
-          </aside>
-        </>
-      )}
+            </>
+          ) : (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleSidebar}
+              aria-label="Expand sidebar"
+            >
+              <Menu className="h-5 w-5" />
+            </Button>
+          )}
+        </div>
+
+        <SidebarContent collapsed={showDesktopCollapsed} />
+      </aside>
+
+      {/* Main content area */}
+      <main className="flex-1 flex flex-col overflow-hidden">
+        <BrandHeaderBanner />
+        <div className="flex-1 overflow-y-auto">
+          {children}
+        </div>
+      </main>
     </div>
   );
 }

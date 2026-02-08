@@ -1,9 +1,11 @@
 import { useGetAllReports, useUpdateReportStatus } from '../hooks/useQueries';
 import { useSafeActor } from '../hooks/useSafeActor';
+import { parseBackendError } from '../utils/backendError';
+import PageScaffold from '../components/layout/PageScaffold';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Shield, WifiOff } from 'lucide-react';
 import { toast } from 'sonner';
 import type { ReportStatus } from '../types/legacy';
@@ -20,7 +22,8 @@ export default function AdminReports() {
       await updateStatusMutation.mutateAsync({ reportId, status });
       toast.success('Report status updated');
     } catch (error: any) {
-      toast.error(error.message || 'Failed to update report status');
+      const errorInfo = parseBackendError(error, 'update report');
+      toast.error(errorInfo.message);
     }
   };
 
@@ -35,18 +38,15 @@ export default function AdminReports() {
   };
 
   return (
-    <div className="container max-w-6xl py-8 space-y-6">
-      <div className="flex items-center gap-3">
-        <Shield className="h-8 w-8 text-primary" />
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Admin Reports</h1>
-          <p className="text-muted-foreground">Review and manage abuse reports</p>
-        </div>
-      </div>
-
+    <PageScaffold
+      title="Admin Reports"
+      description="Review and manage abuse reports"
+      maxWidth="6xl"
+    >
       {backendUnavailable && (
         <Alert>
           <WifiOff className="h-4 w-4" />
+          <AlertTitle>Backend Unavailable</AlertTitle>
           <AlertDescription>
             Admin reports require backend connectivity. This feature is not available in offline-only mode.
           </AlertDescription>
@@ -126,6 +126,6 @@ export default function AdminReports() {
           ))}
         </div>
       )}
-    </div>
+    </PageScaffold>
   );
 }

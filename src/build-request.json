@@ -1,76 +1,107 @@
 {
   "kind": "build_request",
-  "title": "Fix sidebar/drawer event handling and ensure dropdown menus remain clickable",
+  "title": "Mobile optimization, fully-collapsible sidebar, and fix Life Lessons category menu overlay + rename",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Audit and fix event handling in the main layout so clicks always reach intended targets after introducing flex/grid wrappers or overlays. Specifically ensure no transparent overlay, fixed element, or container with unintended `pointer-events: none` blocks interaction with main content (e.g., Life Lessons video cards, filters, and dialogs) when the mobile drawer is closed.",
+      "text": "Optimize the app UI for mobile usage by improving responsive layout, spacing, and touch interactions across the AppShell layout (sidebar + main content) so primary navigation and page content are comfortable to use on small screens.",
       "target": "frontend",
       "source": {
         "messageIds": [
           "msg-4"
         ],
         "quotes": [
-          "Ensure proper event handling\n\t•\tSometimes adding flex/grid containers with new wrappers can stop events from propagating.\n\t•\tMake sure your clickable elements aren’t inside a transparent overlay or a pointer-events: none container."
+          "Optimize the app for mobile usage"
         ]
       },
       "acceptanceCriteria": [
-        "When the mobile drawer is closed, all interactive elements in main content pages (including /mental-performance/life-lessons) are clickable and receive pointer events normally.",
-        "There is no persistent full-screen overlay/backdrop element remaining mounted or intercepting clicks after the drawer closes.",
-        "No parent wrappers added for layout purposes prevent click handlers from firing on nested interactive elements (buttons, links, cards, filter controls)."
+        "On screens <= 768px wide, no horizontal scrolling is required on core pages due to layout overflow.",
+        "Tap targets for navigation controls (menu button, nav icons/links) meet a minimum 44x44px interactive area (consistent with existing mobile touch-target intent in CSS).",
+        "The main content area remains scrollable and usable on mobile; header + navigation do not block access to page content."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Update the sidebar + main content layout structure to follow a predictable container model for overlays/menus: keep the sidebar and main content as sibling regions and ensure any dropdown menu surfaces (e.g., account dropdown in the sidebar) render above other layers with an appropriate z-index and without being clipped by overflow rules.",
+      "text": "Make the sidebar totally collapsible on mobile: provide a mode where the sidebar can be fully hidden (not occupying screen width) and can be opened/closed via a visible menu button; ensure the sidebar does not permanently cover or squeeze the content on small screens.",
       "target": "frontend",
       "source": {
         "messageIds": [
           "msg-4"
         ],
         "quotes": [
-          "4. Recommended structure for sidebar + main content + dropdowns\n<div class=\"app-container\">\n  <div class=\"sidebar\">\n    <button class=\"hamburger\">☰</button>\n    <ul class=\"dropdown-menu\">\n      <li>Life Lessons</li>\n      <li>Mental Performance</li>\n      <li>Sleep Performance</li>\n    </ul>\n  </div>\n\n  <div class=\"main-content\">\n    <!-- videos or other content -->\n  </div>\n</div>\n\n.dropdown-menu {\n  position: absolute; /* floats on top */\n  z-index: 1000;\n  display: none;      /* toggle with JS */\n}\n\n.dropdown-menu.active {\n  display: block;\n}"
+          "Make side bar totally collapsible"
         ]
       },
       "acceptanceCriteria": [
-        "Sidebar dropdown menus (including the existing account dropdown) appear above the sidebar/drawer and main content (effective z-index), and remain clickable on both mobile and desktop.",
-        "Dropdown/overlay surfaces are not clipped by parent containers (e.g., due to `overflow-hidden`) in normal sidebar-open scenarios.",
-        "The layout remains: sidebar/drawer and main content are sibling regions; overlays/backdrops are layered predictably (backdrop below drawer, drawer below dropdown content where applicable)."
+        "On screens <= 768px wide, the sidebar can be fully hidden (0 width or off-canvas) such that the main content uses the full viewport width.",
+        "A menu button is available to open the sidebar when it is hidden, and a clear action exists to close it again.",
+        "Opening the sidebar on mobile does not cause content to be permanently obscured without an obvious close/dismiss interaction.",
+        "On larger screens, current behavior (expanded vs icon-collapsed sidebar) remains functional."
       ]
     },
     {
       "id": "REQ-3",
-      "text": "Ensure the hamburger-triggered mobile navigation and backdrop in `frontend/src/components/layout/AppShell.tsx` do not interfere with click propagation: the backdrop must only be present while the drawer is open; clicking the backdrop closes the drawer; and clicks inside the drawer must not bubble to the backdrop close handler.",
+      "text": "Fix the Life Lessons page so the category/menu options do not overlay and block the videos list; move the categories menu to the top of the screen (as a top filter area) while ensuring the videos are visible and scroll beneath it without being covered (match the problem shown in IMG_2564.png and IMG_2564-1.png).",
       "target": "frontend",
       "source": {
         "messageIds": [
           "msg-4"
         ],
         "quotes": [
-          "Make sure your clickable elements aren’t inside a transparent overlay or a pointer-events: none container."
+          "The menu options still stay in front of the videos in the life lessons tab.",
+          "Make the menu available at the top of the screen for categories so the videos can be seen.",
+          "Reference the image attached to see what is wrong now."
         ]
       },
       "acceptanceCriteria": [
-        "When the mobile drawer is open, tapping/clicking the backdrop closes it reliably.",
-        "When the mobile drawer is open, interacting with items inside the drawer (nav buttons, account dropdown trigger, Settings/Guidelines links, Field Mode toggle) does not accidentally trigger backdrop dismissal unless the user actually taps the backdrop.",
-        "When the mobile drawer is closed, it has no hitbox (no click interception) and does not block interaction with main content."
+        "In the Life Lessons page, the filter controls (favorites + category buttons) are positioned at the top and do not obscure the video grid/list while scrolling.",
+        "The first row of videos is fully visible and not hidden behind any sticky filter/header elements.",
+        "No filter/menu element overlaps the video cards on mobile (verified at typical iPhone viewport widths)."
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "Rename the user-facing 'Life Lessons' label to the new name requested by the user across the UI where it appears (page title and sidebar label), while keeping the existing route path '/mental-performance/life-lessons' unchanged.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "Rename life lessons."
+        ]
+      },
+      "acceptanceCriteria": [
+        "The Life Lessons page header no longer displays the old label text.",
+        "The sidebar navigation label for the Life Lessons route reflects the new name.",
+        "The URL path for the page remains '/mental-performance/life-lessons' and navigation to that route continues to work."
       ]
     }
   ],
   "constraints": [
-    "Do not edit files under frontend/src/components/ui (read-only UI component sources).",
-    "Do not modify immutable hook entrypoints: frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx.",
-    "Preserve existing route paths, especially the Life Lessons route path `/mental-performance/life-lessons` (must remain unchanged).",
-    "Keep the existing desktop sidebar behavior (persistent at `md` and above, including current expand/collapse toggle behavior)."
+    "Do not modify any files under frontend/src/components/ui (compose existing components only).",
+    "Do not edit frontend/src/hooks/useInternetIdentity.ts/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, or frontend/src/main.tsx (immutable paths).",
+    "Backend remains single-actor; no backend changes are required for these UI/layout fixes.",
+    "Keep the existing Life Lessons route path '/mental-performance/life-lessons' unchanged."
   ],
   "nonGoals": [
-    "No backend/Motoko changes.",
-    "No new authentication providers or third-party integrations.",
-    "No redesign of page-level content (e.g., changing Life Lessons filtering logic or video dialog behavior) beyond fixing click/event-handling and layering issues."
+    "Adding new video content or changing the motivational video dataset.",
+    "Implementing third-party auth providers or any non-Internet Identity authentication.",
+    "Backend schema changes or migrations for this request."
   ],
   "imageRequirements": {
     "required": [],
     "edits": []
+  },
+  "userProfileUpdate": {
+    "goalsToAdd": [],
+    "goalsToRemove": [],
+    "preferencesToAdd": [],
+    "preferencesToRemove": [],
+    "miscToAdd": [],
+    "miscToRemove": [],
+    "fieldsToSet": {},
+    "fieldsToDelete": []
   }
 }

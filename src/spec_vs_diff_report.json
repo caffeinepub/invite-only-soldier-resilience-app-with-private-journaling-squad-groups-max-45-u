@@ -1,49 +1,18 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-07T22:06:11.006Z",
-  "summary": "Diff shows changes in AppShell navigation logic (auto-close drawer on route change, nav click handling) and global CSS including a Radix dropdown z-index override. However, due to truncation of AppShell.tsx, key acceptance-criteria behaviors around the mobile backdrop/drawer event propagation and the sibling layering model cannot be fully verified from the provided excerpts.",
-  "missing_requirements": [
-    {
-      "id": "REQ-1",
-      "requirement": "Ensure no overlay/backdrop or layout wrapper blocks pointer events on main content when the mobile drawer is closed.",
-      "reason": "The provided AppShell.tsx excerpt is truncated before any drawer/backdrop markup; cannot confirm that no persistent overlay remains mounted or intercepts clicks when closed, nor that layout wrappers avoid pointer-event issues.",
-      "evidence": [
-        "frontend/src/components/layout/AppShell.tsx (truncated)"
-      ]
-    },
-    {
-      "id": "REQ-2",
-      "requirement": "Keep sidebar/drawer and main content as sibling regions and ensure dropdown menu surfaces render above other layers and are not clipped by overflow rules.",
-      "reason": "While a global z-index safeguard for Radix popper content is added, the AppShell.tsx excerpt is truncated before layout structure and any overflow-related containers, so the sibling-region layout and non-clipping behavior cannot be confirmed.",
-      "evidence": [
-        "frontend/src/components/layout/AppShell.tsx (truncated)",
-        "frontend/src/index.css"
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "requirement": "Backdrop only present when drawer is open; clicking backdrop closes drawer; clicks inside drawer do not bubble to backdrop close handler; closed drawer/backdrop has no hitbox.",
-      "reason": "The excerpt shows state and route-change auto-close logic, but does not include the backdrop/drawer JSX or event handlers (e.g., onClick on backdrop, stopPropagation on drawer container), so the specific click-propagation acceptance criteria cannot be verified.",
-      "evidence": [
-        "frontend/src/components/layout/AppShell.tsx (truncated)"
-      ]
-    }
-  ],
-  "hallucinated_features": [
-    {
-      "description": "Global mobile touch-target minimum sizing for all buttons and links (min-height/min-width 44px).",
-      "reason": "Not requested by the BuildRequest, which is focused on drawer/backdrop click interception and dropdown layering, not general touch-target sizing.",
-      "evidence": [
-        "frontend/src/index.css"
-      ]
-    }
-  ],
-  "confidence": 0.62,
+  "generatedAt": "2026-02-08T00:07:10.309Z",
+  "summary": "Diff implements mobile-focused layout safeguards (no horizontal overflow + 44px touch targets), adds a mobile viewport hook, updates AppShell to support a mobile-collapsible/off-canvas sidebar with menu controls (per file summary), fixes Life Lessons page filter/menu to a top sticky header, and renames the Life Lessons label to a centralized display name while keeping the route path unchanged.",
+  "missing_requirements": [],
+  "hallucinated_features": [],
+  "confidence": 0.74,
   "changed_files": [
     "frontend-file-summaries.txt",
     "frontend/src/components/layout/AppShell.tsx",
+    "frontend/src/content/mentalPerformance/lifeLessonsDisplayName.ts",
+    "frontend/src/hooks/useIsMobile.ts",
     "frontend/src/index.css",
+    "frontend/src/pages/MotivationalLifeLessons.tsx",
     "project_state.json"
   ]
 }

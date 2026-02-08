@@ -1,33 +1,26 @@
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { TrendingUp, TrendingDown, Minus, Flame } from 'lucide-react';
-import type { DailyInput } from '../../backend';
-import { getFactorColorClass, getFactorProgressColor, FACTOR_CONFIGS } from '@/utils/readinessSemantics';
+import { Flame } from 'lucide-react';
+import type { LocalDailyInput } from '@/utils/localDataStore';
+import { getFactorColorClass, FACTOR_CONFIGS } from '@/utils/readinessSemantics';
 
 interface ReadinessMeterProps {
-  latestInput: DailyInput | null;
+  latestInput: LocalDailyInput | null;
   streak: number;
 }
 
 export default function ReadinessMeter({ latestInput, streak }: ReadinessMeterProps) {
-  const overallScore = latestInput ? Number(latestInput.overallScore) : 0;
-  const sleepScore = latestInput ? Number(latestInput.sleepScore) : 0;
-  const trainingScore = latestInput ? Number(latestInput.trainingLoadScore) : 0;
-  const stressScore = latestInput ? Number(latestInput.stressScore) : 0;
-  const painScore = latestInput ? Number(latestInput.painScore) : 0;
+  const overallScore = latestInput ? latestInput.overallScore : 0;
+  const sleepScore = latestInput ? latestInput.sleepScore : 0;
+  const trainingScore = latestInput ? latestInput.trainingLoadScore : 0;
+  const stressScore = latestInput ? latestInput.stressScore : 0;
+  const painScore = latestInput ? latestInput.painScore : 0;
 
   const getTier = (score: number): { label: string; color: string } => {
     if (score >= 80) return { label: 'Optimized', color: 'text-green-600 dark:text-green-400' };
     if (score >= 60) return { label: 'Ready', color: 'text-blue-600 dark:text-blue-400' };
     if (score >= 40) return { label: 'Moderate', color: 'text-yellow-600 dark:text-yellow-400' };
     return { label: 'Degraded', color: 'text-red-600 dark:text-red-400' };
-  };
-
-  const getProgressColor = (score: number): string => {
-    if (score >= 80) return 'bg-green-500';
-    if (score >= 60) return 'bg-blue-500';
-    if (score >= 40) return 'bg-yellow-500';
-    return 'bg-red-500';
   };
 
   const tier = getTier(overallScore);

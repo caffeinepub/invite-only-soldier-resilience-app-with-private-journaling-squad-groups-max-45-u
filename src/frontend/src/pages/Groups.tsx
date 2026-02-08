@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { useGetMySquads, useCreateSquadGroup, useJoinSquadGroup } from '../hooks/useQueries';
 import { useSafeActor } from '../hooks/useSafeActor';
+import { parseBackendError } from '../utils/backendError';
+import PageScaffold from '../components/layout/PageScaffold';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Plus, Users, AlertCircle, WifiOff } from 'lucide-react';
 import { toast } from 'sonner';
 import { useNavigate } from '@tanstack/react-router';
@@ -42,7 +44,8 @@ export default function Groups() {
       setNewGroupName('');
       setNewJoinCode('');
     } catch (error: any) {
-      toast.error(error.message || 'Failed to create group');
+      const errorInfo = parseBackendError(error, 'create group');
+      toast.error(errorInfo.message);
     }
   };
 
@@ -58,105 +61,107 @@ export default function Groups() {
       setJoinDialogOpen(false);
       setJoinCode('');
     } catch (error: any) {
-      toast.error(error.message || 'Failed to join group');
+      const errorInfo = parseBackendError(error, 'join group');
+      toast.error(errorInfo.message);
     }
   };
 
+  const actions = (
+    <div className="flex gap-2">
+      <Dialog open={joinDialogOpen} onOpenChange={setJoinDialogOpen}>
+        <DialogTrigger asChild>
+          <Button variant="outline" disabled={backendUnavailable}>
+            Join Group
+          </Button>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Join a Group</DialogTitle>
+            <DialogDescription>Enter the join code shared by the group owner</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="joinCode">Join Code</Label>
+              <Input
+                id="joinCode"
+                value={joinCode}
+                onChange={(e) => setJoinCode(e.target.value)}
+                placeholder="Enter join code..."
+                disabled={joinMutation.isPending}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setJoinDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleJoinGroup} disabled={joinMutation.isPending}>
+              {joinMutation.isPending ? 'Joining...' : 'Join Group'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
+        <DialogTrigger asChild>
+          <Button disabled={backendUnavailable}>
+            <Plus className="h-4 w-4 mr-2" />
+            Create Group
+          </Button>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create New Group</DialogTitle>
+            <DialogDescription>Create a private group and invite members with a join code</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="groupName">Group Name</Label>
+              <Input
+                id="groupName"
+                value={newGroupName}
+                onChange={(e) => setNewGroupName(e.target.value)}
+                placeholder="e.g., Alpha Squad"
+                disabled={createMutation.isPending}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="newJoinCode">Join Code</Label>
+              <Input
+                id="newJoinCode"
+                value={newJoinCode}
+                onChange={(e) => setNewJoinCode(e.target.value)}
+                placeholder="Create a join code..."
+                disabled={createMutation.isPending}
+              />
+              <p className="text-xs text-muted-foreground">
+                Share this code with members you want to invite
+              </p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCreateDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleCreateGroup} disabled={createMutation.isPending}>
+              {createMutation.isPending ? 'Creating...' : 'Create Group'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+
   return (
-    <div className="container max-w-4xl py-8 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Groups</h1>
-          <p className="text-muted-foreground">Connect with fellow soldiers in small groups</p>
-        </div>
-        <div className="flex gap-2">
-          <Dialog open={joinDialogOpen} onOpenChange={setJoinDialogOpen}>
-            <DialogTrigger asChild>
-              <Button variant="outline" disabled={backendUnavailable}>
-                Join Group
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Join a Group</DialogTitle>
-                <DialogDescription>Enter the join code shared by the group owner</DialogDescription>
-              </DialogHeader>
-              <div className="space-y-4 py-4">
-                <div className="space-y-2">
-                  <Label htmlFor="joinCode">Join Code</Label>
-                  <Input
-                    id="joinCode"
-                    value={joinCode}
-                    onChange={(e) => setJoinCode(e.target.value)}
-                    placeholder="Enter join code..."
-                    disabled={joinMutation.isPending}
-                  />
-                </div>
-              </div>
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setJoinDialogOpen(false)}>
-                  Cancel
-                </Button>
-                <Button onClick={handleJoinGroup} disabled={joinMutation.isPending}>
-                  {joinMutation.isPending ? 'Joining...' : 'Join Group'}
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-
-          <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
-            <DialogTrigger asChild>
-              <Button disabled={backendUnavailable}>
-                <Plus className="h-4 w-4 mr-2" />
-                Create Group
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Create New Group</DialogTitle>
-                <DialogDescription>Create a private group and invite members with a join code</DialogDescription>
-              </DialogHeader>
-              <div className="space-y-4 py-4">
-                <div className="space-y-2">
-                  <Label htmlFor="groupName">Group Name</Label>
-                  <Input
-                    id="groupName"
-                    value={newGroupName}
-                    onChange={(e) => setNewGroupName(e.target.value)}
-                    placeholder="e.g., Alpha Squad"
-                    disabled={createMutation.isPending}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="newJoinCode">Join Code</Label>
-                  <Input
-                    id="newJoinCode"
-                    value={newJoinCode}
-                    onChange={(e) => setNewJoinCode(e.target.value)}
-                    placeholder="Create a join code..."
-                    disabled={createMutation.isPending}
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Share this code with members you want to invite
-                  </p>
-                </div>
-              </div>
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setCreateDialogOpen(false)}>
-                  Cancel
-                </Button>
-                <Button onClick={handleCreateGroup} disabled={createMutation.isPending}>
-                  {createMutation.isPending ? 'Creating...' : 'Create Group'}
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        </div>
-      </div>
-
+    <PageScaffold
+      title="Groups"
+      description="Connect with fellow soldiers in small groups"
+      actions={actions}
+    >
       {backendUnavailable && (
         <Alert>
           <WifiOff className="h-4 w-4" />
+          <AlertTitle>Backend Unavailable</AlertTitle>
           <AlertDescription>
             Groups require backend connectivity. This feature is not available in offline-only mode.
           </AlertDescription>
@@ -200,6 +205,6 @@ export default function Groups() {
           ))}
         </div>
       )}
-    </div>
+    </PageScaffold>
   );
 }

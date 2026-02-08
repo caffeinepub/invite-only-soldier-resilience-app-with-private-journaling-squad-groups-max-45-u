@@ -24,31 +24,12 @@ export const UserProfile = IDL.Record({
   'inviteCode' : IDL.Text,
   'disclaimerStatus' : IDL.Opt(DisclaimerStatus),
 });
-export const DailyInput = IDL.Record({
-  'painScore' : IDL.Nat,
-  'overallScore' : IDL.Nat,
-  'sleepScore' : IDL.Nat,
-  'trainingLoadScore' : IDL.Nat,
-  'stressScore' : IDL.Nat,
-  'timestamp' : Time,
-  'explanations' : IDL.Text,
-});
 
 export const idlService = IDL.Service({
   '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
   'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
-  'calculateReadinessAndStoreToday' : IDL.Func(
-      [IDL.Nat, IDL.Nat, IDL.Nat, IDL.Nat],
-      [IDL.Nat],
-      [],
-    ),
   'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
   'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
-  'getDashboardData' : IDL.Func(
-      [],
-      [IDL.Text, IDL.Opt(DailyInput), IDL.Nat],
-      ['query'],
-    ),
   'getUserProfile' : IDL.Func(
       [IDL.Principal],
       [IDL.Opt(UserProfile)],
@@ -77,31 +58,12 @@ export const idlFactory = ({ IDL }) => {
     'inviteCode' : IDL.Text,
     'disclaimerStatus' : IDL.Opt(DisclaimerStatus),
   });
-  const DailyInput = IDL.Record({
-    'painScore' : IDL.Nat,
-    'overallScore' : IDL.Nat,
-    'sleepScore' : IDL.Nat,
-    'trainingLoadScore' : IDL.Nat,
-    'stressScore' : IDL.Nat,
-    'timestamp' : Time,
-    'explanations' : IDL.Text,
-  });
   
   return IDL.Service({
     '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
     'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
-    'calculateReadinessAndStoreToday' : IDL.Func(
-        [IDL.Nat, IDL.Nat, IDL.Nat, IDL.Nat],
-        [IDL.Nat],
-        [],
-      ),
     'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
     'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
-    'getDashboardData' : IDL.Func(
-        [],
-        [IDL.Text, IDL.Opt(DailyInput), IDL.Nat],
-        ['query'],
-      ),
     'getUserProfile' : IDL.Func(
         [IDL.Principal],
         [IDL.Opt(UserProfile)],

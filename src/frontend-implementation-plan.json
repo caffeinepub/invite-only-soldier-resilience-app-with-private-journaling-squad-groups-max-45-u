@@ -1,58 +1,95 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Fix AppShell layering and pointer-event handling for drawer/backdrop and dropdown menus",
+  "title": "Mobile responsive AppShell, fully hidden mobile sidebar, and Life Lessons filter/header overlay fix + rename",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Remove any closed-drawer/backdrop hitboxes and ensure layout wrappers do not block pointer events for main content interactions.",
+      "summary": "Improve mobile responsiveness across the AppShell layout (sidebar + main content) to prevent overflow, improve spacing, and ensure comfortable touch interactions.",
       "acceptanceCriteria": [
-        "When the mobile drawer is closed, all interactive elements in main content pages (including /mental-performance/life-lessons) are clickable and receive pointer events normally.",
-        "There is no persistent full-screen overlay/backdrop element remaining mounted or intercepting clicks after the drawer closes.",
-        "No parent wrappers added for layout purposes prevent click handlers from firing on nested interactive elements (buttons, links, cards, filter controls)."
+        "On screens <= 768px wide, no horizontal scrolling is required on core pages due to layout overflow.",
+        "Tap targets for navigation controls (menu button, nav icons/links) meet a minimum 44x44px interactive area (consistent with existing mobile touch-target intent in CSS).",
+        "The main content area remains scrollable and usable on mobile; header + navigation do not block access to page content."
       ],
       "file_operations": [
         {
           "path": "frontend/src/components/layout/AppShell.tsx",
           "operation": "modify",
-          "description": "Audit the AppShell layout tree for any fixed/absolute layers that can intercept clicks when the drawer is closed; refactor the mobile drawer/backdrop so that when closed they are fully unmounted (or otherwise guaranteed to have zero hitbox and pointer-event interception), while keeping the existing desktop sidebar behavior unchanged."
+          "description": "Refine AppShell responsive layout so the sidebar/mobile overlay behavior cannot cause horizontal overflow and the main content always uses the full viewport width on small screens; ensure the main scroll container remains usable. Use existing shadcn-ui Button/ScrollArea composition only; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/index.css",
+          "operation": "modify",
+          "description": "Add/adjust global mobile-safe layout safeguards (e.g., preventing unintended horizontal overflow at the root/layout level) while keeping the existing 44x44 mobile touch-target intent intact."
         }
       ]
     },
     {
       "id": "REQ-2",
-      "summary": "Make sidebar/main-content sibling layout predictable and ensure dropdown surfaces render above other layers without overflow clipping.",
+      "summary": "Implement a fully hideable (off-canvas) sidebar mode on mobile with open/close controls and non-obscuring behavior, while preserving the current desktop expanded vs icon-collapsed behavior.",
       "acceptanceCriteria": [
-        "Sidebar dropdown menus (including the existing account dropdown) appear above the sidebar/drawer and main content (effective z-index), and remain clickable on both mobile and desktop.",
-        "Dropdown/overlay surfaces are not clipped by parent containers (e.g., due to `overflow-hidden`) in normal sidebar-open scenarios.",
-        "The layout remains: sidebar/drawer and main content are sibling regions; overlays/backdrops are layered predictably (backdrop below drawer, drawer below dropdown content where applicable)."
+        "On screens <= 768px wide, the sidebar can be fully hidden (0 width or off-canvas) such that the main content uses the full viewport width.",
+        "A menu button is available to open the sidebar when it is hidden, and a clear action exists to close it again.",
+        "Opening the sidebar on mobile does not cause content to be permanently obscured without an obvious close/dismiss interaction.",
+        "On larger screens, current behavior (expanded vs icon-collapsed sidebar) remains functional."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/layout/AppShell.tsx",
-          "operation": "modify",
-          "description": "Adjust AppShell stacking contexts (z-indexes and positioning) so the sidebar and main content remain sibling regions and any overlay/menu layers (drawer, backdrop, dropdowns) stack predictably; ensure dropdown menu triggers/containers are not placed inside overflow-clipping wrappers in a way that prevents interaction."
+          "path": "frontend/src/hooks/useIsMobile.ts",
+          "operation": "create",
+          "description": "Add a small hook that tracks whether the viewport is currently mobile-sized (<=768px) to drive AppShell behavior without duplicating media-query logic in multiple places."
         },
         {
-          "path": "frontend/src/index.css",
+          "path": "frontend/src/components/layout/AppShell.tsx",
           "operation": "modify",
-          "description": "Strengthen global layering safeguards for Radix/shadcn dropdown/popover surfaces so they reliably appear above drawer/backdrop layers (e.g., enforce a high z-index on the Radix popper wrapper) while avoiding changes to files under frontend/src/components/ui."
+          "description": "Update sidebar state logic and layout to support a true off-canvas mobile sidebar (fully hidden when closed), including: a visible menu button when hidden, an overlay/backdrop and click-to-dismiss behavior when open, and preservation of existing desktop expanded vs icon-collapsed behavior. Use existing shadcn-ui Button/ScrollArea/DropdownMenu composition only; verify the component's usage instructions before implementing."
         }
       ]
     },
     {
       "id": "REQ-3",
-      "summary": "Ensure mobile drawer backdrop only exists while open, closes on backdrop click, and drawer interactions never trigger backdrop dismissal.",
+      "summary": "Rework the Life Lessons page header/filter layout so category and favorites filters live at the top without overlaying or blocking the video list while scrolling.",
       "acceptanceCriteria": [
-        "When the mobile drawer is open, tapping/clicking the backdrop closes it reliably.",
-        "When the mobile drawer is open, interacting with items inside the drawer (nav buttons, account dropdown trigger, Settings/Guidelines links, Field Mode toggle) does not accidentally trigger backdrop dismissal unless the user actually taps the backdrop.",
-        "When the mobile drawer is closed, it has no hitbox (no click interception) and does not block interaction with main content."
+        "In the Life Lessons page, the filter controls (favorites + category buttons) are positioned at the top and do not obscure the video grid/list while scrolling.",
+        "The first row of videos is fully visible and not hidden behind any sticky filter/header elements.",
+        "No filter/menu element overlaps the video cards on mobile (verified at typical iPhone viewport widths)."
       ],
       "file_operations": [
         {
+          "path": "frontend/src/pages/MotivationalLifeLessons.tsx",
+          "operation": "modify",
+          "description": "Replace the current multi-sticky header/filter arrangement with a top-of-screen filter area that does not overlap the video grid on mobile (e.g., consolidate into a single sticky header region or make filters non-sticky), ensuring the video list scrolls beneath without being covered. Use existing shadcn-ui Input/Button/Badge composition only; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/index.css",
+          "operation": "modify",
+          "description": "If needed, add a small, page-safe styling safeguard to ensure sticky elements used by the Life Lessons page do not overlap subsequent content on mobile (avoid changes that impact unrelated pages)."
+        }
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "summary": "Rename the user-facing 'Life Lessons' label across the UI (page title and sidebar label) while keeping the route path '/mental-performance/life-lessons' unchanged.",
+      "acceptanceCriteria": [
+        "The Life Lessons page header no longer displays the old label text.",
+        "The sidebar navigation label for the Life Lessons route reflects the new name.",
+        "The URL path for the page remains '/mental-performance/life-lessons' and navigation to that route continues to work."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/content/mentalPerformance/lifeLessonsDisplayName.ts",
+          "operation": "create",
+          "description": "Create a single exported constant for the Life Lessons display name (set to the user-requested new name) so the label is consistent across the UI while keeping the route path unchanged."
+        },
+        {
           "path": "frontend/src/components/layout/AppShell.tsx",
           "operation": "modify",
-          "description": "Refine mobile drawer/backdrop event handling: keep the backdrop mounted only while open and bind dismissal to backdrop interaction; add explicit event-stopping on the drawer container (e.g., onPointerDown/onClick stopPropagation) to prevent any dismissal logic from being triggered by drawer interactions; keep the existing desktop sidebar persistent behavior at md and above."
+          "description": "Update the sidebar navigation item label for '/mental-performance/life-lessons' to use the centralized display-name constant (do not change the route path). Use existing shadcn-ui Button composition only; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/MotivationalLifeLessons.tsx",
+          "operation": "modify",
+          "description": "Update the page header title text to use the centralized display-name constant (do not change the route path). Use existing shadcn-ui composition only; verify the component's usage instructions before implementing."
         }
       ]
     }

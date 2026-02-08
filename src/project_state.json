@@ -1,37 +1,42 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Web app UI with sidebar + main content layout, including a hamburger-triggered dropdown menu; focus on correct click/event handling.",
-  "architectural_notes": [
-    "When adding wrapper flex/grid containers, verify they do not break event propagation or intercept clicks.",
-    "Avoid placing clickable elements under transparent overlays or within containers using pointer-events: none.",
-    "Sidebar/main-content structure: .app-container containing .sidebar (hamburger + dropdown) and .main-content.",
-    "Dropdown menu should be positioned absolutely with high z-index; toggle visibility via an .active class on hamburger click."
+  "summary": "App UI updates focused on mobile optimization, collapsible sidebar navigation, and fixing Life Lessons tab category menu overlay while renaming the tab.",
+  "architectural_notes": [],
+  "known_issues": [
+    "In the Life Lessons tab, menu options/categories are staying in front of (overlaying) the videos, blocking visibility."
   ],
-  "known_issues": [],
   "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-audit-and-fix-event-handling-in-the-main-layout-so-clicks-always-reach-intended-targets-after-introducing-flex-grid-wrappers-or-overlays-specifically-ensure-no-transparent-overlay-fixed-element-or-container-with-unintended-pointer-events-none-blocks-interaction-with-main-content-e-g-life-lessons-video-cards-filters-and-dialogs-when-the-mobile-drawer-is-closed",
-      "title": "Audit and fix event handling in the main layout so clicks always reach intended targets after introducing flex/grid wrappers or overlays. Specifically ensure no transparent overlay, fixed element, or container with unintended `pointer-events: none` blocks interaction with main content (e.g., Life Lessons video cards, filters, and dialogs) when the mobile drawer is closed.",
+      "id": "feature-optimize-the-app-ui-for-mobile-usage-by-improving-responsive-layout-spacing-and-touch-interactions-across-the-appshell-layout-sidebar-main-content-so-primary-navigation-and-page-content-are-comfortable-to-use-on-small-screens",
+      "title": "Optimize the app UI for mobile usage by improving responsive layout, spacing, and touch interactions across the AppShell layout (sidebar + main content) so primary navigation and page content are comfortable to use on small screens.",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     },
     {
-      "id": "feature-update-the-sidebar-main-content-layout-structure-to-follow-a-predictable-container-model-for-overlays-menus-keep-the-sidebar-and-main-content-as-sibling-regions-and-ensure-any-dropdown-menu-surfaces-e-g-account-dropdown-in-the-sidebar-render-above-other-layers-with-an-appropriate-z-index-and-without-being-clipped-by-overflow-rules",
-      "title": "Update the sidebar + main content layout structure to follow a predictable container model for overlays/menus: keep the sidebar and main content as sibling regions and ensure any dropdown menu surfaces (e.g., account dropdown in the sidebar) render above other layers with an appropriate z-index and without being clipped by overflow rules.",
+      "id": "feature-make-the-sidebar-totally-collapsible-on-mobile-provide-a-mode-where-the-sidebar-can-be-fully-hidden-not-occupying-screen-width-and-can-be-opened-closed-via-a-visible-menu-button-ensure-the-sidebar-does-not-permanently-cover-or-squeeze-the-content-on-small-screens",
+      "title": "Make the sidebar totally collapsible on mobile: provide a mode where the sidebar can be fully hidden (not occupying screen width) and can be opened/closed via a visible menu button; ensure the sidebar does not permanently cover or squeeze the content on small screens.",
       "reqIds": [
         "REQ-2"
       ],
       "version": 1
     },
     {
-      "id": "feature-ensure-the-hamburger-triggered-mobile-navigation-and-backdrop-in-frontend-src-components-layout-appshell-tsx-do-not-interfere-with-click-propagation-the-backdrop-must-only-be-present-while-the-drawer-is-open-clicking-the-backdrop-closes-the-drawer-and-clicks-inside-the-drawer-must-not-bubble-to-the-backdrop-close-handler",
-      "title": "Ensure the hamburger-triggered mobile navigation and backdrop in `frontend/src/components/layout/AppShell.tsx` do not interfere with click propagation: the backdrop must only be present while the drawer is open; clicking the backdrop closes the drawer; and clicks inside the drawer must not bubble to the backdrop close handler.",
+      "id": "feature-fix-the-life-lessons-page-so-the-category-menu-options-do-not-overlay-and-block-the-videos-list-move-the-categories-menu-to-the-top-of-the-screen-as-a-top-filter-area-while-ensuring-the-videos-are-visible-and-scroll-beneath-it-without-being-covered-match-the-problem-shown-in-img-2564-png-and-img-2564-1-png",
+      "title": "Fix the Life Lessons page so the category/menu options do not overlay and block the videos list; move the categories menu to the top of the screen (as a top filter area) while ensuring the videos are visible and scroll beneath it without being covered (match the problem shown in IMG_2564.png and IMG_2564-1.png).",
       "reqIds": [
         "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-rename-the-user-facing-life-lessons-label-to-the-new-name-requested-by-the-user-across-the-ui-where-it-appears-page-title-and-sidebar-label-while-keeping-the-existing-route-path-mental-performance-life-lessons-unchanged",
+      "title": "Rename the user-facing 'Life Lessons' label to the new name requested by the user across the UI where it appears (page title and sidebar label), while keeping the existing route path '/mental-performance/life-lessons' unchanged.",
+      "reqIds": [
+        "REQ-4"
       ],
       "version": 1
     }
@@ -39,18 +44,24 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Implement sidebar layout with hamburger button that toggles a dropdown menu (Life Lessons, Mental Performance, Sleep Performance).",
+      "summary": "Optimize the app for mobile usage (responsive layout and mobile-friendly interactions).",
       "reqIds": [],
       "status": "pending"
     },
     {
       "id": "AR-2",
-      "summary": "Ensure proper click/event handling for UI elements (avoid overlays/pointer-events issues; preserve event propagation through wrapper containers).",
+      "summary": "Make the sidebar fully/totally collapsible.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Fix Life Lessons tab: category/menu options overlaying videos; move categories menu to top so videos are visible; rename 'Life Lessons'.",
       "reqIds": [],
       "status": "pending"
     }
   ],
-  "projectName": "Fix sidebar/drawer event handling and ensure dropdown menus remain clickable",
+  "projectName": "Mobile optimization, fully-collapsible sidebar, and fix Life Lessons category menu overlay + rename",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

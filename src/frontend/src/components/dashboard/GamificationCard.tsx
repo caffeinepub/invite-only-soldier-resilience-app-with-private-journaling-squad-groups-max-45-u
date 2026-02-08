@@ -1,130 +1,103 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { Flame, Award, Target } from 'lucide-react';
-import type { DailyInput } from '../../backend';
+import { Trophy, Flame, TrendingUp } from 'lucide-react';
+import type { LocalDailyInput } from '@/utils/localDataStore';
 
 interface GamificationCardProps {
   streak: number;
-  latestInput: DailyInput | null;
+  latestInput: LocalDailyInput | null;
+}
+
+interface BadgeItem {
+  label: string;
+  icon: string;
 }
 
 export default function GamificationCard({ streak, latestInput }: GamificationCardProps) {
-  const overallScore = latestInput ? Number(latestInput.overallScore) : 0;
+  const overallScore = latestInput ? latestInput.overallScore : 0;
 
-  const getTier = (score: number): string => {
-    if (score >= 80) return 'Optimized';
-    if (score >= 60) return 'Ready';
-    if (score >= 40) return 'Moderate';
-    return 'Degraded';
+  const getTier = (score: number): { label: string; color: string; icon: React.ReactNode } => {
+    if (score >= 80) {
+      return {
+        label: 'Elite Operator',
+        color: 'text-green-600 dark:text-green-400',
+        icon: <Trophy className="h-5 w-5 text-green-600 dark:text-green-400" />,
+      };
+    }
+    if (score >= 60) {
+      return {
+        label: 'Mission Ready',
+        color: 'text-blue-600 dark:text-blue-400',
+        icon: <TrendingUp className="h-5 w-5 text-blue-600 dark:text-blue-400" />,
+      };
+    }
+    if (score >= 40) {
+      return {
+        label: 'Building Capacity',
+        color: 'text-yellow-600 dark:text-yellow-400',
+        icon: <TrendingUp className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />,
+      };
+    }
+    return {
+      label: 'Recovery Mode',
+      color: 'text-red-600 dark:text-red-400',
+      icon: <TrendingUp className="h-5 w-5 text-red-600 dark:text-red-400" />,
+    };
   };
 
   const tier = getTier(overallScore);
 
-  const badges = generateBadges(streak, overallScore);
+  const badges: BadgeItem[] = [];
+  if (streak >= 7) badges.push({ label: '7-Day Streak', icon: '🔥' });
+  if (streak >= 21) badges.push({ label: '21-Day Streak', icon: '⚡' });
+  if (overallScore >= 80) badges.push({ label: 'Elite Performance', icon: '🏆' });
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Award className="h-5 w-5 text-primary" />
-          Progress & Achievements
-        </CardTitle>
+        <CardTitle className="text-lg">Performance Status</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-4">
         {/* Current Tier */}
-        <div>
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium">Current Tier</span>
-            <Badge variant="outline" className="font-semibold">
-              {tier}
-            </Badge>
+        <div className="flex items-center gap-3 p-3 rounded-lg border bg-card">
+          {tier.icon}
+          <div className="flex-1">
+            <p className="text-sm font-medium">Current Tier</p>
+            <p className={`text-lg font-bold ${tier.color}`}>{tier.label}</p>
           </div>
-          <Progress value={overallScore} className="h-2" />
         </div>
 
         {/* Streak */}
-        <div className="flex items-center justify-between p-4 rounded-lg bg-muted/50">
-          <div className="flex items-center gap-3">
-            <Flame className="h-6 w-6 text-orange-500" />
-            <div>
+        {streak > 0 && (
+          <div className="flex items-center gap-3 p-3 rounded-lg border bg-card">
+            <Flame className="h-5 w-5 text-orange-500" />
+            <div className="flex-1">
               <p className="text-sm font-medium">Current Streak</p>
-              <p className="text-xs text-muted-foreground">Consecutive high-readiness days</p>
+              <p className="text-lg font-bold">{streak} days</p>
             </div>
           </div>
-          <span className="text-2xl font-bold">{streak}</span>
-        </div>
+        )}
 
         {/* Badges */}
-        <div>
-          <h4 className="text-sm font-medium mb-3 flex items-center gap-2">
-            <Target className="h-4 w-4" />
-            Earned Badges
-          </h4>
+        {badges.length > 0 && (
           <div className="space-y-2">
-            {badges.length === 0 ? (
-              <p className="text-sm text-muted-foreground">Keep logging to earn badges</p>
-            ) : (
-              badges.map((badge, idx) => (
-                <div
-                  key={idx}
-                  className="flex items-center gap-3 p-2 rounded-md bg-muted/30"
-                >
-                  <span className="text-2xl">{badge.icon}</span>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium">{badge.name}</p>
-                    <p className="text-xs text-muted-foreground">{badge.description}</p>
-                  </div>
-                </div>
-              ))
-            )}
+            <p className="text-sm font-medium text-muted-foreground">Earned Badges</p>
+            <div className="flex flex-wrap gap-2">
+              {badges.map((badge, index) => (
+                <Badge key={index} variant="secondary" className="text-xs">
+                  {badge.icon} {badge.label}
+                </Badge>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
+
+        {badges.length === 0 && streak === 0 && (
+          <p className="text-sm text-muted-foreground">
+            Keep logging daily to earn badges and build your streak!
+          </p>
+        )}
       </CardContent>
     </Card>
   );
-}
-
-interface BadgeData {
-  icon: string;
-  name: string;
-  description: string;
-}
-
-function generateBadges(streak: number, overallScore: number): BadgeData[] {
-  const badges: BadgeData[] = [];
-
-  if (streak >= 3) {
-    badges.push({
-      icon: '🔥',
-      name: 'Consistency',
-      description: '3+ day streak',
-    });
-  }
-
-  if (streak >= 7) {
-    badges.push({
-      icon: '⚡',
-      name: 'Week Warrior',
-      description: '7+ day streak',
-    });
-  }
-
-  if (streak >= 21) {
-    badges.push({
-      icon: '💎',
-      name: 'Elite Performer',
-      description: '21+ day streak',
-    });
-  }
-
-  if (overallScore >= 80) {
-    badges.push({
-      icon: '🎯',
-      name: 'Optimized',
-      description: 'Peak readiness achieved',
-    });
-  }
-
-  return badges;
 }
