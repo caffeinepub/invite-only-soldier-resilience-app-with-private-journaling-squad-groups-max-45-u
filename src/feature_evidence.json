@@ -2,10 +2,14 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-add-a-new-schedule-today-section-to-the-app-s-daily-dashboard-page-route-that-contains-a-visible-clickable-link-to-the-provided-google-form-url-https-docs-google-com-forms-d-e-1faipqlsfxpu1-1io77u1jsiyvige65225njq5bruskvnho7c3n-nd2q-viewform",
-      "featureTitle": "Add a new “Schedule today” section to the app’s Daily Dashboard page (route “/”) that contains a visible, clickable link to the provided Google Form URL: https://docs.google.com/forms/d/e/1FAIpQLSfxpu1-1IO77u1JSIYvige65225NJq5bRUSKVnHO7C3N_Nd2Q/viewform",
+      "featureId": "feature-after-publishing-the-current-build-live-on-the-internet-computer-provide-the-live-production-url-as-a-user-facing-link-that-can-be-copied",
+      "featureTitle": "After publishing the current build live on the Internet Computer, provide the live production URL as a user-facing link that can be copied.",
       "files": [
-        "frontend/src/pages/DailyDashboard.tsx"
+        "frontend/src/config/productionUrl.ts",
+        "frontend/src/hooks/useProductionUrl.ts",
+        "frontend/src/pages/SettingsAbout.tsx",
+        "frontend/src/utils/clipboard.ts",
+        "frontend/src/vite-env.d.ts"
       ],
       "components": [
         "authorization@4.0.0",
@@ -17,6 +21,26 @@
       ],
       "testIds": [
         "REQ-1"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-an-in-app-share-surface-e-g-in-settings-about-that-displays-a-qr-code-encoding-the-live-production-url-and-allows-downloading-the-qr-as-an-image",
+      "featureTitle": "Add an in-app share surface (e.g., in Settings/About) that displays a QR code encoding the live production URL and allows downloading the QR as an image.",
+      "files": [
+        "frontend/src/components/share/ShareProductionLinkCard.tsx",
+        "frontend/src/pages/SettingsAbout.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-2"
       ],
       "confidence": "high"
     }

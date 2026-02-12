@@ -1,22 +1,68 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Add “Schedule today” section with external Google Form link on Daily Dashboard",
+  "title": "In-app production URL link + QR share surface",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Add a clearly labeled “Schedule today” section on the Daily Dashboard (/) with a safe external link opening the provided Google Form in a new tab.",
+      "summary": "Expose the live production URL in the UI as a copyable link, sourced from a single configurable frontend location.",
       "acceptanceCriteria": [
-        "On the Daily Dashboard page (frontend/src/pages/DailyDashboard.tsx), there is a clearly labeled section titled “Schedule today”.",
-        "The section includes a clickable link (or button) that opens https://docs.google.com/forms/d/e/1FAIpQLSfxpu1-1IO77u1JSIYvige65225NJq5bRUSKVnHO7C3N_Nd2Q/viewform.",
-        "The link opens in a new browser tab/window and uses safe external-link attributes (e.g., rel=\"noopener noreferrer\" when applicable).",
-        "All user-facing text added for this section is in English."
+        "The app is deployed successfully and loads from a stable production URL.",
+        "The production URL is captured in a single configurable place in the frontend (e.g., env/config) rather than hard-coded across multiple components.",
+        "Users can view the production URL in the UI and copy it to the clipboard with clear success feedback in English."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/DailyDashboard.tsx",
+          "path": "frontend/src/config/productionUrl.ts",
+          "operation": "create",
+          "description": "Create a single-source production URL resolver (prefer a build-time env value, otherwise fall back to deriving from the current location) and export a small API used by the rest of the app."
+        },
+        {
+          "path": "frontend/src/hooks/useProductionUrl.ts",
+          "operation": "create",
+          "description": "Add a React Query hook that resolves the production URL from frontend/src/config/productionUrl.ts and (when backend connectivity exists) can also read the live link via the existing backend capability getLiveLink()."
+        },
+        {
+          "path": "frontend/src/utils/clipboard.ts",
+          "operation": "create",
+          "description": "Add a small clipboard helper for copying text with a safe browser fallback (for environments where navigator.clipboard is unavailable)."
+        },
+        {
+          "path": "frontend/src/pages/SettingsAbout.tsx",
           "operation": "modify",
-          "description": "Add a new UI section titled “Schedule today” within the Daily Dashboard page content. Include a visible, clearly clickable external link (or button-styled anchor) pointing to https://docs.google.com/forms/d/e/1FAIpQLSfxpu1-1IO77u1JSIYvige65225NJq5bRUSKVnHO7C3N_Nd2Q/viewform, opening in a new tab via target=\"_blank\" and using rel=\"noopener noreferrer\" for safe external navigation. Ensure all added text is English and do not embed the form (no iframe) or add new navigation items."
+          "description": "Display the production URL as a user-facing text link with a one-click copy action and English success/error feedback (toast)."
+        },
+        {
+          "path": "frontend/src/vite-env.d.ts",
+          "operation": "modify",
+          "description": "Extend ImportMetaEnv typing to include a single configurable value for the production URL (e.g., VITE_PRODUCTION_URL) used by frontend/src/config/productionUrl.ts."
+        }
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "summary": "Add a share surface in Settings/About that shows a QR code for the production URL and supports downloading the QR as an image.",
+      "acceptanceCriteria": [
+        "A QR code is rendered in the UI that, when scanned, resolves to the production URL from REQ-1.",
+        "The share surface includes a visible text link of the same URL and a one-click copy action.",
+        "Users can download/save the QR code as an image file (e.g., PNG) from the browser.",
+        "All user-facing labels, buttons, and messages are in English."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/package.json",
+          "operation": "modify",
+          "description": "Add a QR code rendering dependency suitable for React (e.g., qrcode.react) to support in-browser QR rendering and canvas export for downloads."
+        },
+        {
+          "path": "frontend/src/components/share/ShareProductionLinkCard.tsx",
+          "operation": "create",
+          "description": "Create a composed share UI card using shadcn-ui components (Card, Button, Input, etc.) that renders a QR code encoding the resolved production URL, provides a visible link + copy action, and supports downloading the QR as a PNG. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/SettingsAbout.tsx",
+          "operation": "modify",
+          "description": "Integrate the new share surface into the existing Settings & About page (no new top-level routes), wiring it to the shared production URL hook and adding English labels, copy feedback, and a QR download button."
         }
       ]
     }

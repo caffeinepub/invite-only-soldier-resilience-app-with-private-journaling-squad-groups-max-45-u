@@ -1,29 +1,47 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-12T16:35:14.077Z",
-  "summary": "REQ-1 appears implemented in Daily Dashboard: a new \"Schedule today\" card with an external link/button to the provided Google Form URL that opens in a new tab with safe rel attributes. Two additional modified files (frontend-file-summaries.txt, project_state.json) were changed without being requested in the BuildRequest.",
-  "missing_requirements": [],
-  "hallucinated_features": [
+  "generatedAt": "2026-02-12T18:29:46.552Z",
+  "summary": "REQ-1 and REQ-2 appear largely implemented via a new Settings/About share card, a single-source production URL config, clipboard copy with toast feedback, and QR rendering + PNG download. However, the diff introduces an external QR-code generation API dependency and backend “liveLink” state / (implied) live-link API that were not requested, and the backend method `getLiveLink()` is not evidenced in the provided backend diff excerpt.",
+  "missing_requirements": [
     {
-      "description": "Updated project tracking metadata (project_state.json) to add/modify feature request entries and summary.",
-      "reason": "BuildRequest only asks for a UI change on the Daily Dashboard page and does not request changes to project metadata/state files.",
+      "id": "REQ-1",
+      "requirement": "The app is deployed successfully and loads from a stable production URL.",
+      "reason": "The diff adds UI/config for a production URL but does not (and cannot, from code diff alone) evidence an actual successful deployment to a stable production URL.",
       "evidence": [
-        "project_state.json"
-      ]
-    },
-    {
-      "description": "Updated repository documentation/summary file (frontend-file-summaries.txt).",
-      "reason": "BuildRequest does not request regenerating or editing file summary documentation; only the Daily Dashboard page needs changes.",
-      "evidence": [
-        "frontend-file-summaries.txt"
+        "frontend/src/config/productionUrl.ts",
+        "frontend/src/components/share/ShareProductionLinkCard.tsx"
       ]
     }
   ],
-  "confidence": 0.78,
+  "hallucinated_features": [
+    {
+      "description": "Uses a third-party QR code generation web service (api.qrserver.com) to generate the QR image.",
+      "reason": "REQ-2 only asks to render a QR code and allow downloading it; it does not request relying on an external QR API service.",
+      "evidence": [
+        "frontend/src/utils/qrcode.ts"
+      ]
+    },
+    {
+      "description": "Adds backend-side 'liveLink' state (and frontend hook logic to fetch `actor.getLiveLink()`), implying a new backend endpoint/feature for retrieving the live link.",
+      "reason": "REQ-1 specifies the production URL should be captured in a single configurable place in the frontend; it does not request adding or depending on a backend-provided live link value.",
+      "evidence": [
+        "backend/main.mo",
+        "frontend/src/hooks/useProductionUrl.ts"
+      ]
+    }
+  ],
+  "confidence": 0.62,
   "changed_files": [
+    "backend/main.mo",
     "frontend-file-summaries.txt",
-    "frontend/src/pages/DailyDashboard.tsx",
+    "frontend/src/components/share/ShareProductionLinkCard.tsx",
+    "frontend/src/config/productionUrl.ts",
+    "frontend/src/hooks/useProductionUrl.ts",
+    "frontend/src/pages/SettingsAbout.tsx",
+    "frontend/src/utils/clipboard.ts",
+    "frontend/src/utils/qrcode.ts",
+    "frontend/src/vite-env.d.ts",
     "project_state.json"
   ]
 }

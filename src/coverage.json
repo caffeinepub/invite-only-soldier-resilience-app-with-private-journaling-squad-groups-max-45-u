@@ -1,35 +1,67 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-12T16:35:14.081Z",
+  "generatedAt": "2026-02-12T18:29:46.556Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 1,
-    "implemented": 1,
+    "total": 2,
+    "implemented": 2,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Add a new “Schedule today” section to the app’s Daily Dashboard page (route “/”) that contains a visible, clickable link to the provided Google Form URL: https://docs.google.com/forms/d/e/1FAIpQLSfxpu1-1IO77u1JSIYvige65225NJq5bRUSKVnHO7C3N_Nd2Q/viewform",
+        "summary": "After publishing the current build live on the Internet Computer, provide the live production URL as a user-facing link that can be copied.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/pages/DailyDashboard.tsx"
+          "frontend/src/config/productionUrl.ts",
+          "frontend/src/hooks/useProductionUrl.ts",
+          "frontend/src/utils/clipboard.ts",
+          "frontend/src/pages/SettingsAbout.tsx",
+          "frontend/src/vite-env.d.ts"
         ],
         "matchedFiles": [
-          "frontend/src/pages/DailyDashboard.tsx"
+          "frontend/src/config/productionUrl.ts",
+          "frontend/src/hooks/useProductionUrl.ts",
+          "frontend/src/utils/clipboard.ts",
+          "frontend/src/pages/SettingsAbout.tsx",
+          "frontend/src/vite-env.d.ts"
+        ]
+      },
+      {
+        "id": "REQ-2",
+        "summary": "Add an in-app share surface (e.g., in Settings/About) that displays a QR code encoding the live production URL and allows downloading the QR as an image.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/package.json",
+          "frontend/src/components/share/ShareProductionLinkCard.tsx",
+          "frontend/src/pages/SettingsAbout.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/share/ShareProductionLinkCard.tsx",
+          "frontend/src/pages/SettingsAbout.tsx"
         ]
       }
     ]
   },
   "changedFiles": [
+    "backend/main.mo",
     "build-request.json",
-    "caffeine.lock.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/pages/DailyDashboard.tsx",
+    "frontend/src/backend.d.ts",
+    "frontend/src/backend.ts",
+    "frontend/src/components/share/ShareProductionLinkCard.tsx",
+    "frontend/src/config/productionUrl.ts",
+    "frontend/src/declarations/backend.did.d.ts",
+    "frontend/src/declarations/backend.did.js",
+    "frontend/src/hooks/useProductionUrl.ts",
+    "frontend/src/pages/SettingsAbout.tsx",
+    "frontend/src/utils/clipboard.ts",
+    "frontend/src/utils/qrcode.ts",
+    "frontend/src/vite-env.d.ts",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

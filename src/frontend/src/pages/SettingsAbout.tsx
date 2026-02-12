@@ -9,6 +9,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { resetAllLocalData } from '../utils/localDataStore';
+import { ShareProductionLinkCard } from '../components/share/ShareProductionLinkCard';
 
 export default function SettingsAbout() {
   const { profile, update, reset } = useLocalProfile();
@@ -109,6 +110,8 @@ export default function SettingsAbout() {
           </div>
         </CardContent>
       </Card>
+
+      <ShareProductionLinkCard />
 
       <Card>
         <CardHeader>

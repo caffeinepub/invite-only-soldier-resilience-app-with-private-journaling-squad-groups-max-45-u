@@ -1,38 +1,55 @@
 {
   "kind": "build_request",
-  "title": "Add “Schedule today” section linking to Google Form",
+  "title": "Provide live deployment link and shareable QR code",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Add a new “Schedule today” section to the app’s Daily Dashboard page (route “/”) that contains a visible, clickable link to the provided Google Form URL: https://docs.google.com/forms/d/e/1FAIpQLSfxpu1-1IO77u1JSIYvige65225NJq5bRUSKVnHO7C3N_Nd2Q/viewform",
-      "target": "frontend",
+      "text": "After publishing the current build live on the Internet Computer, provide the live production URL as a user-facing link that can be copied.",
+      "target": "both",
       "source": {
         "messageIds": [
-          "msg-user-schedule-today"
+          "recent-messages"
         ],
         "quotes": [
-          "Make a section Schedule today\n\nIn there add this link:\n\nhttps://docs.google.com/forms/d/e/1FAIpQLSfxpu1-1IO77u1JSIYvige65225NJq5bRUSKVnHO7C3N_Nd2Q/viewform"
+          "Yes and can you give me a link and qr code"
         ]
       },
       "acceptanceCriteria": [
-        "On the Daily Dashboard page (frontend/src/pages/DailyDashboard.tsx), there is a clearly labeled section titled “Schedule today”.",
-        "The section includes a clickable link (or button) that opens https://docs.google.com/forms/d/e/1FAIpQLSfxpu1-1IO77u1JSIYvige65225NJq5bRUSKVnHO7C3N_Nd2Q/viewform.",
-        "The link opens in a new browser tab/window and uses safe external-link attributes (e.g., rel=\"noopener noreferrer\" when applicable).",
-        "All user-facing text added for this section is in English."
+        "The app is deployed successfully and loads from a stable production URL.",
+        "The production URL is captured in a single configurable place in the frontend (e.g., env/config) rather than hard-coded across multiple components.",
+        "Users can view the production URL in the UI and copy it to the clipboard with clear success feedback in English."
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "text": "Add an in-app share surface (e.g., in Settings/About) that displays a QR code encoding the live production URL and allows downloading the QR as an image.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "recent-messages"
+        ],
+        "quotes": [
+          "Yes and can you give me a link and qr code"
+        ]
+      },
+      "acceptanceCriteria": [
+        "A QR code is rendered in the UI that, when scanned, resolves to the production URL from REQ-1.",
+        "The share surface includes a visible text link of the same URL and a one-click copy action.",
+        "Users can download/save the QR code as an image file (e.g., PNG) from the browser.",
+        "All user-facing labels, buttons, and messages are in English."
       ]
     }
   ],
   "constraints": [
-    "Do not modify any files under frontend/src/components/ui (read-only UI components).",
-    "Do not edit frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, or frontend/src/main.tsx (immutable paths).",
-    "Backend remains single-actor; no new backend services or external databases."
+    "Backend must remain a single Motoko actor in backend/main.mo; do not introduce additional backend services.",
+    "Do not modify files under frontend/src/components/ui (shadcn) directly; compose components instead.",
+    "Do not edit immutable hook/bootstrap files listed in SYSTEM_CONTEXT (e.g., frontend/src/hooks/useInternetIdentity.ts(x), frontend/src/hooks/useActor.ts, frontend/src/main.tsx)."
   ],
   "nonGoals": [
-    "Adding a new navigation/sidebar item for “Schedule today” (only add the requested section).",
-    "Embedding the Google Form directly inside the app via an iframe.",
-    "Adding authentication, tracking, or analytics for link clicks.",
-    "Any backend changes or persistence related to scheduling."
+    "Adding third-party authentication providers beyond Internet Identity.",
+    "Adding real-time communication features (WebSockets/chat).",
+    "Generating or storing QR codes via the backend canister."
   ],
   "imageRequirements": {
     "required": [],

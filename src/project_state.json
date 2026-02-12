@@ -1,16 +1,24 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "ICP-hosted web app with shareable link/QR code; add a new \"Schedule today\" section linking to a Google Form.",
+  "summary": "New project",
   "architectural_notes": [],
   "known_issues": [],
   "isFixRequest": false,
   "existing_features": [
     {
-      "id": "feature-add-a-new-schedule-today-section-to-the-app-s-daily-dashboard-page-route-that-contains-a-visible-clickable-link-to-the-provided-google-form-url-https-docs-google-com-forms-d-e-1faipqlsfxpu1-1io77u1jsiyvige65225njq5bruskvnho7c3n-nd2q-viewform",
-      "title": "Add a new “Schedule today” section to the app’s Daily Dashboard page (route “/”) that contains a visible, clickable link to the provided Google Form URL: https://docs.google.com/forms/d/e/1FAIpQLSfxpu1-1IO77u1JSIYvige65225NJq5bRUSKVnHO7C3N_Nd2Q/viewform",
+      "id": "feature-after-publishing-the-current-build-live-on-the-internet-computer-provide-the-live-production-url-as-a-user-facing-link-that-can-be-copied",
+      "title": "After publishing the current build live on the Internet Computer, provide the live production URL as a user-facing link that can be copied.",
       "reqIds": [
         "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-an-in-app-share-surface-e-g-in-settings-about-that-displays-a-qr-code-encoding-the-live-production-url-and-allows-downloading-the-qr-as-an-image",
+      "title": "Add an in-app share surface (e.g., in Settings/About) that displays a QR code encoding the live production URL and allows downloading the QR as an image.",
+      "reqIds": [
+        "REQ-2"
       ],
       "version": 1
     }
@@ -18,12 +26,12 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Add a \"Schedule today\" section in the app containing a link to the provided Google Form URL.",
+      "summary": "Provide a deployment link and generate a QR code for the live version",
       "reqIds": [],
       "status": "pending"
     }
   ],
-  "projectName": "Add “Schedule today” section linking to Google Form",
+  "projectName": "Provide live deployment link and shareable QR code",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

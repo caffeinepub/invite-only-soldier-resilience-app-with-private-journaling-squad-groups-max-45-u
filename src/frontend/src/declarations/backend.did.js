@@ -13,7 +13,46 @@ export const UserRole = IDL.Variant({
   'user' : IDL.Null,
   'guest' : IDL.Null,
 });
+export const ReportStatus = IDL.Variant({
+  'resolved' : IDL.Null,
+  'open' : IDL.Null,
+  'inReview' : IDL.Null,
+});
 export const Time = IDL.Int;
+export const Report = IDL.Record({
+  'id' : IDL.Nat,
+  'reportedEntry' : IDL.Opt(IDL.Nat),
+  'status' : ReportStatus,
+  'reportedUser' : IDL.Opt(IDL.Principal),
+  'timestamp' : Time,
+  'details' : IDL.Opt(IDL.Text),
+  'reporter' : IDL.Principal,
+  'reason' : IDL.Text,
+});
+export const DailyInput = IDL.Record({
+  'painScore' : IDL.Nat,
+  'overallScore' : IDL.Nat,
+  'sleepScore' : IDL.Nat,
+  'trainingLoadScore' : IDL.Nat,
+  'stressScore' : IDL.Nat,
+  'timestamp' : Time,
+  'explanations' : IDL.Text,
+});
+export const Journaling = IDL.Record({
+  'id' : IDL.Nat,
+  'title' : IDL.Text,
+  'content' : IDL.Text,
+  'author' : IDL.Principal,
+  'isShared' : IDL.Bool,
+  'squadGroup' : IDL.Opt(IDL.Nat),
+  'timestamp' : Time,
+});
+export const ReadinessState = IDL.Record({
+  'highReadinessDays' : IDL.Nat,
+  'totalInputs' : IDL.Nat,
+  'lastInputTimestamp' : Time,
+  'streakCount' : IDL.Nat,
+});
 export const DisclaimerStatus = IDL.Record({
   'timestamp' : Time,
   'accepted' : IDL.Bool,
@@ -24,19 +63,67 @@ export const UserProfile = IDL.Record({
   'inviteCode' : IDL.Text,
   'disclaimerStatus' : IDL.Opt(DisclaimerStatus),
 });
+export const SquadGroup = IDL.Record({
+  'id' : IDL.Nat,
+  'inviteCreatedAt' : Time,
+  'members' : IDL.Vec(IDL.Principal),
+  'owner' : IDL.Principal,
+  'name' : IDL.Text,
+  'createdAt' : Time,
+  'inviteCode' : IDL.Text,
+});
 
 export const idlService = IDL.Service({
   '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
   'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
+  'createJournalEntry' : IDL.Func(
+      [
+        IDL.Record({
+          'title' : IDL.Text,
+          'content' : IDL.Text,
+          'isShared' : IDL.Bool,
+          'squadGroup' : IDL.Opt(IDL.Nat),
+        }),
+      ],
+      [IDL.Nat],
+      [],
+    ),
+  'createReport' : IDL.Func(
+      [IDL.Opt(IDL.Nat), IDL.Opt(IDL.Principal), IDL.Text, IDL.Opt(IDL.Text)],
+      [IDL.Nat],
+      [],
+    ),
+  'createSquadGroup' : IDL.Func([IDL.Text, IDL.Text], [IDL.Nat], []),
+  'getAllReports' : IDL.Func([], [IDL.Vec(Report)], ['query']),
+  'getCallerDailyInputs' : IDL.Func([], [IDL.Vec(DailyInput)], ['query']),
+  'getCallerJournalEntries' : IDL.Func([], [IDL.Vec(Journaling)], ['query']),
+  'getCallerReadinessState' : IDL.Func(
+      [],
+      [IDL.Opt(ReadinessState)],
+      ['query'],
+    ),
   'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
   'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
+  'getJournalEntry' : IDL.Func([IDL.Nat], [IDL.Opt(Journaling)], ['query']),
+  'getLiveLink' : IDL.Func([], [IDL.Text], ['query']),
+  'getReport' : IDL.Func([IDL.Nat], [IDL.Opt(Report)], ['query']),
+  'getSquadGroup' : IDL.Func([IDL.Nat], [IDL.Opt(SquadGroup)], ['query']),
+  'getUserDailyInputs' : IDL.Func(
+      [IDL.Principal],
+      [IDL.Vec(DailyInput)],
+      ['query'],
+    ),
   'getUserProfile' : IDL.Func(
       [IDL.Principal],
       [IDL.Opt(UserProfile)],
       ['query'],
     ),
   'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+  'joinSquadGroup' : IDL.Func([IDL.Nat, IDL.Text], [], []),
   'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
+  'submitDailyInput' : IDL.Func([DailyInput], [], []),
+  'updateCallerReadinessState' : IDL.Func([ReadinessState], [], []),
+  'updateReportStatus' : IDL.Func([IDL.Nat, ReportStatus], [], []),
 });
 
 export const idlInitArgs = [];
@@ -47,7 +134,46 @@ export const idlFactory = ({ IDL }) => {
     'user' : IDL.Null,
     'guest' : IDL.Null,
   });
+  const ReportStatus = IDL.Variant({
+    'resolved' : IDL.Null,
+    'open' : IDL.Null,
+    'inReview' : IDL.Null,
+  });
   const Time = IDL.Int;
+  const Report = IDL.Record({
+    'id' : IDL.Nat,
+    'reportedEntry' : IDL.Opt(IDL.Nat),
+    'status' : ReportStatus,
+    'reportedUser' : IDL.Opt(IDL.Principal),
+    'timestamp' : Time,
+    'details' : IDL.Opt(IDL.Text),
+    'reporter' : IDL.Principal,
+    'reason' : IDL.Text,
+  });
+  const DailyInput = IDL.Record({
+    'painScore' : IDL.Nat,
+    'overallScore' : IDL.Nat,
+    'sleepScore' : IDL.Nat,
+    'trainingLoadScore' : IDL.Nat,
+    'stressScore' : IDL.Nat,
+    'timestamp' : Time,
+    'explanations' : IDL.Text,
+  });
+  const Journaling = IDL.Record({
+    'id' : IDL.Nat,
+    'title' : IDL.Text,
+    'content' : IDL.Text,
+    'author' : IDL.Principal,
+    'isShared' : IDL.Bool,
+    'squadGroup' : IDL.Opt(IDL.Nat),
+    'timestamp' : Time,
+  });
+  const ReadinessState = IDL.Record({
+    'highReadinessDays' : IDL.Nat,
+    'totalInputs' : IDL.Nat,
+    'lastInputTimestamp' : Time,
+    'streakCount' : IDL.Nat,
+  });
   const DisclaimerStatus = IDL.Record({
     'timestamp' : Time,
     'accepted' : IDL.Bool,
@@ -58,19 +184,67 @@ export const idlFactory = ({ IDL }) => {
     'inviteCode' : IDL.Text,
     'disclaimerStatus' : IDL.Opt(DisclaimerStatus),
   });
+  const SquadGroup = IDL.Record({
+    'id' : IDL.Nat,
+    'inviteCreatedAt' : Time,
+    'members' : IDL.Vec(IDL.Principal),
+    'owner' : IDL.Principal,
+    'name' : IDL.Text,
+    'createdAt' : Time,
+    'inviteCode' : IDL.Text,
+  });
   
   return IDL.Service({
     '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
     'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
+    'createJournalEntry' : IDL.Func(
+        [
+          IDL.Record({
+            'title' : IDL.Text,
+            'content' : IDL.Text,
+            'isShared' : IDL.Bool,
+            'squadGroup' : IDL.Opt(IDL.Nat),
+          }),
+        ],
+        [IDL.Nat],
+        [],
+      ),
+    'createReport' : IDL.Func(
+        [IDL.Opt(IDL.Nat), IDL.Opt(IDL.Principal), IDL.Text, IDL.Opt(IDL.Text)],
+        [IDL.Nat],
+        [],
+      ),
+    'createSquadGroup' : IDL.Func([IDL.Text, IDL.Text], [IDL.Nat], []),
+    'getAllReports' : IDL.Func([], [IDL.Vec(Report)], ['query']),
+    'getCallerDailyInputs' : IDL.Func([], [IDL.Vec(DailyInput)], ['query']),
+    'getCallerJournalEntries' : IDL.Func([], [IDL.Vec(Journaling)], ['query']),
+    'getCallerReadinessState' : IDL.Func(
+        [],
+        [IDL.Opt(ReadinessState)],
+        ['query'],
+      ),
     'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
     'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
+    'getJournalEntry' : IDL.Func([IDL.Nat], [IDL.Opt(Journaling)], ['query']),
+    'getLiveLink' : IDL.Func([], [IDL.Text], ['query']),
+    'getReport' : IDL.Func([IDL.Nat], [IDL.Opt(Report)], ['query']),
+    'getSquadGroup' : IDL.Func([IDL.Nat], [IDL.Opt(SquadGroup)], ['query']),
+    'getUserDailyInputs' : IDL.Func(
+        [IDL.Principal],
+        [IDL.Vec(DailyInput)],
+        ['query'],
+      ),
     'getUserProfile' : IDL.Func(
         [IDL.Principal],
         [IDL.Opt(UserProfile)],
         ['query'],
       ),
     'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+    'joinSquadGroup' : IDL.Func([IDL.Nat, IDL.Text], [], []),
     'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
+    'submitDailyInput' : IDL.Func([DailyInput], [], []),
+    'updateCallerReadinessState' : IDL.Func([ReadinessState], [], []),
+    'updateReportStatus' : IDL.Func([IDL.Nat, ReportStatus], [], []),
   });
 };
 

@@ -4,12 +4,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Moon, TrendingUp, AlertTriangle, Brain, Activity, ArrowRight, Award } from 'lucide-react';
+import { Moon, TrendingUp, Activity, Award } from 'lucide-react';
 import { sleepPerformanceCopy } from '../content/sleepPerformanceCopy';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { formatSleepWindow } from '../utils/sleepPerformance';
 import { useFieldMode } from '../hooks/useFieldMode';
+import LeaderSleepDoctrineModule from '../components/sleepPerformance/LeaderSleepDoctrineModule';
 
 export default function SleepPerformanceDashboard() {
   const navigate = useNavigate();
@@ -158,6 +158,13 @@ export default function SleepPerformanceDashboard() {
             </div>
           </CardContent>
         </Card>
+      )}
+
+      {/* ATP 6-22.5 Leader Sleep Doctrine Module */}
+      {!isFieldMode && (
+        <div className="mb-6">
+          <LeaderSleepDoctrineModule />
+        </div>
       )}
 
       {/* Education Tiles */}

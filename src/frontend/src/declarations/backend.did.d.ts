@@ -10,7 +10,53 @@ import type { ActorMethod } from '@icp-sdk/core/agent';
 import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
+export interface DailyInput {
+  'painScore' : bigint,
+  'overallScore' : bigint,
+  'sleepScore' : bigint,
+  'trainingLoadScore' : bigint,
+  'stressScore' : bigint,
+  'timestamp' : Time,
+  'explanations' : string,
+}
 export interface DisclaimerStatus { 'timestamp' : Time, 'accepted' : boolean }
+export interface Journaling {
+  'id' : bigint,
+  'title' : string,
+  'content' : string,
+  'author' : Principal,
+  'isShared' : boolean,
+  'squadGroup' : [] | [bigint],
+  'timestamp' : Time,
+}
+export interface ReadinessState {
+  'highReadinessDays' : bigint,
+  'totalInputs' : bigint,
+  'lastInputTimestamp' : Time,
+  'streakCount' : bigint,
+}
+export interface Report {
+  'id' : bigint,
+  'reportedEntry' : [] | [bigint],
+  'status' : ReportStatus,
+  'reportedUser' : [] | [Principal],
+  'timestamp' : Time,
+  'details' : [] | [string],
+  'reporter' : Principal,
+  'reason' : string,
+}
+export type ReportStatus = { 'resolved' : null } |
+  { 'open' : null } |
+  { 'inReview' : null };
+export interface SquadGroup {
+  'id' : bigint,
+  'inviteCreatedAt' : Time,
+  'members' : Array<Principal>,
+  'owner' : Principal,
+  'name' : string,
+  'createdAt' : Time,
+  'inviteCode' : string,
+}
 export type Time = bigint;
 export interface UserProfile {
   'username' : string,
@@ -24,11 +70,40 @@ export type UserRole = { 'admin' : null } |
 export interface _SERVICE {
   '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
+  'createJournalEntry' : ActorMethod<
+    [
+      {
+        'title' : string,
+        'content' : string,
+        'isShared' : boolean,
+        'squadGroup' : [] | [bigint],
+      },
+    ],
+    bigint
+  >,
+  'createReport' : ActorMethod<
+    [[] | [bigint], [] | [Principal], string, [] | [string]],
+    bigint
+  >,
+  'createSquadGroup' : ActorMethod<[string, string], bigint>,
+  'getAllReports' : ActorMethod<[], Array<Report>>,
+  'getCallerDailyInputs' : ActorMethod<[], Array<DailyInput>>,
+  'getCallerJournalEntries' : ActorMethod<[], Array<Journaling>>,
+  'getCallerReadinessState' : ActorMethod<[], [] | [ReadinessState]>,
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
+  'getJournalEntry' : ActorMethod<[bigint], [] | [Journaling]>,
+  'getLiveLink' : ActorMethod<[], string>,
+  'getReport' : ActorMethod<[bigint], [] | [Report]>,
+  'getSquadGroup' : ActorMethod<[bigint], [] | [SquadGroup]>,
+  'getUserDailyInputs' : ActorMethod<[Principal], Array<DailyInput>>,
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
+  'joinSquadGroup' : ActorMethod<[bigint, string], undefined>,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
+  'submitDailyInput' : ActorMethod<[DailyInput], undefined>,
+  'updateCallerReadinessState' : ActorMethod<[ReadinessState], undefined>,
+  'updateReportStatus' : ActorMethod<[bigint, ReportStatus], undefined>,
 }
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];
