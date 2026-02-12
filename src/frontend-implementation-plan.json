@@ -1,98 +1,22 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Remove Motivational Videos (Life Lessons) section from frontend",
+  "title": "Add “Schedule today” section with external Google Form link on Daily Dashboard",
   "requirements": [
     {
-      "id": "REQ-5",
-      "summary": "Remove the Motivational Videos / Life Lessons section from primary navigation and eliminate the videos library UI from the app.",
+      "id": "REQ-1",
+      "summary": "Add a clearly labeled “Schedule today” section on the Daily Dashboard (/) with a safe external link opening the provided Google Form in a new tab.",
       "acceptanceCriteria": [
-        "The sidebar navigation in AppShell no longer shows a nav item for the Motivational Videos / Life Lessons section.",
-        "No page in the app renders the motivational videos grid, search, filters, favorites-only toggle, or YouTube player dialog UI.",
-        "The app builds without TypeScript errors after removing the section and any now-unused imports."
+        "On the Daily Dashboard page (frontend/src/pages/DailyDashboard.tsx), there is a clearly labeled section titled “Schedule today”.",
+        "The section includes a clickable link (or button) that opens https://docs.google.com/forms/d/e/1FAIpQLSfxpu1-1IO77u1JSIYvige65225NJq5bRUSKVnHO7C3N_Nd2Q/viewform.",
+        "The link opens in a new browser tab/window and uses safe external-link attributes (e.g., rel=\"noopener noreferrer\" when applicable).",
+        "All user-facing text added for this section is in English."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/layout/AppShell.tsx",
+          "path": "frontend/src/pages/DailyDashboard.tsx",
           "operation": "modify",
-          "description": "Remove the Life Lessons (Motivational Videos) nav item from the sidebar navItems list and delete any now-unused imports/icons associated with it."
-        }
-      ]
-    },
-    {
-      "id": "REQ-6",
-      "summary": "Keep the '/mental-performance/life-lessons' route path stable, but ensure it no longer exposes the motivational videos experience.",
-      "acceptanceCriteria": [
-        "Navigating directly to '/mental-performance/life-lessons' does not show the motivational videos experience.",
-        "The route path string '/mental-performance/life-lessons' remains unchanged in the app routing configuration.",
-        "User-facing text shown on this route (if any) is in English and clearly indicates the section is no longer available, with an obvious way to navigate elsewhere."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/pages/LifeLessonsRemoved.tsx",
-          "operation": "create",
-          "description": "Add a simple removed-section page for '/mental-performance/life-lessons' that explains the section is no longer available and provides clear navigation back to an existing Mental Performance page (e.g., Recommended Reading or IZOF)."
-        },
-        {
-          "path": "frontend/src/App.tsx",
-          "operation": "modify",
-          "description": "Keep the existing route path '/mental-performance/life-lessons' unchanged, but wire it to render the new LifeLessonsRemoved page instead of the motivational videos page; remove the old page import from the router module."
-        }
-      ]
-    },
-    {
-      "id": "REQ-7",
-      "summary": "Delete or fully decommission motivational-video-specific frontend modules, dead code, and progress/localStorage logic that is only used by the removed section.",
-      "acceptanceCriteria": [
-        "The project has no unused imports referencing motivational-video-specific files (e.g., MotivationalLifeLessons page, MotivationalVideoCard, YouTubePlayerDialog, motivationalLifeLessonsVideos content, life lessons progress hook) after the change.",
-        "Any localStorage keys / progress logic used only by the removed section is no longer written to by the app.",
-        "The app runtime has no console errors related to removed motivational-video modules during normal navigation."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/pages/MotivationalLifeLessons.tsx",
-          "operation": "delete",
-          "description": "Delete the motivational videos library page implementation so it cannot be rendered anywhere in the app."
-        },
-        {
-          "path": "frontend/src/components/mentalPerformance/MotivationalVideoCard.tsx",
-          "operation": "delete",
-          "description": "Delete the motivational-video-specific card component (no longer used after section removal)."
-        },
-        {
-          "path": "frontend/src/components/mentalPerformance/YouTubePlayerDialog.tsx",
-          "operation": "delete",
-          "description": "Delete the motivational-video-specific YouTube player dialog component (no longer used after section removal)."
-        },
-        {
-          "path": "frontend/src/hooks/useLifeLessonsProgress.ts",
-          "operation": "delete",
-          "description": "Delete the Life Lessons progress hook so the app no longer reads/writes life-lessons-specific localStorage progress."
-        },
-        {
-          "path": "frontend/src/content/mentalPerformance/motivationalLifeLessonsVideos.ts",
-          "operation": "delete",
-          "description": "Delete the motivational videos dataset/content module since the videos library experience is removed."
-        },
-        {
-          "path": "frontend/src/utils/validateMotivationalVideos.ts",
-          "operation": "delete",
-          "description": "Delete the development-time validator tied to the removed motivational videos dataset."
-        },
-        {
-          "path": "frontend/src/content/mentalPerformance/lifeLessonsDisplayName.ts",
-          "operation": "delete",
-          "description": "Delete the Life Lessons display-name module after removing all references from navigation/routing."
-        },
-        {
-          "path": "frontend/src/types/motivationalVideos.ts",
-          "operation": "delete",
-          "description": "Delete motivational-video-specific type definitions if no longer referenced by any remaining active feature."
-        },
-        {
-          "path": "frontend/src/utils/localDataStore.ts",
-          "operation": "modify",
-          "description": "Remove life-lessons-specific storage key/constants and the Life Lessons progress read/write helpers so the app no longer writes section-specific progress data to localStorage; ensure no remaining imports reference the removed motivational video types."
+          "description": "Add a new UI section titled “Schedule today” within the Daily Dashboard page content. Include a visible, clearly clickable external link (or button-styled anchor) pointing to https://docs.google.com/forms/d/e/1FAIpQLSfxpu1-1IO77u1JSIYvige65225NJq5bRUSKVnHO7C3N_Nd2Q/viewform, opening in a new tab via target=\"_blank\" and using rel=\"noopener noreferrer\" for safe external navigation. Ensure all added text is English and do not embed the form (no iframe) or add new navigation items."
         }
       ]
     }

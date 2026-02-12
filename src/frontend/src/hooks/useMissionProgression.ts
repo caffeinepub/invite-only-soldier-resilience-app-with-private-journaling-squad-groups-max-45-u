@@ -1,170 +1,210 @@
-/**
- * Mission Progression Hook (Local-Only)
- * 
- * Manages mission progression state including XP, ranks, unlockables,
- * mission history, and side quest completion. All data is stored locally
- * and scoped to the device UUID.
- * 
- * Developer notes:
- * - Assessment reward grant pathway: applyMissionResult accepts assessment completion results
- * - Assessment-based unlock rule evaluation: evaluateUnlockRules checks assessment outcomes via useAssessments hook
- * - Reward deduplication: Mission results track completion to prevent duplicate XP grants
- * - Ad-hoc XP grants: grantAdHocXP allows awarding XP from non-mission sources (e.g., Soldier Connect)
- */
-
 import { useState, useEffect } from 'react';
 import { useLocalProfile } from './useLocalProfile';
-import { getLocalReadinessState } from '../utils/localDataStore';
-import type { OperatorProgression, MissionResult, Mission, MissionUnlockRule } from '../types/missions';
-import { getRankFromXP } from '../types/missions';
+import { getReadinessState } from '../utils/localDataStore';
+import type { MissionResult, OperatorProgression } from '../types/missions';
+import { getRankFromXP, RANKS } from '../types/missions';
 
-const STORAGE_KEY_PREFIX = 'dagger-mission-progression-';
-
-function getProgressionKey(localUuid: string): string {
-  return `${STORAGE_KEY_PREFIX}${localUuid}`;
+interface MissionProgressionState {
+  xp: number;
+  rank: string;
+  tier: number;
+  unlockables: string[];
+  missionHistory: MissionResult[];
 }
 
-function loadProgression(localUuid: string): OperatorProgression {
-  if (typeof window === 'undefined') {
-    return { xp: 0, rank: 'Recruit', tier: 0, unlockables: [], missionHistory: [] };
-  }
-  
+function safeLocalStorageGet(key: string): string | null {
   try {
-    const stored = localStorage.getItem(getProgressionKey(localUuid));
-    if (stored) {
-      return JSON.parse(stored);
-    }
-  } catch (error) {
-    console.error('Failed to load mission progression:', error);
+    return localStorage.getItem(key);
+  } catch (e) {
+    console.warn(`localStorage.getItem failed for key ${key}:`, e);
+    return null;
   }
-  
-  return { xp: 0, rank: 'Recruit', tier: 0, unlockables: [], missionHistory: [] };
 }
 
-function saveProgression(localUuid: string, progression: OperatorProgression): void {
-  if (typeof window === 'undefined') return;
-  
+function safeLocalStorageSet(key: string, value: string): void {
   try {
-    localStorage.setItem(getProgressionKey(localUuid), JSON.stringify(progression));
-  } catch (error) {
-    console.error('Failed to save mission progression:', error);
+    localStorage.setItem(key, value);
+  } catch (e) {
+    console.warn(`localStorage.setItem failed for key ${key}:`, e);
   }
+}
+
+function getProgressionState(localUuid: string): MissionProgressionState {
+  const key = `dagger-mission-progression-${localUuid}`;
+  const data = safeLocalStorageGet(key);
+  if (data) {
+    return JSON.parse(data);
+  }
+  return {
+    xp: 0,
+    rank: RANKS[0].name,
+    tier: 0,
+    unlockables: [],
+    missionHistory: [],
+  };
+}
+
+function saveProgressionState(localUuid: string, state: MissionProgressionState): void {
+  const key = `dagger-mission-progression-${localUuid}`;
+  safeLocalStorageSet(key, JSON.stringify(state));
 }
 
 export function useMissionProgression() {
   const { profile } = useLocalProfile();
-  const [progression, setProgression] = useState<OperatorProgression>(() => 
-    loadProgression(profile.localUuid)
-  );
+  const [progression, setProgression] = useState<OperatorProgression>(() => {
+    const state = getProgressionState(profile.localUuid);
+    return {
+      xp: state.xp,
+      rank: state.rank,
+      tier: state.tier,
+      unlockables: state.unlockables,
+      missionHistory: state.missionHistory,
+    };
+  });
 
   useEffect(() => {
-    const loaded = loadProgression(profile.localUuid);
-    setProgression(loaded);
+    const state = getProgressionState(profile.localUuid);
+    setProgression({
+      xp: state.xp,
+      rank: state.rank,
+      tier: state.tier,
+      unlockables: state.unlockables,
+      missionHistory: state.missionHistory,
+    });
   }, [profile.localUuid]);
 
   const applyMissionResult = (result: MissionResult) => {
-    const updated: OperatorProgression = {
-      ...progression,
-      xp: progression.xp + result.xpEarned,
-      missionHistory: [...progression.missionHistory, result],
+    const state = getProgressionState(profile.localUuid);
+    const newXP = state.xp + result.xpEarned;
+    const rankInfo = getRankFromXP(newXP);
+
+    const newUnlockables = [...state.unlockables];
+    result.sideQuestsCompleted.forEach((sqId) => {
+      if (!newUnlockables.includes(sqId)) {
+        newUnlockables.push(sqId);
+      }
+    });
+
+    const newState: MissionProgressionState = {
+      xp: newXP,
+      rank: rankInfo.name,
+      tier: rankInfo.tier,
+      unlockables: newUnlockables,
+      missionHistory: [...state.missionHistory, result],
     };
 
-    // Update rank based on new XP
-    const rankInfo = getRankFromXP(updated.xp);
-    updated.rank = rankInfo.name;
-    updated.tier = rankInfo.tier;
-
-    // Add any new unlockables from side quests
-    const newUnlockables = result.sideQuestsCompleted
-      .map(sqId => `side-quest-${sqId}`)
-      .filter(u => !updated.unlockables.includes(u));
-    updated.unlockables = [...updated.unlockables, ...newUnlockables];
-
-    setProgression(updated);
-    saveProgression(profile.localUuid, updated);
+    saveProgressionState(profile.localUuid, newState);
+    setProgression({
+      xp: newXP,
+      rank: rankInfo.name,
+      tier: rankInfo.tier,
+      unlockables: newState.unlockables,
+      missionHistory: newState.missionHistory,
+    });
   };
 
   const grantAdHocXP = (xp: number, source: string) => {
-    const updated: OperatorProgression = {
-      ...progression,
-      xp: progression.xp + xp,
+    const state = getProgressionState(profile.localUuid);
+    const newXP = state.xp + xp;
+    const rankInfo = getRankFromXP(newXP);
+
+    const adHocResult: MissionResult = {
+      missionId: `adhoc-${Date.now()}`,
+      passed: true,
+      score: xp,
+      maxScore: xp,
+      xpEarned: xp,
+      sideQuestsCompleted: [],
+      completedAt: Date.now(),
+      choices: {},
     };
 
-    // Update rank based on new XP
-    const rankInfo = getRankFromXP(updated.xp);
-    updated.rank = rankInfo.name;
-    updated.tier = rankInfo.tier;
+    const newState: MissionProgressionState = {
+      xp: newXP,
+      rank: rankInfo.name,
+      tier: rankInfo.tier,
+      unlockables: state.unlockables,
+      missionHistory: [...state.missionHistory, adHocResult],
+    };
 
-    setProgression(updated);
-    saveProgression(profile.localUuid, updated);
+    saveProgressionState(profile.localUuid, newState);
+    setProgression({
+      xp: newXP,
+      rank: rankInfo.name,
+      tier: rankInfo.tier,
+      unlockables: newState.unlockables,
+      missionHistory: newState.missionHistory,
+    });
   };
 
-  const getMissionResult = (missionId: string): MissionResult | undefined => {
-    return progression.missionHistory.find(h => h.missionId === missionId);
-  };
-
-  const getMissionScore = (missionId: string): number | undefined => {
-    const result = getMissionResult(missionId);
-    return result ? (result.score / result.maxScore) * 100 : undefined;
-  };
-
-  const evaluateUnlockRules = (rules?: MissionUnlockRule[]): { locked: boolean; reason: string } => {
-    if (!rules || rules.length === 0) {
-      return { locked: false, reason: '' };
+  const grantUnlockable = (unlockableId: string) => {
+    const state = getProgressionState(profile.localUuid);
+    if (state.unlockables.includes(unlockableId)) {
+      return;
     }
 
-    const readinessState = getLocalReadinessState(profile.localUuid);
+    const newState: MissionProgressionState = {
+      ...state,
+      unlockables: [...state.unlockables, unlockableId],
+    };
 
-    for (const rule of rules) {
+    saveProgressionState(profile.localUuid, newState);
+    setProgression({
+      ...progression,
+      unlockables: newState.unlockables,
+    });
+  };
+
+  const hasUnlockable = (unlockableId: string): boolean => {
+    return progression.unlockables.includes(unlockableId);
+  };
+
+  const getReadinessStreak = (): number => {
+    const readinessState = getReadinessState(profile.localUuid);
+    return readinessState.streakCount;
+  };
+
+  const rankInfo = getRankFromXP(progression.xp);
+
+  const getMissionResult = (missionId: string): MissionResult | null => {
+    return progression.missionHistory.find(r => r.missionId === missionId) || null;
+  };
+
+  const evaluateUnlockRules = (unlockRules?: any[]): { locked: boolean; reason: string } => {
+    if (!unlockRules || unlockRules.length === 0) return { locked: false, reason: '' };
+    
+    for (const rule of unlockRules) {
       switch (rule.type) {
         case 'rank':
-          if (progression.tier < Number(rule.value)) {
+          if (progression.tier < rule.value) {
             return { locked: true, reason: rule.description };
           }
           break;
         case 'streak':
-          if (readinessState.streakCount < Number(rule.value)) {
+          if (getReadinessStreak() < rule.value) {
             return { locked: true, reason: rule.description };
           }
           break;
-        case 'performance': {
-          const [missionId, minScore] = String(rule.value).split(':');
-          const score = getMissionScore(missionId);
-          if (score === undefined || score < Number(minScore)) {
+        case 'mission-complete':
+          if (!getMissionResult(rule.value)) {
             return { locked: true, reason: rule.description };
           }
           break;
-        }
-        case 'mission-complete': {
-          const result = getMissionResult(String(rule.value));
-          if (!result || !result.passed) {
-            return { locked: true, reason: rule.description };
-          }
-          break;
-        }
-        case 'assessment': {
-          // Assessment unlock evaluation is handled by checking local assessment storage
-          // Format: 'assessmentType:outcomePattern' or just 'assessmentType'
-          // This is evaluated by the component using useAssessments hook
-          // For now, we return locked with the description
-          // The actual evaluation happens in the mission card component
-          return { locked: true, reason: rule.description };
-        }
       }
     }
-
+    
     return { locked: false, reason: '' };
   };
-
-  const rankInfo = getRankFromXP(progression.xp);
 
   return {
     progression,
     applyMissionResult,
     grantAdHocXP,
-    getMissionResult,
-    getMissionScore,
-    evaluateUnlockRules,
+    grantUnlockable,
+    hasUnlockable,
+    getReadinessStreak,
     rankInfo,
+    getMissionResult,
+    evaluateUnlockRules,
   };
 }

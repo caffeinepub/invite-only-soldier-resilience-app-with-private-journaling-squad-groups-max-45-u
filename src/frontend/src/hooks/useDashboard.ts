@@ -20,42 +20,25 @@
 import { useLocalDailyInputs, useLocalReadinessState } from './useLocalData';
 import { useLocalProfile } from './useLocalProfile';
 import type { LocalDailyInput } from '../utils/localDataStore';
-import type { DailyInput } from '../backend';
 import { useState } from 'react';
 import { toReadinessValue, selectExplanationByReadiness, FACTOR_CONFIGS } from '../utils/readinessSemantics';
 
-interface DashboardData {
-  explanation: string;
-  latestInput: DailyInput | null;
+interface ReadinessState {
+  latestInput: LocalDailyInput | null;
   streak: number;
+  highReadinessDays: number;
+  totalInputs: number;
 }
 
-export function useDashboardData() {
+export function useGetReadinessState(): ReadinessState {
   const { latest } = useLocalDailyInputs();
   const { state } = useLocalReadinessState();
 
-  // Convert LocalDailyInput to DailyInput (number to bigint)
-  const convertedLatest: DailyInput | null = latest ? {
-    sleepScore: BigInt(latest.sleepScore),
-    trainingLoadScore: BigInt(latest.trainingLoadScore),
-    stressScore: BigInt(latest.stressScore),
-    painScore: BigInt(latest.painScore),
-    overallScore: BigInt(latest.overallScore),
-    explanations: latest.explanations,
-    timestamp: BigInt(latest.timestamp * 1000000), // Convert ms to nanoseconds
-  } : null;
-
-  const data: DashboardData = {
-    explanation: 'All scores are evaluated as percentage of optimized state. Readiness is based on combined factors with streak influence.',
-    latestInput: convertedLatest,
-    streak: state.streakCount,
-  };
-
   return {
-    data,
-    isLoading: false,
-    isError: false,
-    refetch: () => {}, // No-op for local data
+    latestInput: latest,
+    streak: state.streakCount,
+    highReadinessDays: state.highReadinessDays,
+    totalInputs: state.totalInputs,
   };
 }
 

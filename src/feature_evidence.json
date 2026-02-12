@@ -2,10 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-remove-the-motivational-videos-life-lessons-section-from-the-app-ui-so-it-is-no-longer-discoverable-from-primary-navigation-sidebar-and-no-longer-presents-a-videos-library-experience",
-      "featureTitle": "Remove the Motivational Videos / Life Lessons section from the app UI so it is no longer discoverable from primary navigation (sidebar) and no longer presents a videos library experience.",
+      "featureId": "feature-add-a-new-schedule-today-section-to-the-app-s-daily-dashboard-page-route-that-contains-a-visible-clickable-link-to-the-provided-google-form-url-https-docs-google-com-forms-d-e-1faipqlsfxpu1-1io77u1jsiyvige65225njq5bruskvnho7c3n-nd2q-viewform",
+      "featureTitle": "Add a new “Schedule today” section to the app’s Daily Dashboard page (route “/”) that contains a visible, clickable link to the provided Google Form URL: https://docs.google.com/forms/d/e/1FAIpQLSfxpu1-1IO77u1JSIYvige65225NJq5bRUSKVnHO7C3N_Nd2Q/viewform",
       "files": [
-        "frontend/src/components/layout/AppShell.tsx"
+        "frontend/src/pages/DailyDashboard.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -16,54 +16,7 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-5"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-keep-the-existing-route-path-mental-performance-life-lessons-stable-but-ensure-it-no-longer-exposes-the-motivational-videos-section-e-g-redirect-to-a-remaining-mental-performance-page-or-show-a-simple-removed-section-message-with-navigation-back",
-      "featureTitle": "Keep the existing route path '/mental-performance/life-lessons' stable, but ensure it no longer exposes the motivational videos section (e.g., redirect to a remaining Mental Performance page, or show a simple removed-section message with navigation back).",
-      "files": [
-        "frontend/src/App.tsx",
-        "frontend/src/pages/LifeLessonsRemoved.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-6"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-delete-or-fully-decommission-motivational-video-specific-frontend-modules-so-there-is-no-remaining-dead-code-or-unused-assets-for-this-section-page-components-hooks-and-content-unless-they-are-still-referenced-by-other-active-features",
-      "featureTitle": "Delete or fully decommission motivational-video-specific frontend modules so there is no remaining dead code or unused assets for this section (page, components, hooks, and content) unless they are still referenced by other active features.",
-      "files": [
-        "frontend/src/components/mentalPerformance/MotivationalVideoCard.tsx",
-        "frontend/src/components/mentalPerformance/YouTubePlayerDialog.tsx",
-        "frontend/src/content/mentalPerformance/lifeLessonsDisplayName.ts",
-        "frontend/src/content/mentalPerformance/motivationalLifeLessonsVideos.ts",
-        "frontend/src/hooks/useLifeLessonsProgress.ts",
-        "frontend/src/pages/MotivationalLifeLessons.tsx",
-        "frontend/src/types/motivationalVideos.ts",
-        "frontend/src/utils/localDataStore.ts",
-        "frontend/src/utils/validateMotivationalVideos.ts"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-7"
+        "REQ-1"
       ],
       "confidence": "high"
     }

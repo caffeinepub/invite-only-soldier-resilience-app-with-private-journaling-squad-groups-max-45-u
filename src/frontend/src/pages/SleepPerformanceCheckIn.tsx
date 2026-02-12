@@ -50,6 +50,8 @@ export default function SleepPerformanceCheckIn() {
     logSleep({
       sleepStart: start,
       sleepEnd: end,
+      startTime: start,
+      endTime: end,
       duration,
       quality: quality[0],
       painInputs: includePain ? {

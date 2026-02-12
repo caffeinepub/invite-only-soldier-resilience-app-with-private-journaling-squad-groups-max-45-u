@@ -26,7 +26,7 @@
   "frontend/src/utils/backendError.ts": "Backend error parser mapping error messages to user-friendly offline-first guidance with context-aware messaging and actionable suggestions.",
   "frontend/src/components/system/InitWarningBanner.tsx": "Reusable non-blocking warning banner component that displays initialization warnings from useSafeActor with yellow alert styling.",
   "frontend/src/hooks/useActor.ts": "Actor initialization hook that creates backend actor with identity and invalidates dependent queries on actor changes, without any access-control initialization calls.",
-  "frontend/src/pages/DailyDashboard.tsx": "Main dashboard page using PageScaffold for consistent layout, properly wiring useGetReadinessState and useSubmitDailyInput hooks with correct props passed to all child components.",
+  "frontend/src/pages/DailyDashboard.tsx": "Main dashboard page using PageScaffold for consistent layout, properly wiring useGetReadinessState and useSubmitDailyInput hooks with correct props passed to all child components, and includes a new \"Schedule today\" section with an external link to a Google Form opening in a new tab.",
   "frontend/src/hooks/useFieldMode.ts": "Client-persisted hook managing Field Mode toggle state via localStorage to simplify UI across the app.",
   "frontend/src/hooks/useOnlineStatus.ts": "Hook detecting online/offline network status using navigator.onLine and event listeners for offline support.",
   "frontend/src/hooks/useDashboard.ts": "Dashboard hooks managing local-only daily readiness inputs and streak calculation with useGetReadinessState returning ReadinessState interface containing LocalDailyInput instead of backend DailyInput type.",

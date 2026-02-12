@@ -1,89 +1,29 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-08T01:29:11.369Z",
-  "summary": "The diff removes the Life Lessons nav item from the sidebar and introduces a new removal/placeholder page intended to replace the old experience at the same route. However, motivational-video-specific modules/content/hooks appear to remain in the codebase (and even a new motivational-video validation utility was added), so full decommissioning/cleanup (REQ-7) is not evidenced by the diff summary. The diff also includes substantial unrelated feature work beyond the requested removal.",
-  "missing_requirements": [
-    {
-      "id": "REQ-7",
-      "requirement": "Delete or fully decommission motivational-video-specific frontend modules so there is no remaining dead code or unused assets for this section (page, components, hooks, and content) unless they are still referenced by other active features.",
-      "reason": "Motivational-video-specific files are still present (modified, not removed), and at least one new motivational-videos-related utility file was added, which contradicts decommissioning/removal and suggests leftover code/assets may remain.",
-      "evidence": [
-        "frontend/src/pages/MotivationalLifeLessons.tsx",
-        "frontend/src/components/mentalPerformance/MotivationalVideoCard.tsx",
-        "frontend/src/components/mentalPerformance/YouTubePlayerDialog.tsx",
-        "frontend/src/content/mentalPerformance/motivationalLifeLessonsVideos.ts",
-        "frontend/src/hooks/useLifeLessonsProgress.ts",
-        "frontend/src/types/motivationalVideos.ts",
-        "frontend/src/utils/validateMotivationalVideos.ts"
-      ]
-    }
-  ],
+  "generatedAt": "2026-02-12T16:35:14.077Z",
+  "summary": "REQ-1 appears implemented in Daily Dashboard: a new \"Schedule today\" card with an external link/button to the provided Google Form URL that opens in a new tab with safe rel attributes. Two additional modified files (frontend-file-summaries.txt, project_state.json) were changed without being requested in the BuildRequest.",
+  "missing_requirements": [],
   "hallucinated_features": [
     {
-      "description": "Large refactor/additions around local-only data storage and legacy type scaffolding (journal entries, daily inputs, readiness state, caffeine logs, IZOF entries/settings, personal reports) unrelated to removing the Motivational Videos section.",
-      "reason": "BuildRequest focuses only on removing the Motivational Videos/Life Lessons section; it explicitly states no backend changes are required and has non-goals to avoid changing other sections. The diff shows broad unrelated changes.",
+      "description": "Updated project tracking metadata (project_state.json) to add/modify feature request entries and summary.",
+      "reason": "BuildRequest only asks for a UI change on the Daily Dashboard page and does not request changes to project metadata/state files.",
       "evidence": [
-        "frontend/src/utils/localDataStore.ts",
-        "frontend/src/hooks/useLocalData.ts",
-        "frontend/src/types/legacy.ts"
+        "project_state.json"
       ]
     },
     {
-      "description": "Changes/additions to onboarding flow and public landing page content.",
-      "reason": "Not requested by REQ-5/6/7 and outside the scope of removing a single Mental Performance section.",
+      "description": "Updated repository documentation/summary file (frontend-file-summaries.txt).",
+      "reason": "BuildRequest does not request regenerating or editing file summary documentation; only the Daily Dashboard page needs changes.",
       "evidence": [
-        "frontend/src/components/onboarding/OnboardingFlow.tsx",
-        "frontend/src/pages/PublicLanding.tsx",
-        "frontend/src/content/disclaimer.ts"
-      ]
-    },
-    {
-      "description": "Mission/content updates and new unlock rules in modules content.",
-      "reason": "Not part of removing the Motivational Videos/Life Lessons UI section.",
-      "evidence": [
-        "frontend/src/content/modules.ts"
-      ]
-    },
-    {
-      "description": "Substantial updates to other existing pages/areas (e.g., Journal, Groups/Squads, Admin Reports) not requested and potentially violating the non-goal to not redesign/change other sections.",
-      "reason": "BuildRequest non-goals specify not redesigning/changing other Mental Performance sections and no additional new sections; the diff summary indicates broad page work beyond the removal.",
-      "evidence": [
-        "frontend/src/pages/Journal.tsx",
-        "frontend/src/pages/Squads.tsx",
-        "frontend/src/pages/SquadSharedEntries.tsx",
-        "frontend/src/pages/AdminReports.tsx",
-        "frontend/src/pages/Guidelines.tsx",
-        "frontend/src/pages/SettingsAbout.tsx"
-      ]
-    },
-    {
-      "description": "New/expanded motivational-video-related utility for validation despite the section being removed.",
-      "reason": "REQ-5/6/7 aim to remove/decommission the motivational videos experience; adding new utilities for motivational videos was not requested.",
-      "evidence": [
-        "frontend/src/utils/validateMotivationalVideos.ts"
+        "frontend-file-summaries.txt"
       ]
     }
   ],
-  "confidence": 0.74,
+  "confidence": 0.78,
   "changed_files": [
     "frontend-file-summaries.txt",
-    "frontend/src/App.tsx",
-    "frontend/src/components/layout/AppShell.tsx",
-    "frontend/src/components/mentalPerformance/MotivationalVideoCard.tsx",
-    "frontend/src/components/mentalPerformance/YouTubePlayerDialog.tsx",
-    "frontend/src/content/mentalPerformance/lifeLessonsDisplayName.ts",
-    "frontend/src/content/mentalPerformance/motivationalLifeLessonsVideos.ts",
-    "frontend/src/hooks/useLifeLessonsProgress.ts",
-    "frontend/src/hooks/useLocalData.ts",
-    "frontend/src/pages/IZOF.tsx",
-    "frontend/src/pages/LifeLessonsRemoved.tsx",
-    "frontend/src/pages/MotivationalLifeLessons.tsx",
-    "frontend/src/pages/SleepPerformanceAction.tsx",
-    "frontend/src/types/legacy.ts",
-    "frontend/src/types/motivationalVideos.ts",
-    "frontend/src/utils/localDataStore.ts",
-    "frontend/src/utils/validateMotivationalVideos.ts",
+    "frontend/src/pages/DailyDashboard.tsx",
     "project_state.json"
   ]
 }

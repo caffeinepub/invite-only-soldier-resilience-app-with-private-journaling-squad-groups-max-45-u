@@ -8,8 +8,10 @@ import { useGetReadinessState, useSubmitDailyInput } from '../hooks/useDashboard
 import { useFieldMode } from '../hooks/useFieldMode';
 import { useOnlineStatus } from '../hooks/useOnlineStatus';
 import { useDashboardRefresh } from '../contexts/DashboardRefreshContext';
-import { WifiOff, RefreshCw } from 'lucide-react';
+import { WifiOff, RefreshCw, ExternalLink } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
 
 export default function DailyDashboard() {
@@ -88,6 +90,33 @@ export default function DailyDashboard() {
           />
           <CoachActionsCard latestInput={readinessState.latestInput} />
         </div>
+      </div>
+
+      <div className="mt-8">
+        <Card>
+          <CardHeader>
+            <CardTitle>Schedule today</CardTitle>
+            <CardDescription>
+              Complete your scheduling form
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button
+              asChild
+              className="w-full sm:w-auto"
+            >
+              <a
+                href="https://docs.google.com/forms/d/e/1FAIpQLSfxpu1-1IO77u1JSIYvige65225NJq5bRUSKVnHO7C3N_Nd2Q/viewform"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2"
+              >
+                Open Scheduling Form
+                <ExternalLink className="h-4 w-4" />
+              </a>
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     </PageScaffold>
   );

@@ -10,15 +10,15 @@
 import { useState, useEffect } from 'react';
 import { useLocalProfile } from './useLocalProfile';
 import {
-  getLocalJournals,
-  addLocalJournal,
-  updateLocalJournal,
-  deleteLocalJournal,
-  getLocalDailyInputs,
-  addLocalDailyInput,
-  getLatestLocalDailyInput,
-  getLocalReadinessState,
-  updateLocalReadinessState,
+  getJournals,
+  addJournal,
+  updateJournal,
+  deleteJournal,
+  getDailyInputs,
+  addDailyInput,
+  getLatestDailyInput,
+  getReadinessState,
+  updateReadinessState,
   type LocalJournalEntry,
   type LocalDailyInput,
   type LocalReadinessState,
@@ -29,7 +29,7 @@ export function useLocalJournalEntries() {
   const [entries, setEntries] = useState<LocalJournalEntry[]>([]);
 
   const refresh = () => {
-    setEntries(getLocalJournals(profile.localUuid));
+    setEntries(getJournals(profile.localUuid));
   };
 
   useEffect(() => {
@@ -37,18 +37,18 @@ export function useLocalJournalEntries() {
   }, [profile.localUuid]);
 
   const add = (entry: Omit<LocalJournalEntry, 'id' | 'timestamp'>) => {
-    const newEntry = addLocalJournal(profile.localUuid, entry);
+    const newEntry = addJournal(profile.localUuid, entry);
     refresh();
     return newEntry;
   };
 
   const update = (entryId: string, updates: Partial<Omit<LocalJournalEntry, 'id' | 'timestamp'>>) => {
-    updateLocalJournal(profile.localUuid, entryId, updates);
+    updateJournal(profile.localUuid, entryId, updates);
     refresh();
   };
 
   const remove = (entryId: string) => {
-    deleteLocalJournal(profile.localUuid, entryId);
+    deleteJournal(profile.localUuid, entryId);
     refresh();
   };
 
@@ -63,13 +63,13 @@ export function useLocalJournalEntries() {
 
 export function useLocalDailyInputs() {
   const { profile } = useLocalProfile();
-  const [inputs, setInputs] = useState<Record<string, LocalDailyInput>>({});
+  const [inputs, setInputs] = useState<LocalDailyInput[]>([]);
   const [latest, setLatest] = useState<LocalDailyInput | null>(null);
 
   const refresh = () => {
-    const allInputs = getLocalDailyInputs(profile.localUuid);
+    const allInputs = getDailyInputs(profile.localUuid);
     setInputs(allInputs);
-    setLatest(getLatestLocalDailyInput(profile.localUuid));
+    setLatest(getLatestDailyInput(profile.localUuid));
   };
 
   useEffect(() => {
@@ -77,7 +77,8 @@ export function useLocalDailyInputs() {
   }, [profile.localUuid]);
 
   const add = (input: Omit<LocalDailyInput, 'timestamp'>) => {
-    const newInput = addLocalDailyInput(profile.localUuid, input);
+    const newInput: LocalDailyInput = { ...input, timestamp: Date.now() };
+    addDailyInput(profile.localUuid, newInput);
     refresh();
     return newInput;
   };
@@ -93,11 +94,11 @@ export function useLocalDailyInputs() {
 export function useLocalReadinessState() {
   const { profile } = useLocalProfile();
   const [state, setState] = useState<LocalReadinessState>(() => 
-    getLocalReadinessState(profile.localUuid)
+    getReadinessState(profile.localUuid)
   );
 
   const refresh = () => {
-    setState(getLocalReadinessState(profile.localUuid));
+    setState(getReadinessState(profile.localUuid));
   };
 
   useEffect(() => {
@@ -105,7 +106,8 @@ export function useLocalReadinessState() {
   }, [profile.localUuid]);
 
   const update = (updates: Partial<LocalReadinessState>) => {
-    updateLocalReadinessState(profile.localUuid, updates);
+    const current = getReadinessState(profile.localUuid);
+    updateReadinessState(profile.localUuid, { ...current, ...updates });
     refresh();
   };
 

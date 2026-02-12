@@ -1,32 +1,16 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Project to update/refine the app/site layout, including removing the 'motivational videos' section and optionally refining mobile spacing.",
+  "summary": "ICP-hosted web app with shareable link/QR code; add a new \"Schedule today\" section linking to a Google Form.",
   "architectural_notes": [],
   "known_issues": [],
   "isFixRequest": false,
   "existing_features": [
     {
-      "id": "feature-remove-the-motivational-videos-life-lessons-section-from-the-app-ui-so-it-is-no-longer-discoverable-from-primary-navigation-sidebar-and-no-longer-presents-a-videos-library-experience",
-      "title": "Remove the Motivational Videos / Life Lessons section from the app UI so it is no longer discoverable from primary navigation (sidebar) and no longer presents a videos library experience.",
+      "id": "feature-add-a-new-schedule-today-section-to-the-app-s-daily-dashboard-page-route-that-contains-a-visible-clickable-link-to-the-provided-google-form-url-https-docs-google-com-forms-d-e-1faipqlsfxpu1-1io77u1jsiyvige65225njq5bruskvnho7c3n-nd2q-viewform",
+      "title": "Add a new “Schedule today” section to the app’s Daily Dashboard page (route “/”) that contains a visible, clickable link to the provided Google Form URL: https://docs.google.com/forms/d/e/1FAIpQLSfxpu1-1IO77u1JSIYvige65225NJq5bRUSKVnHO7C3N_Nd2Q/viewform",
       "reqIds": [
-        "REQ-5"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-keep-the-existing-route-path-mental-performance-life-lessons-stable-but-ensure-it-no-longer-exposes-the-motivational-videos-section-e-g-redirect-to-a-remaining-mental-performance-page-or-show-a-simple-removed-section-message-with-navigation-back",
-      "title": "Keep the existing route path '/mental-performance/life-lessons' stable, but ensure it no longer exposes the motivational videos section (e.g., redirect to a remaining Mental Performance page, or show a simple removed-section message with navigation back).",
-      "reqIds": [
-        "REQ-6"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-delete-or-fully-decommission-motivational-video-specific-frontend-modules-so-there-is-no-remaining-dead-code-or-unused-assets-for-this-section-page-components-hooks-and-content-unless-they-are-still-referenced-by-other-active-features",
-      "title": "Delete or fully decommission motivational-video-specific frontend modules so there is no remaining dead code or unused assets for this section (page, components, hooks, and content) unless they are still referenced by other active features.",
-      "reqIds": [
-        "REQ-7"
+        "REQ-1"
       ],
       "version": 1
     }
@@ -34,12 +18,12 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Delete the motivational videos section entirely",
+      "summary": "Add a \"Schedule today\" section in the app containing a link to the provided Google Form URL.",
       "reqIds": [],
       "status": "pending"
     }
   ],
-  "projectName": "Remove Motivational Videos (Life Lessons) section",
+  "projectName": "Add “Schedule today” section linking to Google Form",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }
